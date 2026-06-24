@@ -7,17 +7,27 @@ An interactive, premium, science-backed cardiometabolic health reference site. I
 The project is built entirely on native web standards (HTML5, CSS3, Vanilla JS) and has no compile or build steps.
 
 ### Run Locally
-To run the project locally, you can start a simple static web server using Node:
 
+There are three ways to run this project locally from its directory:
+
+#### Option 1: Double-Click the Starter Script (Windows)
+Simply double-click the **[run.bat](file:///c:/Users/mpalm/Diet-Reference-Website/run.bat)** file. It will:
+- Check for Node.js (via `npx`) or Python to launch a local server on port `8000`.
+- Automatically open the website in your default browser.
+- Fall back to opening the HTML file directly if no server is installed.
+
+#### Option 2: Using npm
+If you have Node.js installed, run:
 ```bash
-# Start server in the project directory
-npx http-server -p 8000
+npm start
 ```
 
-Then, open your browser and navigate to:
-**[http://localhost:8000](http://localhost:8000)**
-
----
+#### Option 3: Manual Server Command
+You can run any local server tool, such as:
+```bash
+npx http-server -p 8000
+```
+Then open **[http://localhost:8000](http://localhost:8000)** in your browser.
 
 ## 🎨 Interactive Features
 
