@@ -1138,12 +1138,21 @@ const store = {
           } as Recipe);
         });
         
+        // Check for missing default recipes
+        let hasMissing = false;
+        defaultRecipes.forEach(recipe => {
+          const existing = items.find(item => item.id === recipe.id);
+          if (!existing) {
+            hasMissing = true;
+          }
+        });
+
         if (items.length === 0) {
           // Self-heal: Database was empty, load defaults and write to cloud Firestore
           defaultRecipes.forEach(async (recipe) => {
             await setDoc(doc(db as any, 'users', uid, 'recipes', recipe.id), recipe);
           });
-        } else if (items.length < defaultRecipes.length) {
+        } else if (hasMissing) {
           // Add missing default recipes
           defaultRecipes.forEach(async (recipe) => {
             const existing = items.find(item => item.id === recipe.id);
@@ -1192,18 +1201,57 @@ const store = {
     } else {
       // Fallback local storage
       const localRecipes = localStorage.getItem('successor_recipes');
+      const order = [
+        'stew', 'bowl', 'parfait', 'salmon', 'superveggie', 'nuttypudding', 'bark',
+        'egg-veggie-noodle-soup', 'gochujang-miso-booster', 'loaded-potato-cottage-cheese-chickpeas',
+        'tofu-veggie-stir-fry-brown-rice', 'lentil-spinach-curry-brown-rice', 'sardine-chickpea-couscous-bowl',
+        'smoky-paprika-marjoram-blade-stew', 'chocolate-buckwheat-protein-bars', 'matts-cheap-super-veggie-variant',
+        'creamy-dijon-chicken-mince', 'chicken-paprikash', 'bread-and-butter-pudding'
+      ];
+      const sortRecipes = (list: Recipe[]) => {
+        list.sort((a, b) => {
+          const idxA = order.indexOf(a.id);
+          const idxB = order.indexOf(b.id);
+          if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+          if (idxA !== -1) return -1;
+          if (idxB !== -1) return 1;
+          return a.title.localeCompare(b.title);
+        });
+      };
+
       if (localRecipes) {
-        this.recipes = JSON.parse(localRecipes).map((r: any) => ({
+        const loaded = JSON.parse(localRecipes);
+        const mapped = loaded.map((r: any) => ({
           ...r,
           liked: r.liked || false,
           pinned: r.pinned || false
         }));
+        
+        let changed = false;
+        defaultRecipes.forEach(defaultRecipe => {
+          const exists = mapped.find((r: any) => r.id === defaultRecipe.id);
+          if (!exists) {
+            mapped.push({
+              ...defaultRecipe,
+              liked: false,
+              pinned: false
+            });
+            changed = true;
+          }
+        });
+        
+        sortRecipes(mapped);
+        this.recipes = mapped;
+        if (changed) {
+          localStorage.setItem('successor_recipes', JSON.stringify(this.recipes));
+        }
       } else {
         this.recipes = defaultRecipes.map(recipe => ({ 
           ...recipe,
           liked: false,
           pinned: false
         }));
+        sortRecipes(this.recipes);
         localStorage.setItem('successor_recipes', JSON.stringify(this.recipes));
       }
 
