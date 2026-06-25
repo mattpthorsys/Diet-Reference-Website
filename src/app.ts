@@ -574,6 +574,15 @@ const store = {
       return;
     }
     
+    // Safety timeout: if emulator auth check hangs (e.g. emulator is offline),
+    // release the loading spinner after 2.0 seconds so the user can choose offline bypass mode.
+    setTimeout(() => {
+      if (this.isCheckingAuth) {
+        console.warn("[Auth] Authentication check timed out. Displaying auth gateway.");
+        this.isCheckingAuth = false;
+      }
+    }, 2000);
+    
     onAuthStateChanged(auth, (firebaseUser: any) => {
       this.isCheckingAuth = false;
       if (firebaseUser) {
@@ -614,7 +623,8 @@ const store = {
       email: "developer@thorsys.com.au",
       displayName: "Offline Developer"
     } as any;
-    this.isFirebaseOnline = false;
+    isFirebaseOnline = false; // Set outer module-level flag to false
+    this.isFirebaseOnline = false; // Set store flag to false
     this.loadDatabaseSyncs();
   },
 
