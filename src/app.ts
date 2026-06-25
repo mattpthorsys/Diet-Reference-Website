@@ -1067,7 +1067,7 @@ const store = {
   },
 
   exportShoppingListToClipboard() {
-    const lines = ["SUCCESSOR HEALTH SHOPPING LIST", "=============================="];
+    const lines = ["SUCCESSOR RECIPE APP SHOPPING LIST", "=================================="];
     const zones = {
       supermarket: "SUPERMARKET (Staples & Cold)",
       greengrocer: "GREENGROCER & MARKET (Fresh Produce)",

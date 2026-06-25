@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Successor Health Hub | PWA Dynamic Reference</title>
-  <meta name="description" content="An interactive database-backed PWA for weight management and cardiometabolic health, secured with Firebase.">
+  <title>Successor Recipe App</title>
+  <meta name="description" content="An interactive database-backed PWA recipe app for weight management and cardiometabolic health, secured with Firebase.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -26,8 +26,8 @@
           <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
         </svg>
       </div>
-      <h2>Successor Health Hub</h2>
-      <p>Secure evidence-based cardiometabolic health portal. Private access restriction is enabled.</p>
+      <h2>Successor Recipe App</h2>
+      <p>Secure evidence-based cardiometabolic recipe application. Private access restriction is enabled.</p>
       
       <button class="btn btn-primary btn-block" @click="store.loginWithGoogle">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" style="margin-right: 8px;">
@@ -60,7 +60,7 @@
           </svg>
         </div>
         <div class="brand-info">
-          <h2>Successor Health</h2>
+          <h2>Successor Recipe App</h2>
           <span>Database Linked</span>
         </div>
       </div>
@@ -147,7 +147,7 @@
       <!-- Top header bar -->
       <header class="top-bar">
         <div class="welcome-text">
-          <h1>Successor Health Reference</h1>
+          <h1>Successor Recipe App</h1>
           <p>Database Connectivity: <span class="sync-status" :class="{ online: store.isFirebaseOnline }">{{ store.isFirebaseOnline ? 'Cloud Synced' : 'Offline Mode' }}</span></p>
         </div>
         <div class="adelaide-badge">

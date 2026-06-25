@@ -1,7 +1,7 @@
 {
-  "name": "Successor Health Hub",
-  "short_name": "Successor Health",
-  "description": "An interactive evidence-based cardiometabolic reference and diet planner.",
+  "name": "Successor Recipe App",
+  "short_name": "Successor Recipe",
+  "description": "An interactive evidence-based cardiometabolic recipe app and diet planner.",
   "start_url": "./index.html",
   "display": "standalone",
   "orientation": "portrait-primary",
