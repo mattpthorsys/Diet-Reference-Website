@@ -78,7 +78,7 @@ interface AuditRow {
 interface Recipe {
   id: string;
   title: string;
-  category: string;
+  category: 'regular' | 'treat' | 'healthy' | 'longevity' | 'protein-dense';
   defaultServings: number;
   intro: string;
   cookingTime: string;
@@ -87,6 +87,9 @@ interface Recipe {
   instructions: string[];
   scienceNotes: string[];
   imgUrl: string;
+  caloriesPerServing: number | { [pathway: string]: number };
+  carbsPerServing: number | { [pathway: string]: number };
+  gi: number | { [pathway: string]: number };
 }
 
 // Base recipes schema structure matching database document templates
@@ -94,12 +97,15 @@ const defaultRecipes: Recipe[] = [
   {
     id: "stew",
     title: "Adapted Dinner Stew",
-    category: "stew",
+    category: "longevity",
     defaultServings: 4,
     intro: "A cheap, high-volume batch stew built around lentils, sweet potato, and firm tofu. Focuses on moist, low-temp cooking to support portion-controlled dietary quality.",
     cookingTime: "45 Mins",
     typeBadge: "Stew",
     imgUrl: "images/stew.png",
+    caloriesPerServing: 280,
+    carbsPerServing: 24,
+    gi: 35,
     ingredients: [
       { name: 'brown or green lentils, dry', qty: 45, unit: 'g', zone: 'bulk', alt: 'generic brown lentils', cupWeight: 180, tbspWeight: 11.5 },
       { name: 'firm tofu, cubed', qty: 75, unit: 'g', zone: 'asian', alt: 'supermarket own-brand firm tofu', cupWeight: 220 },
@@ -133,12 +139,15 @@ const defaultRecipes: Recipe[] = [
   {
     id: "bowl",
     title: "Adapted Lunch Bowl",
-    category: "bowl",
+    category: "healthy",
     defaultServings: 2,
     intro: "A large volume, low energy density lunch. Preserves the original's 'satiety sponge' concept but strips away overclaimed molecular additions like trehalose.",
     cookingTime: "15 Mins",
     typeBadge: "Salad Bowl",
     imgUrl: "images/bowl.png",
+    caloriesPerServing: 310,
+    carbsPerServing: 18,
+    gi: 30,
     ingredients: [
       { name: 'mushrooms, sliced', qty: 200, unit: 'g', zone: 'greengrocer', alt: 'canned sliced mushrooms', cupWeight: 70 },
       { name: 'cucumber, chopped', qty: 0.5, unit: 'large', zone: 'greengrocer', alt: 'local cucumber' },
@@ -167,12 +176,15 @@ const defaultRecipes: Recipe[] = [
   {
     id: "parfait",
     title: "Adapted Breakfast Parfait",
-    category: "parfait",
+    category: "longevity",
     defaultServings: 2,
     intro: "A fiber-packed, slow-digesting overnight breakfast. Offers two evidence-based dietary pathways: Satiety Oats default or a Lower-Carb seeds/nuts configuration.",
     cookingTime: "10 Mins (Overnight)",
     typeBadge: "Breakfast",
     imgUrl: "images/parfait.png",
+    caloriesPerServing: { oats: 290, lowcarb: 370 },
+    carbsPerServing: { oats: 32, lowcarb: 14 },
+    gi: { oats: 45, lowcarb: 25 },
     ingredients: {
       oats: [
         { name: 'rolled or steel-cut oats', qty: 35, unit: 'g', zone: 'bulk', alt: 'supermarket rolled oats', cupWeight: 90, tbspWeight: 6 },
@@ -205,6 +217,146 @@ const defaultRecipes: Recipe[] = [
       "Whole Oats: Contains beta-glucan soluble fiber, heavily supported by clinical trials for glucose regulation and LDL control.",
       "Nuts Caution: Rich in healthy fats, but energy-dense. The recipe strictly portions nuts (20-30g) to prevent accidental caloric overshoot.",
       "Soy/Dairy Yoghurt: Unsweetened yoghurts provide calcium and protein without free sugars, which WHO advises restricting."
+    ]
+  },
+  {
+    id: "salmon",
+    title: "Steamed Salmon & Greens",
+    category: "regular",
+    defaultServings: 2,
+    intro: "A simple, balanced daily meal featuring steamed salmon fillets and high-volume leafy greens. Rich in omega-3 fatty acids and calcium, prioritizing moist cooking to avoid browning carcinogens.",
+    cookingTime: "20 Mins",
+    typeBadge: "Fish & Veg",
+    imgUrl: "images/salmon.png",
+    caloriesPerServing: 380,
+    carbsPerServing: 6,
+    gi: 15,
+    ingredients: [
+      { name: 'salmon fillets, skinless', qty: 240, unit: 'g', zone: 'supermarket', alt: 'frozen salmon portions (thawed)', cupWeight: 200 },
+      { name: 'broccoli or broccolini', qty: 150, unit: 'g', zone: 'greengrocer', alt: 'frozen broccoli florets', cupWeight: 90 },
+      { name: 'bok choy or choy sum', qty: 150, unit: 'g', zone: 'asian', alt: 'cabbage leaves', cupWeight: 70 },
+      { name: 'extra virgin olive oil', qty: 0.5, unit: 'tbsp', zone: 'supermarket', alt: 'standard olive oil', tbspWeight: 14 },
+      { name: 'ginger, sliced', qty: 10, unit: 'g', zone: 'greengrocer', alt: 'ginger powder', tbspWeight: 6 },
+      { name: 'lemon slices', qty: 0.5, unit: 'lemon', zone: 'greengrocer', alt: 'lemon juice' },
+      { name: 'soy sauce or tamari', qty: 1, unit: 'tbsp', zone: 'asian', alt: 'supermarket soy sauce', tbspWeight: 15 }
+    ],
+    instructions: [
+      "Prepare the steamer: Fill a pot or wok with 2 inches of water and bring to a simmer. Arrange ginger slices in the steaming basket.",
+      "Place salmon portions on top of the ginger, then lay lemon slices over each fillet.",
+      "Steam salmon covered for 5 minutes.",
+      "Add the broccoli and bok choy to the steaming basket around the salmon and steam for another 5-6 minutes until vegetables are bright green and tender, and the salmon is cooked through.",
+      "Transfer salmon and greens to serving plates.",
+      "Drizzle with olive oil and soy sauce/tamari. Serve immediately while hot."
+    ],
+    scienceNotes: [
+      "Omega-3 Fatty Acids: Salmon is rich in EPA and DHA, supporting long-term cardiovascular health and lipid management.",
+      "Steam Cooking: Steaming at 100°C completely prevents the formation of Advanced Glycation End-products (AGEs) and heterocyclic amines from high-heat searing.",
+      "High-Volume Greens: Broccoli and bok choy bulk out the meal with water and fiber, stimulating mechanical satiety receptors without carbohydrate load."
+    ]
+  },
+  {
+    id: "bark",
+    title: "Adelaide Dark Cocoa Bark",
+    category: "treat",
+    defaultServings: 6,
+    intro: "A portion-controlled, rich dark chocolate treat using 70%+ cocoa, raw pumpkin seeds, and walnuts. Designed as a budget-conscious, lower-sugar alternative to premium wellness chocolate bars.",
+    cookingTime: "15 Mins + Chill",
+    typeBadge: "Dessert/Treat",
+    imgUrl: "images/bark.png",
+    caloriesPerServing: 165,
+    carbsPerServing: 12,
+    gi: 35,
+    ingredients: [
+      { name: 'dark chocolate (70%+ cocoa solids)', qty: 150, unit: 'g', zone: 'supermarket', alt: 'home brand dark baking chocolate', cupWeight: 140, tbspWeight: 9 },
+      { name: 'pumpkin seeds (pepitas)', qty: 30, unit: 'g', zone: 'bulk', alt: 'sunflower seeds', cupWeight: 130, tbspWeight: 8 },
+      { name: 'walnuts, chopped', qty: 30, unit: 'g', zone: 'bulk', alt: 'peanuts', cupWeight: 110, tbspWeight: 7 },
+      { name: 'flaked sea salt', qty: 0.25, unit: 'tsp', zone: 'supermarket', alt: 'ordinary table salt' }
+    ],
+    instructions: [
+      "Break the dark chocolate into small pieces and place in a heatproof bowl.",
+      "Melt the chocolate using a double boiler (bowl over simmering water) or in short bursts in the microwave, stirring frequently to avoid scorching.",
+      "Line a baking tray with greaseproof paper. Pour the melted chocolate onto the paper and spread it to about 5mm thick.",
+      "Sprinkle the chopped walnuts and pumpkin seeds evenly over the melted chocolate.",
+      "Add a very light sprinkle of flaked sea salt across the top.",
+      "Place the tray in the refrigerator for at least 30 minutes until fully set, then break into 6 even servings."
+    ],
+    scienceNotes: [
+      "Cocoa Polyphenols: 70%+ dark chocolate contains flavonoids that support vascular health, but it remains high in calories and saturated fat.",
+      "Treat Portions: Restricted to a 30g serving to satisfy chocolate cravings without contributing to calorie creep.",
+      "Seed and Nut fats: Healthy fats and fiber lower the glycemic response of the sugars, making it a superior treat to refined milk chocolate."
+    ]
+  },
+  {
+    id: "superveggie",
+    title: "Bryan Johnson's Super Veggie",
+    category: "longevity",
+    defaultServings: 1,
+    intro: "A high-volume, nutrient-dense bowl combining black lentils, broccoli, cauliflower, mushrooms, and healthy fats. Inspired by Bryan Johnson's Blueprint, adapted with local Adelaide ingredients.",
+    cookingTime: "25 Mins",
+    typeBadge: "Veg & Lentils",
+    imgUrl: "images/superveggie.png",
+    caloriesPerServing: 380,
+    carbsPerServing: 20,
+    gi: 35,
+    ingredients: [
+      { name: 'black or brown lentils, dry', qty: 45, unit: 'g', zone: 'bulk', alt: 'generic brown lentils', cupWeight: 180, tbspWeight: 11.5 },
+      { name: 'broccoli, chopped', qty: 250, unit: 'g', zone: 'greengrocer', alt: 'frozen broccoli florets', cupWeight: 90 },
+      { name: 'cauliflower, chopped', qty: 150, unit: 'g', zone: 'greengrocer', alt: 'frozen cauliflower', cupWeight: 100 },
+      { name: 'mushrooms, sliced', qty: 50, unit: 'g', zone: 'greengrocer', alt: 'canned mushrooms', cupWeight: 70 },
+      { name: 'garlic, minced', qty: 1, unit: 'clove', zone: 'greengrocer', alt: 'jar garlic' },
+      { name: 'ginger, minced', qty: 3, unit: 'g', zone: 'greengrocer', alt: 'ginger powder' },
+      { name: 'extra virgin olive oil', qty: 1, unit: 'tbsp', zone: 'supermarket', alt: 'canola oil', tbspWeight: 14 },
+      { name: 'hemp seeds', qty: 1, unit: 'tbsp', zone: 'bulk', alt: 'sesame seeds', tbspWeight: 10 },
+      { name: 'apple cider vinegar', qty: 1, unit: 'tbsp', zone: 'supermarket', alt: 'white vinegar', tbspWeight: 15 },
+      { name: 'fresh lime juice', qty: 1, unit: 'tbsp', zone: 'greengrocer', alt: 'bottled lime juice', tbspWeight: 15 }
+    ],
+    instructions: [
+      "Boil the black/brown lentils in water for about 20 minutes until tender, then drain.",
+      "Steam the broccoli, cauliflower, and mushrooms until tender (approx. 5-7 minutes).",
+      "Sauté the minced garlic and ginger in a small pan with a shadow of water for 1 minute until fragrant.",
+      "Place the cooked lentils and steamed vegetables into a blender or food processor, add the sautéed garlic and ginger, apple cider vinegar, and lime juice. Blend until a thick puree or textured mash forms.",
+      "Transfer the mixture to a serving bowl.",
+      "Drizzle with extra virgin olive oil and sprinkle with hemp seeds before serving."
+    ],
+    scienceNotes: [
+      "High Satiety Index: The high water and fiber content of cruciferous vegetables combined with lentil protein expands in the stomach.",
+      "Sulforaphane Booster: Broccoli and cauliflower provide glucosinolates, which support cellular detoxification pathways.",
+      "Healthy Lipid Profile: Extra virgin olive oil and hemp seeds provide monounsaturated and omega-3 fatty acids."
+    ]
+  },
+  {
+    id: "nuttypudding",
+    title: "Bryan Johnson's Nutty Pudding",
+    category: "longevity",
+    defaultServings: 1,
+    intro: "A delicious, creamy nut and berry puree packed with healthy fats, soluble fiber, and antioxidants. Inspired by Bryan Johnson's Blueprint, scaled with budget substitutions.",
+    cookingTime: "10 Mins",
+    typeBadge: "Nut & Seed Mash",
+    imgUrl: "images/nuttypudding.png",
+    caloriesPerServing: 420,
+    carbsPerServing: 10,
+    gi: 30,
+    ingredients: [
+      { name: 'almond milk or fortified soy drink', qty: 60, unit: 'ml', zone: 'supermarket', alt: 'water', cupWeight: 250 },
+      { name: 'macadamia nuts', qty: 15, unit: 'g', zone: 'bulk', alt: 'peanuts', cupWeight: 130, tbspWeight: 8 },
+      { name: 'walnuts, raw', qty: 15, unit: 'g', zone: 'bulk', alt: 'sunflower seeds', cupWeight: 110, tbspWeight: 7 },
+      { name: 'chia seeds', qty: 1, unit: 'tbsp', zone: 'supermarket', alt: 'flaxseed', cupWeight: 160, tbspWeight: 10 },
+      { name: 'ground flaxseed', qty: 1, unit: 'tbsp', zone: 'supermarket', alt: 'ground linseed', cupWeight: 150, tbspWeight: 7.5 },
+      { name: 'cocoa powder, unsweetened', qty: 1, unit: 'tbsp', zone: 'supermarket', alt: 'omit', tbspWeight: 6 },
+      { name: 'berries (pomegranate, blueberry, raspberry)', qty: 50, unit: 'g', zone: 'supermarket', alt: 'frozen mixed berries', cupWeight: 150 },
+      { name: 'pea or soy protein powder', qty: 10, unit: 'g', zone: 'bulk', alt: 'omit' }
+    ],
+    instructions: [
+      "Add almond milk/soy drink, macadamia nuts, walnuts, chia seeds, ground flaxseed, and cocoa powder into a high-powered blender.",
+      "Blend on high for 1-2 minutes until a completely smooth, pudding-like consistency is achieved.",
+      "Pour the blended nut pudding into a serving glass or bowl.",
+      "Top with the fresh or frozen berries.",
+      "Optionally stir in pea or soy protein powder to increase the protein density."
+    ],
+    scienceNotes: [
+      "Brain-Healthy Fats: Walnuts and macadamias are rich in polyunsaturated and monounsaturated fats supporting cognitive health.",
+      "Antioxidant Rich: Cocoa and berries contain high concentrations of anthocyanins and polyphenols.",
+      "Cardiometabolic Fiber: Chia and flax seeds deliver high amounts of soluble fiber, slowing digestion and smoothing glucose responses."
     ]
   }
 ];
@@ -371,6 +523,17 @@ const store = {
   auditQuery: '',
   auditFilter: 'all',
   
+  // Recipe Search and filter inputs
+  recipeSearch: '',
+  recipeCategory: 'all',
+  recipeMaxCalories: 800,
+  recipeEnergyUnit: 'kcal',
+  
+  // Shopping list Search and filter inputs
+  shoppingSearch: '',
+  shoppingStatus: 'all', // 'all' | 'pending' | 'completed'
+  shoppingZone: 'all',   // 'all' | 'supermarket' | 'greengrocer' | 'bulk' | 'asian'
+  
   // Main Data lists
   recipes: [] as Recipe[],
   shoppingList: [] as ShoppingItem[],
@@ -499,9 +662,17 @@ const store = {
           defaultRecipes.forEach(async (recipe) => {
             await setDoc(doc(db as any, 'users', uid, 'recipes', recipe.id), recipe);
           });
+        } else if (items.length < defaultRecipes.length) {
+          // Add missing default recipes
+          defaultRecipes.forEach(async (recipe) => {
+            const existing = items.find(item => item.id === recipe.id);
+            if (!existing) {
+              await setDoc(doc(db as any, 'users', uid, 'recipes', recipe.id), recipe);
+            }
+          });
         } else {
-          // Sort recipes to keep chronological display: stew, bowl, parfait
-          const order = ['stew', 'bowl', 'parfait'];
+          // Sort recipes to keep structured display
+          const order = ['stew', 'bowl', 'parfait', 'salmon', 'superveggie', 'nuttypudding', 'bark'];
           items.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
           this.recipes = items;
         }
@@ -979,6 +1150,133 @@ const store = {
       const matchesSearch = row.topic.toLowerCase().includes(q) || row.rationale.toLowerCase().includes(q);
       const matchesFilter = this.auditFilter === 'all' || row.evidence === this.auditFilter;
       return matchesSearch && matchesFilter;
+    });
+  },
+
+  /* ====================================
+     Recipe Satiety, Glycemic & Unit Getters & Helpers
+     ==================================== */
+  getRecipeCalories(recipe: Recipe): number {
+    if (!recipe) return 0;
+    if (typeof recipe.caloriesPerServing === 'object') {
+      return recipe.caloriesPerServing[this.parfaitPathway] || 0;
+    }
+    return recipe.caloriesPerServing || 0;
+  },
+
+  getRecipeCarbs(recipe: Recipe): number {
+    if (!recipe) return 0;
+    if (typeof recipe.carbsPerServing === 'object') {
+      return recipe.carbsPerServing[this.parfaitPathway] || 0;
+    }
+    return recipe.carbsPerServing || 0;
+  },
+
+  getRecipeGI(recipe: Recipe): number {
+    if (!recipe) return 0;
+    if (typeof recipe.gi === 'object') {
+      return recipe.gi[this.parfaitPathway] || 0;
+    }
+    return recipe.gi || 0;
+  },
+
+  getRecipeGL(recipe: Recipe): number {
+    const gi = this.getRecipeGI(recipe);
+    const carbs = this.getRecipeCarbs(recipe);
+    return Math.round((gi * carbs) / 10) / 10;
+  },
+
+  formatEnergyVal(recipe: Recipe): string {
+    const kcal = this.getRecipeCalories(recipe);
+    if (this.recipeEnergyUnit === 'kJ') {
+      return `${Math.round(kcal * 4.184)} kJ`;
+    }
+    return `${kcal} kcal`;
+  },
+
+  getGIRating(gi: number): 'low' | 'medium' | 'high' {
+    if (gi <= 55) return 'low';
+    if (gi <= 69) return 'medium';
+    return 'high';
+  },
+
+  getGLRating(gl: number): 'low' | 'medium' | 'high' {
+    if (gl <= 10) return 'low';
+    if (gl <= 19) return 'medium';
+    return 'high';
+  },
+
+  get filteredRecipes(): Recipe[] {
+    const q = this.recipeSearch.toLowerCase().trim();
+    const cat = this.recipeCategory;
+    const maxCal = this.recipeMaxCalories;
+    
+    return this.recipes.filter(recipe => {
+      // 1. Category filter
+      if (cat !== 'all' && recipe.category !== cat) {
+        return false;
+      }
+      
+      // 2. Calories filter (always compared in kcal)
+      const cals = this.getRecipeCalories(recipe);
+      if (cals > maxCal) {
+        return false;
+      }
+      
+      // 3. Search query filter
+      if (q) {
+        const titleMatch = recipe.title.toLowerCase().includes(q);
+        const introMatch = recipe.intro.toLowerCase().includes(q);
+        
+        let ingredientsMatch = false;
+        let ingList: Ingredient[] = [];
+        if (recipe.id === 'parfait') {
+          ingList = (recipe.ingredients[this.parfaitPathway] || []) as Ingredient[];
+        } else {
+          ingList = (recipe.ingredients || []) as Ingredient[];
+        }
+        ingredientsMatch = ingList.some(ing => 
+          ing.name.toLowerCase().includes(q) || (ing.alt && ing.alt.toLowerCase().includes(q))
+        );
+        
+        if (!titleMatch && !introMatch && !ingredientsMatch) {
+          return false;
+        }
+      }
+      
+      return true;
+    });
+  },
+
+  get filteredShoppingItems(): ShoppingItem[] {
+    const q = this.shoppingSearch.toLowerCase().trim();
+    const status = this.shoppingStatus;
+    const zone = this.shoppingZone;
+    
+    return this.shoppingList.filter(item => {
+      // 1. Zone filter
+      if (zone !== 'all' && item.zone !== zone) {
+        return false;
+      }
+      
+      // 2. Status filter
+      if (status === 'pending' && item.checked) {
+        return false;
+      }
+      if (status === 'completed' && !item.checked) {
+        return false;
+      }
+      
+      // 3. Search filter
+      if (q) {
+        const nameMatch = item.name.toLowerCase().includes(q);
+        const qtyMatch = item.qty.toLowerCase().includes(q);
+        if (!nameMatch && !qtyMatch) {
+          return false;
+        }
+      }
+      
+      return true;
     });
   }
 };

@@ -391,10 +391,47 @@
           </div>
         </div>
 
+        <!-- Recipe Filter Panel -->
+        <div class="recipes-filter-panel">
+          <div class="filter-row">
+            <div class="control-group search-group">
+              <label for="recipe-search">Search Recipes:</label>
+              <input type="text" id="recipe-search" placeholder="Search by name or ingredient..." v-model="store.recipeSearch" class="search-input">
+            </div>
+            
+            <div class="control-group">
+              <label for="recipe-category">Category:</label>
+              <select id="recipe-category" v-model="store.recipeCategory" style="width: 160px;">
+                <option value="all">All Categories</option>
+                <option value="regular">Regular Food</option>
+                <option value="treat">Dessert & Treats</option>
+                <option value="healthy">Healthy Baseline</option>
+                <option value="longevity">Longevity-Oriented</option>
+                <option value="protein-dense">Protein-Dense</option>
+              </select>
+            </div>
+
+            <div class="control-group calorie-slider-group">
+              <label for="recipe-calories">Max Calories: <span class="calorie-limit-badge">{{ store.recipeEnergyUnit === 'kcal' ? store.recipeMaxCalories + ' kcal' : Math.round(store.recipeMaxCalories * 4.184) + ' kJ' }}</span></label>
+              <div class="scaler-slider-wrapper">
+                <input type="range" id="recipe-calories" min="150" max="800" step="10" v-model.number="store.recipeMaxCalories">
+              </div>
+            </div>
+
+            <div class="control-group unit-switcher-group">
+              <label>Energy Unit:</label>
+              <div class="unit-toggle-buttons">
+                <button class="btn btn-sm btn-secondary" :class="{ active: store.recipeEnergyUnit === 'kcal' }" @click="store.recipeEnergyUnit = 'kcal'">kcal</button>
+                <button class="btn btn-sm btn-secondary" :class="{ active: store.recipeEnergyUnit === 'kJ' }" @click="store.recipeEnergyUnit = 'kJ'">kJ</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="recipe-cards-container">
           
           <!-- Dynamic Database-Driven Recipe Card -->
-          <div class="recipe-card" v-for="recipe in store.recipes" :id="'recipe-' + recipe.id">
+          <div class="recipe-card" v-for="recipe in store.filteredRecipes" :id="'recipe-' + recipe.id">
             <div class="recipe-img-container">
               <img :src="recipe.imgUrl" :alt="recipe.title">
               <div class="recipe-time">
@@ -405,15 +442,35 @@
                 <span>{{ recipe.cookingTime }}</span>
               </div>
               <div class="recipe-type-badge">{{ recipe.typeBadge }}</div>
+              <div class="recipe-cat-badge" :class="recipe.category">{{ recipe.category.toUpperCase() }}</div>
             </div>
             
             <div class="recipe-body">
               <div class="recipe-header">
                 <h3>{{ recipe.title }}</h3>
+                <span class="recipe-energy-badge">{{ store.formatEnergyVal(recipe) }}</span>
+              </div>
+              <div class="recipe-subheader">
                 <span class="recipe-sub">Serves {{ store.servings }}</span>
               </div>
               <p class="recipe-intro">{{ recipe.intro }}</p>
               
+              <!-- Glycemic index and glycemic load badge row -->
+              <div class="glycemic-metrics">
+                <div class="metric-badge-container">
+                  <span class="metric-label">GI (Index):</span>
+                  <span class="metric-value badge" :class="'badge-' + store.getGIRating(store.getRecipeGI(recipe))">
+                    {{ store.getRecipeGI(recipe) }} - {{ store.getGIRating(store.getRecipeGI(recipe)).toUpperCase() }}
+                  </span>
+                </div>
+                <div class="metric-badge-container">
+                  <span class="metric-label">GL (Load):</span>
+                  <span class="metric-value badge" :class="'badge-' + store.getGLRating(store.getRecipeGL(recipe))">
+                    {{ store.getRecipeGL(recipe) }} - {{ store.getGLRating(store.getRecipeGL(recipe)).toUpperCase() }}
+                  </span>
+                </div>
+              </div>
+
               <!-- Pathway selector only for Breakfast Parfait -->
               <div class="recipe-pathways" v-if="recipe.id === 'parfait'">
                 <button class="pathway-btn" :class="{ active: store.parfaitPathway === 'oats' }" @click="store.parfaitPathway = 'oats'">Satiety Oats (Default)</button>
@@ -468,16 +525,46 @@
             </div>
             <p class="subtitle">Adelaide-localized shopping items. Items automatically adapt in Budget Mode.</p>
             
+            <!-- Shopping List Filters -->
+            <div class="shopping-filter-panel">
+              <div class="filter-row">
+                <div class="control-group search-group">
+                  <label for="shopping-search">Search Items:</label>
+                  <input type="text" id="shopping-search" placeholder="Search shopping list..." v-model="store.shoppingSearch" class="search-input">
+                </div>
+                
+                <div class="control-group">
+                  <label for="shopping-zone">Filter by Store:</label>
+                  <select id="shopping-zone" v-model="store.shoppingZone" style="width: 160px;">
+                    <option value="all">All Stores</option>
+                    <option value="supermarket">Supermarket</option>
+                    <option value="greengrocer">Greengrocer</option>
+                    <option value="bulk">Bulk Shop</option>
+                    <option value="asian">Asian Grocer</option>
+                  </select>
+                </div>
+
+                <div class="control-group status-filter-group">
+                  <label>Status:</label>
+                  <div class="status-toggle-buttons">
+                    <button class="btn btn-sm btn-secondary" :class="{ active: store.shoppingStatus === 'all' }" @click="store.shoppingStatus = 'all'">All</button>
+                    <button class="btn btn-sm btn-secondary" :class="{ active: store.shoppingStatus === 'pending' }" @click="store.shoppingStatus = 'pending'">Pending</button>
+                    <button class="btn btn-sm btn-secondary" :class="{ active: store.shoppingStatus === 'completed' }" @click="store.shoppingStatus = 'completed'">Checked</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div class="shopping-grid">
               
               <!-- Section 1: Major Supermarket -->
-              <div class="shop-section">
+              <div class="shop-section" v-if="store.shoppingZone === 'all' || store.shoppingZone === 'supermarket'">
                 <div class="shop-section-header">
                   <span class="shop-badge supermarket">Supermarket</span>
                   <h4>Staples & Cold Items</h4>
                 </div>
                 <ul class="shop-checklist">
-                  <li class="shop-item-row" v-for="item in store.shoppingList.filter(i => i.zone === 'supermarket')">
+                  <li class="shop-item-row" v-for="item in store.filteredShoppingItems.filter(i => i.zone === 'supermarket')">
                     <label class="shop-item-check">
                       <input type="checkbox" v-model="item.checked" @change="store.toggleShoppingItem(item)">
                       <span>{{ item.name }} ({{ item.qty }})</span>
@@ -486,18 +573,18 @@
                       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                     </button>
                   </li>
-                  <li class="text-center" v-if="store.shoppingList.filter(i => i.zone === 'supermarket').length === 0" style="font-size: 11px; color: var(--text-muted);">No supermarket items.</li>
+                  <li class="text-center" v-if="store.filteredShoppingItems.filter(i => i.zone === 'supermarket').length === 0" style="font-size: 11px; color: var(--text-muted);">No supermarket items.</li>
                 </ul>
               </div>
 
               <!-- Section 2: Greengrocer/Market -->
-              <div class="shop-section">
+              <div class="shop-section" v-if="store.shoppingZone === 'all' || store.shoppingZone === 'greengrocer'">
                 <div class="shop-section-header">
                   <span class="shop-badge market">Greengrocer</span>
                   <h4>Fresh Produce</h4>
                 </div>
                 <ul class="shop-checklist">
-                  <li class="shop-item-row" v-for="item in store.shoppingList.filter(i => i.zone === 'greengrocer')">
+                  <li class="shop-item-row" v-for="item in store.filteredShoppingItems.filter(i => i.zone === 'greengrocer')">
                     <label class="shop-item-check">
                       <input type="checkbox" v-model="item.checked" @change="store.toggleShoppingItem(item)">
                       <span>{{ item.name }} ({{ item.qty }})</span>
@@ -507,18 +594,18 @@
                       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                     </button>
                   </li>
-                  <li class="text-center" v-if="store.shoppingList.filter(i => i.zone === 'greengrocer').length === 0" style="font-size: 11px; color: var(--text-muted);">No fresh produce items.</li>
+                  <li class="text-center" v-if="store.filteredShoppingItems.filter(i => i.zone === 'greengrocer').length === 0" style="font-size: 11px; color: var(--text-muted);">No fresh produce items.</li>
                 </ul>
               </div>
 
               <!-- Section 3: Bulk Shop -->
-              <div class="shop-section">
+              <div class="shop-section" v-if="store.shoppingZone === 'all' || store.shoppingZone === 'bulk'">
                 <div class="shop-section-header">
                   <span class="shop-badge bulk">Bulk Shop</span>
                   <h4>Dry Grains & Spices</h4>
                 </div>
                 <ul class="shop-checklist">
-                  <li class="shop-item-row" v-for="item in store.shoppingList.filter(i => i.zone === 'bulk')">
+                  <li class="shop-item-row" v-for="item in store.filteredShoppingItems.filter(i => i.zone === 'bulk')">
                     <label class="shop-item-check">
                       <input type="checkbox" v-model="item.checked" @change="store.toggleShoppingItem(item)">
                       <span>{{ item.name }} ({{ item.qty }})</span>
@@ -527,18 +614,18 @@
                       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                     </button>
                   </li>
-                  <li class="text-center" v-if="store.shoppingList.filter(i => i.zone === 'bulk').length === 0" style="font-size: 11px; color: var(--text-muted);">No bulk items.</li>
+                  <li class="text-center" v-if="store.filteredShoppingItems.filter(i => i.zone === 'bulk').length === 0" style="font-size: 11px; color: var(--text-muted);">No bulk items.</li>
                 </ul>
               </div>
 
               <!-- Section 4: Asian Grocer -->
-              <div class="shop-section">
+              <div class="shop-section" v-if="store.shoppingZone === 'all' || store.shoppingZone === 'asian'">
                 <div class="shop-section-header">
                   <span class="shop-badge asian">Asian Grocer</span>
                   <h4>Tofu & Seasonings</h4>
                 </div>
                 <ul class="shop-checklist">
-                  <li class="shop-item-row" v-for="item in store.shoppingList.filter(i => i.zone === 'asian')">
+                  <li class="shop-item-row" v-for="item in store.filteredShoppingItems.filter(i => i.zone === 'asian')">
                     <label class="shop-item-check">
                       <input type="checkbox" v-model="item.checked" @change="store.toggleShoppingItem(item)">
                       <span>{{ item.name }} ({{ item.qty }})</span>
@@ -548,7 +635,7 @@
                       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                     </button>
                   </li>
-                  <li class="text-center" v-if="store.shoppingList.filter(i => i.zone === 'asian').length === 0" style="font-size: 11px; color: var(--text-muted);">No Asian grocer items.</li>
+                  <li class="text-center" v-if="store.filteredShoppingItems.filter(i => i.zone === 'asian').length === 0" style="font-size: 11px; color: var(--text-muted);">No Asian grocer items.</li>
                 </ul>
               </div>
 

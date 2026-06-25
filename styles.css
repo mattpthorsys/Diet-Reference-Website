@@ -1939,3 +1939,165 @@ tbody tr:hover {
   color: var(--danger);
 }
 
+/* ==========================================================================
+   Recipe & Shopping List Filtering & Glycemic styling
+   ========================================================================== */
+
+.recipes-filter-panel,
+.shopping-filter-panel {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  padding: 16px 20px;
+  margin-bottom: 24px;
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: flex-end;
+}
+
+.filter-row .control-group {
+  flex: 1 1 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filter-row .control-group.search-group {
+  flex: 2 1 300px;
+}
+
+.filter-row .control-group label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.calorie-limit-badge {
+  background-color: var(--primary-glow);
+  color: var(--primary);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 11px;
+  margin-left: 6px;
+}
+
+.unit-toggle-buttons,
+.status-toggle-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.unit-toggle-buttons button,
+.status-toggle-buttons button {
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: var(--border-radius-sm);
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.unit-toggle-buttons button.active,
+.status-toggle-buttons button.active {
+  background-color: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+}
+
+/* Recipe Category Badge on Image */
+.recipe-cat-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  box-shadow: var(--shadow-sm);
+  z-index: 5;
+}
+
+.recipe-cat-badge.regular {
+  background-color: #3b82f6; /* Blue */
+}
+
+.recipe-cat-badge.treat {
+  background-color: #ec4899; /* Pink */
+}
+
+.recipe-cat-badge.healthy {
+  background-color: #10b981; /* Emerald */
+}
+
+.recipe-cat-badge.longevity {
+  background-color: #f59e0b; /* Amber */
+}
+
+.recipe-cat-badge.protein-dense {
+  background-color: #06b6d4; /* Cyan */
+}
+
+.recipe-energy-badge {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary);
+  background-color: var(--primary-glow);
+  padding: 4px 10px;
+  border-radius: 20px;
+  align-self: center;
+}
+
+.recipe-subheader {
+  margin-top: -4px;
+  margin-bottom: 12px;
+}
+
+/* Glycemic impact metrics style */
+.glycemic-metrics {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.metric-badge-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.metric-label {
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* Badge Low / Med / High */
+.badge-low {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: var(--primary);
+}
+
+.badge-medium {
+  background-color: rgba(245, 158, 11, 0.15);
+  color: var(--secondary);
+}
+
+.badge-high {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: var(--danger);
+}
+

@@ -9,6 +9,10 @@ const ASSETS = [
   './images/stew.png',
   './images/bowl.png',
   './images/parfait.png',
+  './images/salmon.png',
+  './images/bark.png',
+  './images/superveggie.png',
+  './images/nuttypudding.png',
   './manifest.json'
 ];
 
