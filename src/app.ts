@@ -1,32 +1,22 @@
 // @ts-ignore
 import { createApp } from '../lib/petite-vue.js';
 
-// Firebase SDK ES Modules loaded via CDN (gstatic)
-// These will be cached locally by our Service Worker for offline use.
-// @ts-ignore
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-// @ts-ignore
-import { 
-  getAuth, 
-  signInWithPopup, 
-  GoogleAuthProvider, 
-  signOut, 
-  onAuthStateChanged,
-  connectAuthEmulator,
-  User
-} from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
-// @ts-ignore
-import { 
-  getFirestore, 
-  doc, 
-  collection, 
-  onSnapshot, 
-  setDoc, 
-  updateDoc, 
-  deleteDoc, 
-  connectFirestoreEmulator,
-  Firestore
-} from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+let initializeApp: any = null;
+let getAuth: any = null;
+let signInWithPopup: any = null;
+let GoogleAuthProvider: any = null;
+let signOut: any = null;
+let onAuthStateChanged: any = null;
+let connectAuthEmulator: any = null;
+
+let getFirestore: any = null;
+let doc: any = null;
+let collection: any = null;
+let onSnapshot: any = null;
+let setDoc: any = null;
+let updateDoc: any = null;
+let deleteDoc: any = null;
+let connectFirestoreEmulator: any = null;
 
 /* ==========================================================================
    Type Definitions & Interfaces
@@ -457,34 +447,6 @@ let db: any = null;
 let auth: any = null;
 let isFirebaseOnline = false;
 
-// Initialize Firebase with dummy configurations.
-// For local emulators, the configuration details are ignored, so dummy strings work fine.
-const firebaseConfig = {
-  apiKey: "local-emulator-dummy-api-key",
-  authDomain: "successor-health-hub.firebaseapp.com",
-  projectId: "successor-health-hub",
-  storageBucket: "successor-health-hub.appspot.com",
-  messagingSenderId: "12345678",
-  appId: "1:123456:web:1234"
-};
-
-try {
-  const app = initializeApp(firebaseConfig);
-  db = getFirestore(app);
-  auth = getAuth(app);
-  
-  // Detect if running on localhost to automatically route to local emulators
-  if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-    connectAuthEmulator(auth, 'http://localhost:9099');
-    connectFirestoreEmulator(db, 'localhost', 8080);
-    console.log("[Firebase] Successfully connected to local emulators.");
-  }
-  isFirebaseOnline = true;
-} catch (e) {
-  console.warn("[Firebase] Could not initialize. Falling back to offline LocalStorage mode.", e);
-  isFirebaseOnline = false;
-}
-
 /* ==========================================================================
    Petite-Vue Reactive App Store definition
    ========================================================================== */
@@ -546,12 +508,77 @@ const store = {
   timerState: 'idle' as 'idle' | 'running' | 'paused',
 
   // Initialize store bindings and lifecycle events
-  init() {
+  async init() {
     this.loadLocalPreferences();
+    await this.initFirebase();
     this.setupAuthListener();
     this.loadDatabaseSyncs();
     this.updatePlateFromSliders();
     this.startPwaServiceWorker();
+  },
+
+  async initFirebase() {
+    const firebaseConfig = {
+      apiKey: "local-emulator-dummy-api-key",
+      authDomain: "successor-health-hub.firebaseapp.com",
+      projectId: "successor-health-hub",
+      storageBucket: "successor-health-hub.appspot.com",
+      messagingSenderId: "12345678",
+      appId: "1:123456:web:1234"
+    };
+
+    try {
+      // Dynamically load Firebase modules
+      const appMod = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js');
+      initializeApp = appMod.initializeApp;
+
+      const authMod = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js');
+      getAuth = authMod.getAuth;
+      signInWithPopup = authMod.signInWithPopup;
+      GoogleAuthProvider = authMod.GoogleAuthProvider;
+      signOut = authMod.signOut;
+      onAuthStateChanged = authMod.onAuthStateChanged;
+      connectAuthEmulator = authMod.connectAuthEmulator;
+
+      const dbMod = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+      getFirestore = dbMod.getFirestore;
+      doc = dbMod.doc;
+      collection = dbMod.collection;
+      onSnapshot = dbMod.onSnapshot;
+      setDoc = dbMod.setDoc;
+      updateDoc = dbMod.updateDoc;
+      deleteDoc = dbMod.deleteDoc;
+      connectFirestoreEmulator = dbMod.connectFirestoreEmulator;
+
+      const app = initializeApp(firebaseConfig);
+      db = getFirestore(app);
+      auth = getAuth(app);
+      
+      // Detect if running on localhost to automatically route to local emulators
+      if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+        // Quick check to see if emulators are reachable
+        try {
+          await fetch('http://localhost:9099', { method: 'GET', mode: 'no-cors' });
+          connectAuthEmulator(auth, 'http://localhost:9099');
+          connectFirestoreEmulator(db, 'localhost', 8080);
+          console.log("[Firebase] Successfully connected to local emulators.");
+          isFirebaseOnline = true;
+          this.isFirebaseOnline = true;
+        } catch (err) {
+          console.warn("[Firebase] Local emulators are not running. Bypassing cloud sync.");
+          isFirebaseOnline = false;
+          this.isFirebaseOnline = false;
+          auth = null; // Forces immediate fallback spinner release
+        }
+      } else {
+        isFirebaseOnline = true;
+        this.isFirebaseOnline = true;
+      }
+    } catch (e) {
+      console.warn("[Firebase] Could not initialize dynamic libraries. Falling back to offline LocalStorage mode.", e);
+      isFirebaseOnline = false;
+      this.isFirebaseOnline = false;
+    }
   },
 
   /* ====================================
