@@ -177,35 +177,35 @@ const defaultRecipes: Recipe[] = [
     id: "parfait",
     title: "Adapted Breakfast Parfait",
     category: "longevity",
-    defaultServings: 2,
+    defaultServings: 1,
     intro: "A fiber-packed, slow-digesting overnight breakfast. Offers two evidence-based dietary pathways: Satiety Oats default or a Lower-Carb seeds/nuts configuration.",
     cookingTime: "10 Mins (Overnight)",
     typeBadge: "Breakfast",
     imgUrl: "images/parfait.png",
-    caloriesPerServing: { oats: 470, lowcarb: 500 },
-    carbsPerServing: { oats: 45, lowcarb: 29 },
+    caloriesPerServing: { oats: 600, lowcarb: 600 },
+    carbsPerServing: { oats: 64, lowcarb: 53 },
     gi: { oats: 45, lowcarb: 25 },
-    costPerServing: { oats: 3.80, lowcarb: 4.50 },
-    budgetCostPerServing: { oats: 2.20, lowcarb: 2.60 },
+    costPerServing: { oats: 4.60, lowcarb: 5.40 },
+    budgetCostPerServing: { oats: 2.60, lowcarb: 3.10 },
     ingredients: {
       oats: [
-        { name: 'rolled or steel-cut oats', qty: 70, unit: 'g', zone: 'bulk', alt: 'supermarket rolled oats', cupWeight: 90, tbspWeight: 6 },
-        { name: 'chia seeds', qty: 20, unit: 'g', zone: 'supermarket', alt: 'flaxseeds only', cupWeight: 160, tbspWeight: 10 },
-        { name: 'ground flaxseed', qty: 20, unit: 'g', zone: 'supermarket', alt: 'ground linseed', cupWeight: 150, tbspWeight: 7.5 },
-        { name: 'plain unsweetened yoghurt / soy yoghurt', qty: 270, unit: 'g', zone: 'supermarket', alt: 'supermarket brand Greek yoghurt', cupWeight: 240 },
-        { name: 'milk or fortified unsweetened soy drink', qty: 220, unit: 'ml', zone: 'supermarket', alt: 'generic soy milk', cupWeight: 250, tbspWeight: 15 },
-        { name: 'berries, fresh or frozen', qty: 220, unit: 'g', zone: 'supermarket', alt: 'frozen mixed berries', cupWeight: 150 },
-        { name: 'nuts, chopped', qty: 25, unit: 'g', zone: 'bulk', alt: 'peanuts', cupWeight: 130, tbspWeight: 8 },
+        { name: 'rolled or steel-cut oats', qty: 40, unit: 'g', zone: 'bulk', alt: 'supermarket rolled oats', cupWeight: 90, tbspWeight: 6 },
+        { name: 'chia seeds', qty: 12, unit: 'g', zone: 'supermarket', alt: 'flaxseeds only', cupWeight: 160, tbspWeight: 10 },
+        { name: 'ground flaxseed', qty: 12, unit: 'g', zone: 'supermarket', alt: 'ground linseed', cupWeight: 150, tbspWeight: 7.5 },
+        { name: 'plain unsweetened yoghurt / soy yoghurt', qty: 160, unit: 'g', zone: 'supermarket', alt: 'supermarket brand Greek yoghurt', cupWeight: 240 },
+        { name: 'milk or fortified unsweetened soy drink', qty: 150, unit: 'ml', zone: 'supermarket', alt: 'generic soy milk', cupWeight: 250, tbspWeight: 15 },
+        { name: 'berries, fresh or frozen', qty: 150, unit: 'g', zone: 'supermarket', alt: 'frozen mixed berries', cupWeight: 150 },
+        { name: 'nuts, chopped', qty: 15, unit: 'g', zone: 'bulk', alt: 'peanuts', cupWeight: 130, tbspWeight: 8 },
         { name: 'cinnamon', qty: 0.5, unit: 'tsp', zone: 'bulk', alt: 'cinnamon powder' }
       ],
       lowcarb: [
-        { name: 'rolled or steel-cut oats', qty: 25, unit: 'g', zone: 'bulk', alt: 'supermarket rolled oats', cupWeight: 90, tbspWeight: 6 },
-        { name: 'chia seeds', qty: 30, unit: 'g', zone: 'supermarket', alt: 'chia seeds', cupWeight: 160, tbspWeight: 10 },
-        { name: 'ground flaxseed', qty: 30, unit: 'g', zone: 'supermarket', alt: 'ground flaxseed', cupWeight: 150, tbspWeight: 7.5 },
-        { name: 'plain unsweetened yoghurt / soy yoghurt', qty: 270, unit: 'g', zone: 'supermarket', alt: 'supermarket brand Greek yoghurt', cupWeight: 240 },
-        { name: 'milk or fortified unsweetened soy drink', qty: 220, unit: 'ml', zone: 'supermarket', alt: 'generic soy milk', cupWeight: 250, tbspWeight: 15 },
-        { name: 'berries, fresh or frozen', qty: 220, unit: 'g', zone: 'supermarket', alt: 'frozen mixed berries', cupWeight: 150 },
-        { name: 'nuts, chopped', qty: 40, unit: 'g', zone: 'bulk', alt: 'peanuts', cupWeight: 130, tbspWeight: 8 },
+        { name: 'rolled or steel-cut oats', qty: 15, unit: 'g', zone: 'bulk', alt: 'supermarket rolled oats', cupWeight: 90, tbspWeight: 6 },
+        { name: 'chia seeds', qty: 18, unit: 'g', zone: 'supermarket', alt: 'chia seeds', cupWeight: 160, tbspWeight: 10 },
+        { name: 'ground flaxseed', qty: 18, unit: 'g', zone: 'supermarket', alt: 'ground flaxseed', cupWeight: 150, tbspWeight: 7.5 },
+        { name: 'plain unsweetened yoghurt / soy yoghurt', qty: 160, unit: 'g', zone: 'supermarket', alt: 'supermarket brand Greek yoghurt', cupWeight: 240 },
+        { name: 'milk or fortified unsweetened soy drink', qty: 150, unit: 'ml', zone: 'supermarket', alt: 'generic soy milk', cupWeight: 250, tbspWeight: 15 },
+        { name: 'berries, fresh or frozen', qty: 150, unit: 'g', zone: 'supermarket', alt: 'frozen mixed berries', cupWeight: 150 },
+        { name: 'nuts, chopped', qty: 20, unit: 'g', zone: 'bulk', alt: 'peanuts', cupWeight: 130, tbspWeight: 8 },
         { name: 'cinnamon', qty: 0.5, unit: 'tsp', zone: 'bulk', alt: 'cinnamon powder' }
       ]
     },
@@ -852,6 +852,20 @@ function formatFraction(val: number): string {
   return fracStr || val.toFixed(1).replace(/\.0$/, '');
 }
 
+function formatQuantityWithUnit(qty: number, unit?: string): string {
+  const formattedQty = qty.toFixed(1).replace(/\.0$/, '');
+  return unit ? `${formattedQty} ${unit}` : formattedQty;
+}
+
+function toSafeDocId(value: string): string {
+  const safe = value
+    .trim()
+    .replace(/[^a-z0-9]+/gi, '_')
+    .replace(/^_+|_+$/g, '')
+    .slice(0, 120);
+  return safe || 'item';
+}
+
 /**
  * Double-beep alert using the Web Audio API
  */
@@ -1132,6 +1146,11 @@ const store = {
     localStorage.setItem('successor_theme', this.theme);
   },
 
+  setUnitSystem(unit: 'metric' | 'cups' | 'spoons') {
+    this.unitSystem = unit;
+    localStorage.setItem('successor_units', unit);
+  },
+
   loadDatabaseSyncs() {
     if (!this.user) return;
     const uid = this.user.uid;
@@ -1320,15 +1339,14 @@ const store = {
    * scale factor, and formats weight/volume density values (grams, cups, spoons).
    */
   formatIngredient(ing: Ingredient, factor: number): { displayQty: string; name: string; isSwapped: boolean } {
-    const baseGrams = ing.qty * factor;
+    const scaledQty = ing.qty * factor;
     const nameStr = this.budgetMode ? ing.alt : ing.name;
     const isSwapped = this.budgetMode && ing.alt !== ing.name;
 
     // 1. Metric: return grams/ml
     if (this.unitSystem === 'metric' || !ing.unit) {
-      const formattedQty = baseGrams.toFixed(1).replace(/\.0$/, '');
       return {
-        displayQty: ing.unit ? `${formattedQty}${ing.unit}` : formattedQty,
+        displayQty: formatQuantityWithUnit(scaledQty, ing.unit),
         name: nameStr,
         isSwapped
       };
@@ -1337,7 +1355,7 @@ const store = {
     // 2. Cups System (Weight density conversion)
     if (this.unitSystem === 'cups') {
       if (ing.unit === 'g' && ing.cupWeight) {
-        const cupsVal = baseGrams / ing.cupWeight;
+        const cupsVal = scaledQty / ing.cupWeight;
         return {
           displayQty: `${formatFraction(cupsVal)} cup`,
           name: nameStr,
@@ -1345,7 +1363,7 @@ const store = {
         };
       }
       if (ing.unit === 'ml') {
-        const cupsVal = baseGrams / 250; // AU cup metric standard (250ml)
+        const cupsVal = scaledQty / 250; // AU cup metric standard (250ml)
         return {
           displayQty: `${formatFraction(cupsVal)} cup`,
           name: nameStr,
@@ -1357,7 +1375,7 @@ const store = {
     // 3. Spoons System (Spoons/Tablespoons conversion)
     if (this.unitSystem === 'spoons') {
       if (ing.unit === 'g' && ing.tbspWeight) {
-        const spoonsVal = baseGrams / ing.tbspWeight;
+        const spoonsVal = scaledQty / ing.tbspWeight;
         return {
           displayQty: `${formatFraction(spoonsVal)} tbsp`,
           name: nameStr,
@@ -1365,7 +1383,7 @@ const store = {
         };
       }
       if (ing.unit === 'ml') {
-        const spoonsVal = baseGrams / 20; // AU tablespoon standard (20ml)
+        const spoonsVal = scaledQty / 20; // AU tablespoon standard (20ml)
         return {
           displayQty: `${formatFraction(spoonsVal)} tbsp`,
           name: nameStr,
@@ -1375,9 +1393,8 @@ const store = {
     }
 
     // Fallback: return raw values
-    const formattedQty = baseGrams.toFixed(1).replace(/\.0$/, '');
     return {
-      displayQty: ing.unit ? `${formattedQty}${ing.unit}` : formattedQty,
+      displayQty: formatQuantityWithUnit(scaledQty, ing.unit),
       name: nameStr,
       isSwapped
     };
@@ -1387,30 +1404,33 @@ const store = {
      Interactive Plate Sliders
      ==================================== */
   adjustPlateProportions(changedSlider: 'veg' | 'prot' | 'starch', newValue: number) {
-    const currentVeg = this.plate.veg;
-    const currentProt = this.plate.prot;
-    const currentStarch = this.plate.starch;
+    const targetValue = Number(newValue);
+    if (!Number.isFinite(targetValue)) return;
+
+    const currentVeg = Number(this.plate.veg);
+    const currentProt = Number(this.plate.prot);
+    const currentStarch = Number(this.plate.starch);
     
     if (changedSlider === 'veg') {
-      const diff = newValue - currentVeg;
+      const diff = targetValue - currentVeg;
       const sumOther = currentProt + currentStarch;
-      this.plate.veg = newValue;
+      this.plate.veg = targetValue;
       if (sumOther > 0) {
         this.plate.prot = Math.max(10, currentProt - (diff * currentProt / sumOther));
         this.plate.starch = Math.max(10, 100 - this.plate.veg - this.plate.prot);
       }
     } else if (changedSlider === 'prot') {
-      const diff = newValue - currentProt;
+      const diff = targetValue - currentProt;
       const sumOther = currentVeg + currentStarch;
-      this.plate.prot = newValue;
+      this.plate.prot = targetValue;
       if (sumOther > 0) {
         this.plate.veg = Math.max(10, currentVeg - (diff * currentVeg / sumOther));
         this.plate.starch = Math.max(10, 100 - this.plate.veg - this.plate.prot);
       }
     } else if (changedSlider === 'starch') {
-      const diff = newValue - currentStarch;
+      const diff = targetValue - currentStarch;
       const sumOther = currentVeg + currentProt;
-      this.plate.starch = newValue;
+      this.plate.starch = targetValue;
       if (sumOther > 0) {
         this.plate.veg = Math.max(10, currentVeg - (diff * currentVeg / sumOther));
         this.plate.prot = Math.max(10, 100 - this.plate.veg - this.plate.starch);
@@ -1458,22 +1478,28 @@ const store = {
   /* ====================================
      Satiety & Portion Calculator
      ==================================== */
+  get calcPortionEnergy(): number {
+    const baselineCalories = Number(this.calcCalories) || 0;
+    const activityFactor = Number(this.calcActivity) || 1.375;
+    return baselineCalories * (activityFactor / 1.375);
+  },
+
   get calcBreakfastOats(): string {
-    const energyNeed = this.calcCalories;
+    const energyNeed = this.calcPortionEnergy;
     const oatsPortion = Math.round((energyNeed / 2000) * 70);
-    return `${oatsPortion}g oats`;
+    return `${oatsPortion} g oats`;
   },
   
   get calcLunchGreens(): string {
-    const energyNeed = this.calcCalories;
+    const energyNeed = this.calcPortionEnergy;
     const greensPortion = Math.round((energyNeed / 2000) * 150);
-    return `${greensPortion}g greens`;
+    return `${greensPortion} g greens`;
   },
   
   get calcDinnerLentils(): string {
-    const energyNeed = this.calcCalories;
+    const energyNeed = this.calcPortionEnergy;
     const lentilPortion = Math.round((energyNeed / 2000) * 45);
-    return `${lentilPortion}g lentils / serv`;
+    return `${lentilPortion} g lentils / serv`;
   },
 
   /* ====================================
@@ -1644,7 +1670,7 @@ const store = {
       };
       
       if (db && isFirebaseOnline && this.user) {
-        const docId = `${recipeId}_${ing.name.replace(/\s+/g, '_')}`;
+        const docId = `${toSafeDocId(recipeId)}_${toSafeDocId(ing.name)}`;
         await setDoc(doc(db as any, 'users', this.user.uid, 'shoppingList', docId), newItem);
       } else {
         const existing = this.shoppingList.find(i => i.name === newItem.name);
@@ -1698,15 +1724,26 @@ const store = {
     }
   },
 
-  exportShoppingListToClipboard() {
-    const lines = ["SUCCESSOR RECIPE APP SHOPPING LIST", "=================================="];
+  getShoppingListExportText(keepFriendly = false): string {
     const zones = {
       supermarket: "SUPERMARKET (Staples & Cold)",
       greengrocer: "GREENGROCER & MARKET (Fresh Produce)",
       bulk: "BULK SHOP (Dry Grains & Spices)",
       asian: "ASIAN GROCER (Tofu & Seasonings)"
     };
-    
+
+    if (keepFriendly) {
+      const keepLines: string[] = [];
+      Object.keys(zones).forEach(key => {
+        const items = this.shoppingList.filter(i => i.zone === key && !i.checked);
+        items.forEach(i => {
+          keepLines.push(`${(zones as any)[key]} - ${i.name} (${i.qty})`);
+        });
+      });
+      return keepLines.join('\n');
+    }
+
+    const lines = ["SUCCESSOR RECIPE APP SHOPPING LIST", "=================================="];
     Object.keys(zones).forEach(key => {
       const items = this.shoppingList.filter(i => i.zone === key && !i.checked);
       if (items.length > 0) {
@@ -1716,12 +1753,39 @@ const store = {
         });
       }
     });
-    
-    navigator.clipboard.writeText(lines.join('\n')).then(() => {
+    return lines.join('\n');
+  },
+
+  exportShoppingListToClipboard() {
+    navigator.clipboard.writeText(this.getShoppingListExportText(false)).then(() => {
       alert("Shopping list copied to clipboard in plain-text checklist format!");
     }).catch(err => {
       alert("Clipboard export failed: " + err);
     });
+  },
+
+  async shareShoppingList() {
+    const text = this.getShoppingListExportText(true);
+    const shareData = {
+      title: "Successor Shopping List",
+      text
+    };
+
+    if ('share' in navigator && typeof navigator.share === 'function') {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch (err: any) {
+        if (err?.name === 'AbortError') return;
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(text);
+      alert("Shopping list copied. Paste it into a Google Keep checklist note.");
+    } catch (err) {
+      alert("Sharing failed and clipboard fallback was unavailable: " + err);
+    }
   },
 
   /* ====================================
@@ -1821,6 +1885,9 @@ const store = {
   formatEnergyVal(recipe: Recipe): string {
     const kcal = this.getRecipeCalories(recipe);
     const kJ = Math.round(kcal * 4.184);
+    if (this.recipeEnergyUnit === 'kJ') {
+      return `${kJ} kJ (${kcal} kcal) / serving`;
+    }
     return `${kcal} kcal (${kJ} kJ) / serving`;
   },
 

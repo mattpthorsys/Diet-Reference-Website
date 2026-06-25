@@ -7,9 +7,14 @@ app.js
 
 # Firebase local configurations and cache
 .firebase/
+.firebase-cli-config/
 firestore-debug.log
 ui-debug.log
 firebase-debug.log
+
+# Local CLI scratch caches
+.npm-cache*/
+.ms-playwright/
 
 # System files
 Thumbs.db

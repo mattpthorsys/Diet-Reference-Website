@@ -306,7 +306,7 @@
                   <span class="result-desc">Complex carb & plant protein</span>
                 </div>
               </div>
-              <p class="calc-note">*Values adapted dynamically to preserve macro ratios (50% vegetables, 25% protein, 25% starch) and target sodium limits.</p>
+              <p class="calc-note">*Values scale from baseline calories and activity context while preserving the plate ratio target.</p>
             </div>
           </div>
         </div>
@@ -375,10 +375,10 @@
 
           <div class="control-group">
             <label for="unit-system">Measurement Units:</label>
-            <select id="unit-system" v-model="store.unitSystem" style="width: 180px;">
+            <select id="unit-system" v-model="store.unitSystem" @change="store.setUnitSystem($event.target.value)" style="width: 180px;">
               <option value="metric">Metric (g/ml)</option>
-              <option value="cups">US Cups/Imperial</option>
-              <option value="spoons">Spoons/Tablespoons</option>
+              <option value="cups">Metric Cups (250 ml)</option>
+              <option value="spoons">AU Tablespoons (20 ml)</option>
             </select>
           </div>
           
@@ -559,7 +559,8 @@
               <div class="btn-group">
                 <button class="btn btn-sm btn-secondary" @click="store.clearCheckedShoppingItems">Clear Checked</button>
                 <button class="btn btn-sm btn-secondary" @click="store.resetDefaultShoppingList">Reset Defaults</button>
-                <button class="btn btn-sm btn-primary" @click="store.exportShoppingListToClipboard">Export/Copy List</button>
+                <button class="btn btn-sm btn-secondary" @click="store.exportShoppingListToClipboard">Copy List</button>
+                <button class="btn btn-sm btn-primary" @click="store.shareShoppingList">Share List</button>
               </div>
             </div>
             <p class="subtitle">Adelaide-localized shopping items. Items automatically adapt in Budget Mode.</p>
