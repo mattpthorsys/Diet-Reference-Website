@@ -1076,9 +1076,10 @@ const store = {
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
-    } catch (e) {
+    } catch (e: any) {
       console.error("Login failed:", e);
-      alert("Authentication failed. Make sure local emulator is running.");
+      const errorMsg = e?.message || e?.code || String(e);
+      alert(`Authentication failed: ${errorMsg}`);
     }
   },
 
