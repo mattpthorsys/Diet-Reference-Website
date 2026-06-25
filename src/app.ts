@@ -1053,9 +1053,10 @@ const store = {
     onAuthStateChanged(auth, (firebaseUser: any) => {
       this.isCheckingAuth = false;
       if (firebaseUser) {
-        // Enforce strict email restriction rules (only mpalmeralt@gmail.com)
+        // Enforce strict email restriction rules
         const email = (firebaseUser.email || '').toLowerCase().trim();
-        if (email === 'mpalmeralt@gmail.com') {
+        const allowedEmails = ['mpalmeralt@gmail.com', 'mpalmerwork45@gmail.com'];
+        if (allowedEmails.includes(email)) {
           this.user = firebaseUser;
           this.loadDatabaseSyncs();
         } else {
