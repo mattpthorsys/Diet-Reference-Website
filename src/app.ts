@@ -71,6 +71,7 @@ interface Recipe {
   title: string;
   category: 'regular' | 'treat' | 'healthy' | 'longevity' | 'protein-dense';
   defaultServings: number;
+  servings?: number;
   intro: string;
   cookingTime: string;
   typeBadge: string;
@@ -81,6 +82,8 @@ interface Recipe {
   caloriesPerServing: number | { [pathway: string]: number };
   carbsPerServing: number | { [pathway: string]: number };
   gi: number | { [pathway: string]: number };
+  costPerServing?: number | { [pathway: string]: number };
+  budgetCostPerServing?: number | { [pathway: string]: number };
   liked?: boolean;
   pinned?: boolean;
 }
@@ -99,6 +102,8 @@ const defaultRecipes: Recipe[] = [
     caloriesPerServing: 460,
     carbsPerServing: 50,
     gi: 35,
+    costPerServing: 3.50,
+    budgetCostPerServing: 2.00,
     ingredients: [
       { name: 'brown or green lentils, dry', qty: 180, unit: 'g', zone: 'bulk', alt: 'generic brown lentils', cupWeight: 180, tbspWeight: 11.5 },
       { name: 'firm tofu, cubed', qty: 300, unit: 'g', zone: 'asian', alt: 'supermarket own-brand firm tofu', cupWeight: 220 },
@@ -141,6 +146,8 @@ const defaultRecipes: Recipe[] = [
     caloriesPerServing: 360,
     carbsPerServing: 28,
     gi: 30,
+    costPerServing: 5.00,
+    budgetCostPerServing: 2.80,
     ingredients: [
       { name: 'mushrooms, sliced', qty: 400, unit: 'g', zone: 'greengrocer', alt: 'canned sliced mushrooms', cupWeight: 70 },
       { name: 'cucumber, chopped', qty: 1, unit: 'large', zone: 'greengrocer', alt: 'local cucumber' },
@@ -178,6 +185,8 @@ const defaultRecipes: Recipe[] = [
     caloriesPerServing: { oats: 470, lowcarb: 500 },
     carbsPerServing: { oats: 45, lowcarb: 29 },
     gi: { oats: 45, lowcarb: 25 },
+    costPerServing: { oats: 3.80, lowcarb: 4.50 },
+    budgetCostPerServing: { oats: 2.20, lowcarb: 2.60 },
     ingredients: {
       oats: [
         { name: 'rolled or steel-cut oats', qty: 70, unit: 'g', zone: 'bulk', alt: 'supermarket rolled oats', cupWeight: 90, tbspWeight: 6 },
@@ -1138,7 +1147,8 @@ const store = {
             id: doc.id, 
             ...data,
             liked: data.liked || false,
-            pinned: data.pinned || false
+            pinned: data.pinned || false,
+            servings: data.servings !== undefined ? data.servings : data.defaultServings
           } as Recipe);
         });
         
@@ -1154,14 +1164,20 @@ const store = {
         if (items.length === 0) {
           // Self-heal: Database was empty, load defaults and write to cloud Firestore
           defaultRecipes.forEach(async (recipe) => {
-            await setDoc(doc(db as any, 'users', uid, 'recipes', recipe.id), recipe);
+            await setDoc(doc(db as any, 'users', uid, 'recipes', recipe.id), {
+              ...recipe,
+              servings: recipe.defaultServings
+            });
           });
         } else if (hasMissing) {
           // Add missing default recipes
           defaultRecipes.forEach(async (recipe) => {
             const existing = items.find(item => item.id === recipe.id);
             if (!existing) {
-              await setDoc(doc(db as any, 'users', uid, 'recipes', recipe.id), recipe);
+              await setDoc(doc(db as any, 'users', uid, 'recipes', recipe.id), {
+                ...recipe,
+                servings: recipe.defaultServings
+              });
             }
           });
         } else {
@@ -1228,7 +1244,8 @@ const store = {
         const mapped = loaded.map((r: any) => ({
           ...r,
           liked: r.liked || false,
-          pinned: r.pinned || false
+          pinned: r.pinned || false,
+          servings: r.servings !== undefined ? r.servings : r.defaultServings
         }));
         
         let changed = false;
@@ -1238,7 +1255,8 @@ const store = {
             mapped.push({
               ...defaultRecipe,
               liked: false,
-              pinned: false
+              pinned: false,
+              servings: defaultRecipe.defaultServings
             });
             changed = true;
           }
@@ -1253,7 +1271,8 @@ const store = {
         this.recipes = defaultRecipes.map(recipe => ({ 
           ...recipe,
           liked: false,
-          pinned: false
+          pinned: false,
+          servings: recipe.defaultServings
         }));
         sortRecipes(this.recipes);
         localStorage.setItem('successor_recipes', JSON.stringify(this.recipes));
@@ -1291,7 +1310,8 @@ const store = {
     }
     
     // Calculate scale ratio relative to recipe's default servings size
-    const factor = this.servings / recipe.defaultServings;
+    const servingsCount = recipe.servings !== undefined ? recipe.servings : recipe.defaultServings;
+    const factor = servingsCount / recipe.defaultServings;
     return list.map((ing: Ingredient) => this.formatIngredient(ing, factor));
   },
 
@@ -1568,6 +1588,36 @@ const store = {
     localStorage.setItem('successor_recipes', JSON.stringify(this.recipes));
   },
 
+  async changeRecipeServings(recipe: Recipe, change: number) {
+    if (recipe.servings === undefined) {
+      recipe.servings = recipe.defaultServings;
+    }
+    const newVal = recipe.servings + change;
+    if (newVal >= 1 && newVal <= 50) {
+      recipe.servings = newVal;
+      if (db && isFirebaseOnline && this.user) {
+        await updateDoc(doc(db, 'users', this.user.uid, 'recipes', recipe.id), {
+          servings: recipe.servings
+        });
+      } else {
+        this.saveRecipesOffline();
+      }
+    }
+  },
+
+  updateGlobalServings(newVal: number) {
+    this.servings = newVal;
+    this.recipes.forEach(async (r) => {
+      r.servings = newVal;
+      if (db && isFirebaseOnline && this.user) {
+        await updateDoc(doc(db, 'users', this.user.uid, 'recipes', r.id), {
+          servings: r.servings
+        });
+      }
+    });
+    this.saveRecipesOffline();
+  },
+
   async addRecipeToShoppingList(recipeId: string) {
     const recipe = this.recipes.find(r => r.id === recipeId);
     if (!recipe) return;
@@ -1579,7 +1629,8 @@ const store = {
       list = recipe.ingredients;
     }
     
-    const factor = this.servings / recipe.defaultServings;
+    const servingsCount = recipe.servings !== undefined ? recipe.servings : recipe.defaultServings;
+    const factor = servingsCount / recipe.defaultServings;
     
     for (const ing of list) {
       const formatted = this.formatIngredient(ing, factor);
@@ -1769,10 +1820,20 @@ const store = {
 
   formatEnergyVal(recipe: Recipe): string {
     const kcal = this.getRecipeCalories(recipe);
-    if (this.recipeEnergyUnit === 'kJ') {
-      return `${Math.round(kcal * 4.184)} kJ`;
+    const kJ = Math.round(kcal * 4.184);
+    return `${kcal} kcal (${kJ} kJ) / serving`;
+  },
+
+  getRecipeCostPerServing(recipe: Recipe): number {
+    const isBudget = this.budgetMode;
+    let costObj = isBudget ? recipe.budgetCostPerServing : recipe.costPerServing;
+    if (costObj === undefined) {
+      costObj = isBudget ? 2.50 : 4.00;
     }
-    return `${kcal} kcal`;
+    if (typeof costObj === 'object') {
+      return (costObj as any)[this.parfaitPathway] || 3.00;
+    }
+    return costObj;
   },
 
   getGIRating(gi: number): 'low' | 'medium' | 'high' {

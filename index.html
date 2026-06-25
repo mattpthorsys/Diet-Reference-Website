@@ -368,7 +368,7 @@
           <div class="control-group">
             <label for="servings-global">Global Servings Scaler:</label>
             <div class="scaler-slider-wrapper">
-              <input type="range" id="servings-global" min="1" max="10" v-model.number="store.servings">
+              <input type="range" id="servings-global" min="1" max="10" :value="store.servings" @input="store.updateGlobalServings(Number($event.target.value))">
               <span class="scaler-badge">{{ store.servings }} Servings</span>
             </div>
           </div>
@@ -479,8 +479,18 @@
                 <h3>{{ recipe.title }}</h3>
                 <span class="recipe-energy-badge">{{ store.formatEnergyVal(recipe) }}</span>
               </div>
-              <div class="recipe-subheader">
-                <span class="recipe-sub">Serves {{ store.servings }}</span>
+              <div class="recipe-subheader" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <div class="recipe-servings-selector" style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted);">
+                  <span>Serves:</span>
+                  <div style="display: flex; align-items: center; gap: 6px;">
+                    <button class="btn btn-sm btn-secondary" @click="store.changeRecipeServings(recipe, -1)" style="padding: 2px 6px; font-size: 11px; line-height: 1; min-height: auto;">-</button>
+                    <span style="font-weight: bold; color: var(--text-color); min-width: 14px; text-align: center;">{{ recipe.servings !== undefined ? recipe.servings : recipe.defaultServings }}</span>
+                    <button class="btn btn-sm btn-secondary" @click="store.changeRecipeServings(recipe, 1)" style="padding: 2px 6px; font-size: 11px; line-height: 1; min-height: auto;">+</button>
+                  </div>
+                </div>
+                <div class="recipe-cost" style="font-size: 13px; color: var(--text-muted);">
+                  Est: <span style="font-weight: bold; color: var(--text-color);">${{ store.getRecipeCostPerServing(recipe).toFixed(2) }} (Total: ${{ (store.getRecipeCostPerServing(recipe) * (recipe.servings !== undefined ? recipe.servings : recipe.defaultServings)).toFixed(2) }})</span>
+                </div>
               </div>
               <p class="recipe-intro">{{ recipe.intro }}</p>
               
