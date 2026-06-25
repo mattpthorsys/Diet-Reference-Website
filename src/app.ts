@@ -905,6 +905,8 @@ const store = {
   budgetMode: false,
   parfaitPathway: 'oats' as 'oats' | 'lowcarb',
   unitSystem: 'metric' as 'metric' | 'cups' | 'spoons',
+  showExportModal: false,
+  exportFormat: 'keep' as 'keep' | 'markdown',
   
   // Dashboard Plate ratios (Veg, Protein, Starch)
   plate: {
@@ -1808,7 +1810,10 @@ const store = {
   },
 
   exportShoppingListToClipboard() {
-    const lines = ["SUCCESSOR RECIPE APP SHOPPING LIST", "=================================="];
+    this.showExportModal = true;
+  },
+
+  getExportText(): string {
     const zones = {
       supermarket: "SUPERMARKET (Staples & Cold)",
       greengrocer: "GREENGROCER & MARKET (Fresh Produce)",
@@ -1816,35 +1821,64 @@ const store = {
       asian: "ASIAN GROCER (Tofu & Seasonings)"
     };
     
-    Object.keys(zones).forEach(key => {
-      const items = this.shoppingList.filter(i => i.zone === key && !i.checked);
-      if (items.length > 0) {
-        lines.push(`\n[${(zones as any)[key]}]`);
+    const lines: string[] = [];
+    
+    if (this.exportFormat === 'markdown') {
+      lines.push("SUCCESSOR RECIPE APP SHOPPING LIST");
+      lines.push("==================================");
+      
+      Object.keys(zones).forEach(key => {
+        const items = this.shoppingList.filter(i => i.zone === key && !i.checked);
+        if (items.length > 0) {
+          lines.push(`\n[${(zones as any)[key]}]`);
+          items.forEach(i => {
+            lines.push(`- [ ] ${i.name} (${i.qty})`);
+          });
+        }
+      });
+    } else {
+      // Google Keep clean format: flat list of unchecked items, one per line (no checkboxes or headings)
+      Object.keys(zones).forEach(key => {
+        const items = this.shoppingList.filter(i => i.zone === key && !i.checked);
         items.forEach(i => {
-          lines.push(`- [ ] ${i.name} (${i.qty})`);
+          lines.push(`${i.name} (${i.qty})`);
         });
-      }
+      });
+    }
+    
+    return lines.join('\n');
+  },
+
+  copyExportTextToClipboard() {
+    const text = this.getExportText();
+    navigator.clipboard.writeText(text).then(() => {
+      alert(this.exportFormat === 'keep' 
+        ? "Clean shopping list copied! Paste into Google Keep, then select 'Show checkboxes' in Keep's menu."
+        : "Markdown shopping list copied to clipboard!");
+      this.showExportModal = false;
+    }).catch(err => {
+      alert("Failed to copy list: " + err);
     });
-    
-    const textToShare = lines.join('\n');
-    
+  },
+
+  shareExportText() {
+    const text = this.getExportText();
     if (navigator.share) {
       navigator.share({
         title: 'Successor Shopping List',
-        text: textToShare
+        text: text
+      }).then(() => {
+        this.showExportModal = false;
       }).catch(err => {
-        // Fallback to clipboard if share was cancelled or failed
-        navigator.clipboard.writeText(textToShare).then(() => {
-          alert("Share sheet closed. Shopping list copied to clipboard instead!");
-        });
+        console.warn("Share sheet closed or failed:", err);
       });
     } else {
-      navigator.clipboard.writeText(textToShare).then(() => {
-        alert("Shopping list copied to clipboard in plain-text checklist format!");
-      }).catch(err => {
-        alert("Clipboard export failed: " + err);
-      });
+      alert("Native sharing is not supported by your current browser/device. Please use the Copy to Clipboard button instead.");
     }
+  },
+
+  isShareSupported(): boolean {
+    return typeof navigator !== 'undefined' && !!navigator.share;
   },
 
   /* ====================================
