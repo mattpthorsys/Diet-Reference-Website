@@ -412,9 +412,20 @@
             </div>
 
             <div class="control-group calorie-slider-group">
-              <label for="recipe-calories">Max Calories: <span class="calorie-limit-badge">{{ store.recipeEnergyUnit === 'kcal' ? store.recipeMaxCalories + ' kcal' : Math.round(store.recipeMaxCalories * 4.184) + ' kJ' }}</span></label>
-              <div class="scaler-slider-wrapper">
-                <input type="range" id="recipe-calories" min="150" max="800" step="10" v-model.number="store.recipeMaxCalories">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                <label for="recipe-calories" style="margin-bottom: 0; display: flex; align-items: center; gap: 6px; cursor: pointer; user-select: none;">
+                  <input type="checkbox" id="recipe-calories-enable" v-model="store.recipeMaxCaloriesEnabled" style="cursor: pointer; width: 15px; height: 15px;">
+                  <span>Max Calories:</span>
+                </label>
+                <span class="calorie-limit-badge" v-if="store.recipeMaxCaloriesEnabled">
+                  {{ store.recipeEnergyUnit === 'kcal' ? store.recipeMaxCalories + ' kcal' : Math.round(store.recipeMaxCalories * 4.184) + ' kJ' }}
+                </span>
+                <span class="calorie-limit-badge" v-else style="background: var(--bg-card); color: var(--text-muted); border-color: var(--border-color);">
+                  Disabled
+                </span>
+              </div>
+              <div class="scaler-slider-wrapper" :style="{ opacity: store.recipeMaxCaloriesEnabled ? 1 : 0.4, 'pointer-events': store.recipeMaxCaloriesEnabled ? 'auto' : 'none', 'transition': 'opacity 0.2s ease' }">
+                <input type="range" id="recipe-calories" min="150" max="1200" step="10" v-model.number="store.recipeMaxCalories">
               </div>
             </div>
 

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'successor-health-v4';
+const CACHE_NAME = 'successor-health-v11';
 const ASSETS = [
   './',
   './index.html',

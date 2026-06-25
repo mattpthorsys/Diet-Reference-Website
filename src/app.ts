@@ -177,35 +177,35 @@ const defaultRecipes: Recipe[] = [
     id: "parfait",
     title: "Adapted Breakfast Parfait",
     category: "longevity",
-    defaultServings: 2,
+    defaultServings: 1,
     intro: "A fiber-packed, slow-digesting overnight breakfast. Offers two evidence-based dietary pathways: Satiety Oats default or a Lower-Carb seeds/nuts configuration.",
     cookingTime: "10 Mins (Overnight)",
     typeBadge: "Breakfast",
     imgUrl: "images/parfait.png",
-    caloriesPerServing: { oats: 470, lowcarb: 500 },
-    carbsPerServing: { oats: 45, lowcarb: 29 },
+    caloriesPerServing: { oats: 600, lowcarb: 600 },
+    carbsPerServing: { oats: 64, lowcarb: 53 },
     gi: { oats: 45, lowcarb: 25 },
-    costPerServing: { oats: 3.80, lowcarb: 4.50 },
-    budgetCostPerServing: { oats: 2.20, lowcarb: 2.60 },
+    costPerServing: { oats: 4.60, lowcarb: 5.40 },
+    budgetCostPerServing: { oats: 2.60, lowcarb: 3.10 },
     ingredients: {
       oats: [
-        { name: 'rolled or steel-cut oats', qty: 70, unit: 'g', zone: 'bulk', alt: 'supermarket rolled oats', cupWeight: 90, tbspWeight: 6 },
-        { name: 'chia seeds', qty: 20, unit: 'g', zone: 'supermarket', alt: 'flaxseeds only', cupWeight: 160, tbspWeight: 10 },
-        { name: 'ground flaxseed', qty: 20, unit: 'g', zone: 'supermarket', alt: 'ground linseed', cupWeight: 150, tbspWeight: 7.5 },
-        { name: 'plain unsweetened yoghurt / soy yoghurt', qty: 270, unit: 'g', zone: 'supermarket', alt: 'supermarket brand Greek yoghurt', cupWeight: 240 },
-        { name: 'milk or fortified unsweetened soy drink', qty: 220, unit: 'ml', zone: 'supermarket', alt: 'generic soy milk', cupWeight: 250, tbspWeight: 15 },
-        { name: 'berries, fresh or frozen', qty: 220, unit: 'g', zone: 'supermarket', alt: 'frozen mixed berries', cupWeight: 150 },
-        { name: 'nuts, chopped', qty: 25, unit: 'g', zone: 'bulk', alt: 'peanuts', cupWeight: 130, tbspWeight: 8 },
+        { name: 'rolled or steel-cut oats', qty: 40, unit: 'g', zone: 'bulk', alt: 'supermarket rolled oats', cupWeight: 90, tbspWeight: 6 },
+        { name: 'chia seeds', qty: 12, unit: 'g', zone: 'supermarket', alt: 'flaxseeds only', cupWeight: 160, tbspWeight: 10 },
+        { name: 'ground flaxseed', qty: 12, unit: 'g', zone: 'supermarket', alt: 'ground linseed', cupWeight: 150, tbspWeight: 7.5 },
+        { name: 'plain unsweetened yoghurt / soy yoghurt', qty: 160, unit: 'g', zone: 'supermarket', alt: 'supermarket brand Greek yoghurt', cupWeight: 240 },
+        { name: 'milk or fortified unsweetened soy drink', qty: 150, unit: 'ml', zone: 'supermarket', alt: 'generic soy milk', cupWeight: 250, tbspWeight: 15 },
+        { name: 'berries, fresh or frozen', qty: 150, unit: 'g', zone: 'supermarket', alt: 'frozen mixed berries', cupWeight: 150 },
+        { name: 'nuts, chopped', qty: 15, unit: 'g', zone: 'bulk', alt: 'peanuts', cupWeight: 130, tbspWeight: 8 },
         { name: 'cinnamon', qty: 0.5, unit: 'tsp', zone: 'bulk', alt: 'cinnamon powder' }
       ],
       lowcarb: [
-        { name: 'rolled or steel-cut oats', qty: 25, unit: 'g', zone: 'bulk', alt: 'supermarket rolled oats', cupWeight: 90, tbspWeight: 6 },
-        { name: 'chia seeds', qty: 30, unit: 'g', zone: 'supermarket', alt: 'chia seeds', cupWeight: 160, tbspWeight: 10 },
-        { name: 'ground flaxseed', qty: 30, unit: 'g', zone: 'supermarket', alt: 'ground flaxseed', cupWeight: 150, tbspWeight: 7.5 },
-        { name: 'plain unsweetened yoghurt / soy yoghurt', qty: 270, unit: 'g', zone: 'supermarket', alt: 'supermarket brand Greek yoghurt', cupWeight: 240 },
-        { name: 'milk or fortified unsweetened soy drink', qty: 220, unit: 'ml', zone: 'supermarket', alt: 'generic soy milk', cupWeight: 250, tbspWeight: 15 },
-        { name: 'berries, fresh or frozen', qty: 220, unit: 'g', zone: 'supermarket', alt: 'frozen mixed berries', cupWeight: 150 },
-        { name: 'nuts, chopped', qty: 40, unit: 'g', zone: 'bulk', alt: 'peanuts', cupWeight: 130, tbspWeight: 8 },
+        { name: 'rolled or steel-cut oats', qty: 15, unit: 'g', zone: 'bulk', alt: 'supermarket rolled oats', cupWeight: 90, tbspWeight: 6 },
+        { name: 'chia seeds', qty: 18, unit: 'g', zone: 'supermarket', alt: 'chia seeds', cupWeight: 160, tbspWeight: 10 },
+        { name: 'ground flaxseed', qty: 18, unit: 'g', zone: 'supermarket', alt: 'ground flaxseed', cupWeight: 150, tbspWeight: 7.5 },
+        { name: 'plain unsweetened yoghurt / soy yoghurt', qty: 160, unit: 'g', zone: 'supermarket', alt: 'supermarket brand Greek yoghurt', cupWeight: 240 },
+        { name: 'milk or fortified unsweetened soy drink', qty: 150, unit: 'ml', zone: 'supermarket', alt: 'generic soy milk', cupWeight: 250, tbspWeight: 15 },
+        { name: 'berries, fresh or frozen', qty: 150, unit: 'g', zone: 'supermarket', alt: 'frozen mixed berries', cupWeight: 150 },
+        { name: 'nuts, chopped', qty: 20, unit: 'g', zone: 'bulk', alt: 'peanuts', cupWeight: 130, tbspWeight: 8 },
         { name: 'cinnamon', qty: 0.5, unit: 'tsp', zone: 'bulk', alt: 'cinnamon powder' }
       ]
     },
@@ -928,6 +928,7 @@ const store = {
   // Recipe Search and filter inputs
   recipeSearch: '',
   recipeCategory: 'all',
+  recipeMaxCaloriesEnabled: false,
   recipeMaxCalories: 800,
   recipeEnergyUnit: 'kcal',
   recipeShowLikedOnly: false,
@@ -1136,9 +1137,14 @@ const store = {
     if (!this.user) return;
     const uid = this.user.uid;
     
+    // Add version dynamically to defaultRecipes
+    defaultRecipes.forEach(r => {
+      (r as any).version = 7;
+    });
+
     // Sync Recipes & Shopping List & Health Logs
     if (db && isFirebaseOnline) {
-      // 1. Sync recipes (with self-healing auto-population if collection is empty)
+      // 1. Sync recipes (with self-healing auto-population if collection is empty or outdated)
       onSnapshot(collection(db, 'users', uid, 'recipes'), (snapshot: any) => {
         const items: Recipe[] = [];
         snapshot.forEach((doc: any) => {
@@ -1152,53 +1158,38 @@ const store = {
           } as Recipe);
         });
         
-        // Check for missing default recipes
-        let hasMissing = false;
-        defaultRecipes.forEach(recipe => {
-          const existing = items.find(item => item.id === recipe.id);
-          if (!existing) {
-            hasMissing = true;
-          }
+        // Sort recipes to keep structured display
+        const order = [
+          'stew', 'bowl', 'parfait', 'salmon', 'superveggie', 'nuttypudding', 'bark',
+          'egg-veggie-noodle-soup', 'gochujang-miso-booster', 'loaded-potato-cottage-cheese-chickpeas',
+          'tofu-veggie-stir-fry-brown-rice', 'lentil-spinach-curry-brown-rice', 'sardine-chickpea-couscous-bowl',
+          'smoky-paprika-marjoram-blade-stew', 'chocolate-buckwheat-protein-bars', 'matts-cheap-super-veggie-variant',
+          'creamy-dijon-chicken-mince', 'chicken-paprikash', 'bread-and-butter-pudding'
+        ];
+        items.sort((a, b) => {
+          const idxA = order.indexOf(a.id);
+          const idxB = order.indexOf(b.id);
+          if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+          if (idxA !== -1) return -1;
+          if (idxB !== -1) return 1;
+          return a.title.localeCompare(b.title);
         });
+        
+        // Unconditionally display the recipes fetched from the database
+        this.recipes = items;
 
-        if (items.length === 0) {
-          // Self-heal: Database was empty, load defaults and write to cloud Firestore
-          defaultRecipes.forEach(async (recipe) => {
+        // Perform self-healing in the background without blocking the UI
+        defaultRecipes.forEach(async (recipe) => {
+          const existing = items.find(item => item.id === recipe.id);
+          const isOutdated = !existing || (existing as any).version === undefined || (existing as any).version < (recipe as any).version;
+          if (isOutdated) {
+            console.log(`Self-healing recipe ${recipe.id} in database to version ${(recipe as any).version}...`);
             await setDoc(doc(db as any, 'users', uid, 'recipes', recipe.id), {
               ...recipe,
-              servings: recipe.defaultServings
+              servings: existing ? existing.servings : recipe.defaultServings
             });
-          });
-        } else if (hasMissing) {
-          // Add missing default recipes
-          defaultRecipes.forEach(async (recipe) => {
-            const existing = items.find(item => item.id === recipe.id);
-            if (!existing) {
-              await setDoc(doc(db as any, 'users', uid, 'recipes', recipe.id), {
-                ...recipe,
-                servings: recipe.defaultServings
-              });
-            }
-          });
-        } else {
-          // Sort recipes to keep structured display
-          const order = [
-            'stew', 'bowl', 'parfait', 'salmon', 'superveggie', 'nuttypudding', 'bark',
-            'egg-veggie-noodle-soup', 'gochujang-miso-booster', 'loaded-potato-cottage-cheese-chickpeas',
-            'tofu-veggie-stir-fry-brown-rice', 'lentil-spinach-curry-brown-rice', 'sardine-chickpea-couscous-bowl',
-            'smoky-paprika-marjoram-blade-stew', 'chocolate-buckwheat-protein-bars', 'matts-cheap-super-veggie-variant',
-            'creamy-dijon-chicken-mince', 'chicken-paprikash', 'bread-and-butter-pudding'
-          ];
-          items.sort((a, b) => {
-            const idxA = order.indexOf(a.id);
-            const idxB = order.indexOf(b.id);
-            if (idxA !== -1 && idxB !== -1) return idxA - idxB;
-            if (idxA !== -1) return -1;
-            if (idxB !== -1) return 1;
-            return a.title.localeCompare(b.title);
-          });
-          this.recipes = items;
-        }
+          }
+        });
       });
 
       // 2. Sync Shopping list
@@ -1320,64 +1311,181 @@ const store = {
    * scale factor, and formats weight/volume density values (grams, cups, spoons).
    */
   formatIngredient(ing: Ingredient, factor: number): { displayQty: string; name: string; isSwapped: boolean } {
-    const baseGrams = ing.qty * factor;
+    const qty = ing.qty * factor;
     const nameStr = this.budgetMode ? ing.alt : ing.name;
     const isSwapped = this.budgetMode && ing.alt !== ing.name;
 
-    // 1. Metric: return grams/ml
-    if (this.unitSystem === 'metric' || !ing.unit) {
-      const formattedQty = baseGrams.toFixed(1).replace(/\.0$/, '');
-      return {
-        displayQty: ing.unit ? `${formattedQty}${ing.unit}` : formattedQty,
-        name: nameStr,
-        isSwapped
-      };
-    }
+    const formattedMetricQty = qty.toFixed(1).replace(/\.0$/, '');
 
-    // 2. Cups System (Weight density conversion)
+    // Helper to pluralize units
+    const getUnitLabel = (unit: string, qtyVal: number): string => {
+      if (!unit) return '';
+      const lower = unit.toLowerCase();
+      const isPlural = qtyVal > 1;
+      
+      if (lower === 'g') return 'g';
+      if (lower === 'ml') return 'ml';
+      
+      if (lower === 'clove' || lower === 'cloves') return isPlural ? 'cloves' : 'clove';
+      if (lower === 'tin' || lower === 'tins') return isPlural ? 'tins' : 'tin';
+      if (lower === 'lemon' || lower === 'lemons') return isPlural ? 'lemons' : 'lemon';
+      if (lower === 'cup' || lower === 'cups') return isPlural ? 'cups' : 'cup';
+      if (lower === 'tbsp' || lower === 'tablespoon' || lower === 'tablespoons') return isPlural ? 'tablespoons' : 'tablespoon';
+      if (lower === 'tsp' || lower === 'teaspoon' || lower === 'teaspoons') return isPlural ? 'teaspoons' : 'teaspoon';
+      if (lower === 'egg' || lower === 'eggs') return isPlural ? 'eggs' : 'egg';
+      if (lower === 'stick' || lower === 'sticks') return isPlural ? 'sticks' : 'stick';
+      if (lower === 'leaf' || lower === 'leaves') return isPlural ? 'leaves' : 'leaf';
+      if (lower === 'whole') return 'whole';
+      if (lower === 'large') return 'large';
+      
+      if (isPlural && !lower.endsWith('s')) {
+        return unit + 's';
+      }
+      return unit;
+    };
+
+    let displayQtyVal: number = qty;
+    let displayUnit: string = ing.unit;
+    let showMetricBrackets = false;
+    let bracketMetricQty = 0;
+    let bracketMetricUnit = '';
+
+    let showImperialBrackets = false;
+    let bracketImperialQty = 0;
+    let bracketImperialUnit = '';
+
+    const isCupOrSpoonUnit = (u: string): boolean => {
+      if (!u) return false;
+      const lower = u.toLowerCase();
+      return lower === 'cup' || lower === 'cups' || lower === 'tbsp' || lower === 'tablespoon' || lower === 'tablespoons' || lower === 'tsp' || lower === 'teaspoon' || lower === 'teaspoons';
+    };
+
     if (this.unitSystem === 'cups') {
       if (ing.unit === 'g' && ing.cupWeight) {
-        const cupsVal = baseGrams / ing.cupWeight;
-        return {
-          displayQty: `${formatFraction(cupsVal)} cup`,
-          name: nameStr,
-          isSwapped
-        };
+        displayQtyVal = qty / ing.cupWeight;
+        displayUnit = 'cup';
+        showMetricBrackets = true;
+        bracketMetricQty = qty;
+        bracketMetricUnit = 'g';
+      } else if (ing.unit === 'ml') {
+        displayQtyVal = qty / 250;
+        displayUnit = 'cup';
+        showMetricBrackets = true;
+        bracketMetricQty = qty;
+        bracketMetricUnit = 'ml';
+      } else if (isCupOrSpoonUnit(ing.unit)) {
+        showMetricBrackets = true;
       }
-      if (ing.unit === 'ml') {
-        const cupsVal = baseGrams / 250; // AU cup metric standard (250ml)
-        return {
-          displayQty: `${formatFraction(cupsVal)} cup`,
-          name: nameStr,
-          isSwapped
-        };
-      }
-    }
-
-    // 3. Spoons System (Spoons/Tablespoons conversion)
-    if (this.unitSystem === 'spoons') {
+    } else if (this.unitSystem === 'spoons') {
       if (ing.unit === 'g' && ing.tbspWeight) {
-        const spoonsVal = baseGrams / ing.tbspWeight;
-        return {
-          displayQty: `${formatFraction(spoonsVal)} tbsp`,
-          name: nameStr,
-          isSwapped
-        };
+        displayQtyVal = qty / ing.tbspWeight;
+        displayUnit = 'tbsp';
+        showMetricBrackets = true;
+        bracketMetricQty = qty;
+        bracketMetricUnit = 'g';
+      } else if (ing.unit === 'ml') {
+        displayQtyVal = qty / 20;
+        displayUnit = 'tbsp';
+        showMetricBrackets = true;
+        bracketMetricQty = qty;
+        bracketMetricUnit = 'ml';
+      } else if (isCupOrSpoonUnit(ing.unit)) {
+        showMetricBrackets = true;
       }
-      if (ing.unit === 'ml') {
-        const spoonsVal = baseGrams / 20; // AU tablespoon standard (20ml)
-        return {
-          displayQty: `${formatFraction(spoonsVal)} tbsp`,
-          name: nameStr,
-          isSwapped
-        };
+    } else { // metric
+      if (isCupOrSpoonUnit(ing.unit)) {
+        showMetricBrackets = true;
+      } else if (ing.unit === 'g') {
+        if (ing.cupWeight && qty / ing.cupWeight >= 0.25) {
+          showImperialBrackets = true;
+          bracketImperialQty = qty / ing.cupWeight;
+          bracketImperialUnit = 'cup';
+        } else if (ing.tbspWeight) {
+          showImperialBrackets = true;
+          const spoonsVal = qty / ing.tbspWeight;
+          if (spoonsVal < 0.75) {
+            bracketImperialQty = spoonsVal * 4;
+            bracketImperialUnit = 'tsp';
+          } else {
+            bracketImperialQty = spoonsVal;
+            bracketImperialUnit = 'tbsp';
+          }
+        } else if (ing.cupWeight) {
+          showImperialBrackets = true;
+          const spoonsVal = (qty / ing.cupWeight) * 16;
+          if (spoonsVal < 0.75) {
+            bracketImperialQty = spoonsVal * 4;
+            bracketImperialUnit = 'tsp';
+          } else {
+            bracketImperialQty = spoonsVal;
+            bracketImperialUnit = 'tbsp';
+          }
+        }
+      } else if (ing.unit === 'ml') {
+        showImperialBrackets = true;
+        if (qty >= 60) {
+          bracketImperialQty = qty / 250;
+          bracketImperialUnit = 'cup';
+        } else if (qty >= 5) {
+          bracketImperialQty = qty / 20;
+          bracketImperialUnit = 'tbsp';
+        } else {
+          bracketImperialQty = qty / 5;
+          bracketImperialUnit = 'tsp';
+        }
       }
     }
 
-    // Fallback: return raw values
-    const formattedQty = baseGrams.toFixed(1).replace(/\.0$/, '');
+    // If original unit was cup/spoon and we need to show brackets
+    if (showMetricBrackets && bracketMetricQty === 0) {
+      const lowerUnit = ing.unit ? ing.unit.toLowerCase() : '';
+      if (lowerUnit === 'cup' || lowerUnit === 'cups') {
+        if (ing.cupWeight) {
+          bracketMetricQty = qty * ing.cupWeight;
+          bracketMetricUnit = 'g';
+        } else {
+          bracketMetricQty = qty * 250;
+          bracketMetricUnit = 'ml';
+        }
+      } else if (lowerUnit === 'tbsp' || lowerUnit === 'tablespoon' || lowerUnit === 'tablespoons') {
+        if (ing.tbspWeight) {
+          bracketMetricQty = qty * ing.tbspWeight;
+          bracketMetricUnit = 'g';
+        } else {
+          bracketMetricQty = qty * 20;
+          bracketMetricUnit = 'ml';
+        }
+      } else if (lowerUnit === 'tsp' || lowerUnit === 'teaspoon' || lowerUnit === 'teaspoons') {
+        if (ing.tbspWeight) {
+          bracketMetricQty = qty * (ing.tbspWeight / 4);
+          bracketMetricUnit = 'g';
+        } else {
+          bracketMetricQty = qty * 5;
+          bracketMetricUnit = 'ml';
+        }
+      }
+    }
+
+    // Format display quantity
+    let formattedQtyStr = '';
+    if (isCupOrSpoonUnit(displayUnit)) {
+      formattedQtyStr = formatFraction(displayQtyVal);
+    } else {
+      formattedQtyStr = displayQtyVal.toFixed(1).replace(/\.0$/, '');
+    }
+
+    let displayQty = displayUnit ? `${formattedQtyStr} ${getUnitLabel(displayUnit, displayQtyVal)}` : formattedQtyStr;
+
+    if (showMetricBrackets && bracketMetricQty > 0) {
+      const formattedBracketQty = bracketMetricQty.toFixed(1).replace(/\.0$/, '');
+      displayQty = `${displayQty} (${formattedBracketQty} ${getUnitLabel(bracketMetricUnit, bracketMetricQty)})`;
+    } else if (showImperialBrackets && bracketImperialQty > 0) {
+      const formattedBracketQty = formatFraction(bracketImperialQty);
+      displayQty = `${displayQty} (${formattedBracketQty} ${getUnitLabel(bracketImperialUnit, bracketImperialQty)})`;
+    }
+
     return {
-      displayQty: ing.unit ? `${formattedQty}${ing.unit}` : formattedQty,
+      displayQty,
       name: nameStr,
       isSwapped
     };
@@ -1644,7 +1752,8 @@ const store = {
       };
       
       if (db && isFirebaseOnline && this.user) {
-        const docId = `${recipeId}_${ing.name.replace(/\s+/g, '_')}`;
+        const cleanName = ing.name.replace(/[^a-zA-Z0-9]/g, '_').replace(/_+/g, '_');
+        const docId = `${recipeId}_${cleanName}`;
         await setDoc(doc(db as any, 'users', this.user.uid, 'shoppingList', docId), newItem);
       } else {
         const existing = this.shoppingList.find(i => i.name === newItem.name);
@@ -1717,11 +1826,25 @@ const store = {
       }
     });
     
-    navigator.clipboard.writeText(lines.join('\n')).then(() => {
-      alert("Shopping list copied to clipboard in plain-text checklist format!");
-    }).catch(err => {
-      alert("Clipboard export failed: " + err);
-    });
+    const textToShare = lines.join('\n');
+    
+    if (navigator.share) {
+      navigator.share({
+        title: 'Successor Shopping List',
+        text: textToShare
+      }).catch(err => {
+        // Fallback to clipboard if share was cancelled or failed
+        navigator.clipboard.writeText(textToShare).then(() => {
+          alert("Share sheet closed. Shopping list copied to clipboard instead!");
+        });
+      });
+    } else {
+      navigator.clipboard.writeText(textToShare).then(() => {
+        alert("Shopping list copied to clipboard in plain-text checklist format!");
+      }).catch(err => {
+        alert("Clipboard export failed: " + err);
+      });
+    }
   },
 
   /* ====================================
@@ -1821,7 +1944,10 @@ const store = {
   formatEnergyVal(recipe: Recipe): string {
     const kcal = this.getRecipeCalories(recipe);
     const kJ = Math.round(kcal * 4.184);
-    return `${kcal} kcal (${kJ} kJ) / serving`;
+    const servingsCount = recipe.servings !== undefined ? recipe.servings : recipe.defaultServings;
+    const totalKcal = kcal * servingsCount;
+    const totalKJ = Math.round(totalKcal * 4.184);
+    return `${kcal} kcal (${kJ} kJ) / serving | Total: ${totalKcal} kcal (${totalKJ} kJ)`;
   },
 
   getRecipeCostPerServing(recipe: Recipe): number {
@@ -1866,9 +1992,11 @@ const store = {
       }
       
       // 3. Calories filter (always compared in kcal)
-      const cals = this.getRecipeCalories(recipe);
-      if (cals > maxCal) {
-        return false;
+      if (this.recipeMaxCaloriesEnabled) {
+        const cals = this.getRecipeCalories(recipe);
+        if (cals > maxCal) {
+          return false;
+        }
       }
       
       // 4. Search query filter
