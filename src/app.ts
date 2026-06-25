@@ -1053,13 +1053,13 @@ const store = {
     onAuthStateChanged(auth, (firebaseUser: any) => {
       this.isCheckingAuth = false;
       if (firebaseUser) {
-        // Enforce strict email restriction rules (only mattp@thorsys.com.au)
+        // Enforce strict email restriction rules (only mpalmeralt@gmail.com)
         const email = (firebaseUser.email || '').toLowerCase().trim();
-        if (email === 'mattp@thorsys.com.au') {
+        if (email === 'mpalmeralt@gmail.com') {
           this.user = firebaseUser;
           this.loadDatabaseSyncs();
         } else {
-          alert("Access Denied: Only mattp@thorsys.com.au is authorized.");
+          alert("Access Denied: This account is not authorized.");
           signOut(auth);
           this.user = null;
         }
