@@ -1,4 +1,4 @@
-const CACHE_NAME = 'successor-health-v12';
+const CACHE_NAME = 'successor-health-v13';
 const ASSETS = [
   './',
   './index.html',
@@ -48,9 +48,8 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Cache-First strategy with network fallback
+// Fetch events: Network-First for core code, Stale-While-Revalidate for static resources
 self.addEventListener('fetch', event => {
-  // Allow caching of local origin OR the gstatic Firebase CDN (ignored otherwise)
   const isLocal = event.request.url.startsWith(self.location.origin);
   const isGstatic = event.request.url.startsWith('https://www.gstatic.com/');
   
@@ -58,18 +57,42 @@ self.addEventListener('fetch', event => {
     return;
   }
   
-  event.respondWith(
-    caches.match(event.request).then(cachedResponse => {
-      if (cachedResponse) {
-        // Return from cache, but fetch fresh in background to update cache (stale-while-revalidate)
-        fetch(event.request).then(networkResponse => {
+  // Identify core dynamic text/code assets
+  const url = event.request.url;
+  const isCoreAsset = url.endsWith('index.html') || 
+                      url.endsWith('app.js') || 
+                      url === self.location.origin || 
+                      url === self.location.origin + '/';
+  
+  if (isCoreAsset) {
+    // Network-First with cache fallback
+    event.respondWith(
+      fetch(event.request)
+        .then(networkResponse => {
           if (networkResponse.status === 200) {
-            caches.open(CACHE_NAME).then(cache => cache.put(event.request, networkResponse));
+            const cacheCopy = networkResponse.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(event.request, cacheCopy));
           }
-        }).catch(() => {/* Ignore network failures when offline */});
-        return cachedResponse;
-      }
-      return fetch(event.request);
-    })
-  );
+          return networkResponse;
+        })
+        .catch(() => {
+          return caches.match(event.request);
+        })
+    );
+  } else {
+    // Stale-While-Revalidate for images, stylesheets, libraries
+    event.respondWith(
+      caches.match(event.request).then(cachedResponse => {
+        if (cachedResponse) {
+          fetch(event.request).then(networkResponse => {
+            if (networkResponse.status === 200) {
+              caches.open(CACHE_NAME).then(cache => cache.put(event.request, networkResponse));
+            }
+          }).catch(() => {});
+          return cachedResponse;
+        }
+        return fetch(event.request);
+      })
+    );
+  }
 });
