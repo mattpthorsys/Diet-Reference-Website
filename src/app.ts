@@ -508,11 +508,24 @@ const store = {
   timerState: 'idle' as 'idle' | 'running' | 'paused',
 
   // Initialize store bindings and lifecycle events
-  async init() {
+  init() {
     this.loadLocalPreferences();
-    await this.initFirebase();
-    this.setupAuthListener();
-    this.loadDatabaseSyncs();
+    
+    // Safety timeout: if anything (including dynamic import loading or emulator checks) hangs,
+    // release the loading spinner after 2.0 seconds so the user can choose offline bypass mode.
+    setTimeout(() => {
+      if (this.isCheckingAuth) {
+        console.warn("[Auth] Initialization check timed out. Displaying auth gateway.");
+        this.isCheckingAuth = false;
+      }
+    }, 2000);
+
+    // Run Firebase initialization in the background, without blocking the main thread!
+    this.initFirebase().then(() => {
+      this.setupAuthListener();
+      this.loadDatabaseSyncs();
+    });
+
     this.updatePlateFromSliders();
     this.startPwaServiceWorker();
   },
@@ -600,15 +613,6 @@ const store = {
       this.isCheckingAuth = false;
       return;
     }
-    
-    // Safety timeout: if emulator auth check hangs (e.g. emulator is offline),
-    // release the loading spinner after 2.0 seconds so the user can choose offline bypass mode.
-    setTimeout(() => {
-      if (this.isCheckingAuth) {
-        console.warn("[Auth] Authentication check timed out. Displaying auth gateway.");
-        this.isCheckingAuth = false;
-      }
-    }, 2000);
     
     onAuthStateChanged(auth, (firebaseUser: any) => {
       this.isCheckingAuth = false;
