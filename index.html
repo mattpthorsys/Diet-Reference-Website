@@ -393,39 +393,45 @@
 
         <div class="recipe-cards-container">
           
-          <!-- Recipe Card 1: Dinner Stew -->
-          <div class="recipe-card" id="recipe-stew">
+          <!-- Dynamic Database-Driven Recipe Card -->
+          <div class="recipe-card" v-for="recipe in store.recipes" :id="'recipe-' + recipe.id">
             <div class="recipe-img-container">
-              <img src="images/stew.png" alt="Adapted Dinner Stew">
+              <img :src="recipe.imgUrl" :alt="recipe.title">
               <div class="recipe-time">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="time-icon">
                   <circle cx="12" cy="12" r="10"/>
                   <polyline points="12 6 12 12 16 14"/>
                 </svg>
-                <span>45 Mins</span>
+                <span>{{ recipe.cookingTime }}</span>
               </div>
-              <div class="recipe-type-badge">Stew</div>
+              <div class="recipe-type-badge">{{ recipe.typeBadge }}</div>
             </div>
             
             <div class="recipe-body">
               <div class="recipe-header">
-                <h3>Adapted Dinner Stew</h3>
+                <h3>{{ recipe.title }}</h3>
                 <span class="recipe-sub">Serves {{ store.servings }}</span>
               </div>
-              <p class="recipe-intro">A cheap, high-volume batch stew built around lentils, sweet potato, and firm tofu. Focuses on moist, low-temp cooking to support portion-controlled dietary quality.</p>
+              <p class="recipe-intro">{{ recipe.intro }}</p>
               
-              <!-- Ingredients list -->
+              <!-- Pathway selector only for Breakfast Parfait -->
+              <div class="recipe-pathways" v-if="recipe.id === 'parfait'">
+                <button class="pathway-btn" :class="{ active: store.parfaitPathway === 'oats' }" @click="store.parfaitPathway = 'oats'">Satiety Oats (Default)</button>
+                <button class="pathway-btn" :class="{ active: store.parfaitPathway === 'lowcarb' }" @click="store.parfaitPathway = 'lowcarb'">Lower-Carb / Nut-Dense</button>
+              </div>
+
+              <!-- Reactive scaled and unit converted ingredients -->
               <div class="recipe-tab-content active">
                 <ul class="ingredient-list">
-                  <li v-for="ing in store.convertedStewIngredients" :class="{ 'budget-swapped': ing.isSwapped }">
+                  <li v-for="ing in store.convertedIngredients(recipe)" :class="{ 'budget-swapped': ing.isSwapped }">
                     <span>{{ ing.name }}</span>
                     <strong>{{ ing.displayQty }}</strong>
                   </li>
                 </ul>
               </div>
 
-              <!-- Interactive Timer box -->
-              <div class="cooking-timer-box" style="margin-top: 16px;">
+              <!-- Simmer Timer only for Dinner Stew -->
+              <div class="cooking-timer-box" style="margin-top: 16px;" v-if="recipe.id === 'stew'">
                 <div class="timer-display">
                   <span>{{ store.timerClockDisplay }}</span>
                   <span class="timer-phase">Simmering Lentils ({{ store.timerState.toUpperCase() }})</span>
@@ -438,84 +444,7 @@
               </div>
               
               <div class="recipe-card-footer">
-                <button class="btn btn-primary btn-block" @click="store.addRecipeToShoppingList('stew')">Add Ingredients to Shopping List</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Recipe Card 2: Lunch Bowl -->
-          <div class="recipe-card" id="recipe-bowl">
-            <div class="recipe-img-container">
-              <img src="images/bowl.png" alt="Adapted Lunch Bowl">
-              <div class="recipe-time">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="time-icon">
-                  <circle cx="12" cy="12" r="10"/>
-                  <polyline points="12 6 12 12 16 14"/>
-                </svg>
-                <span>15 Mins</span>
-              </div>
-              <div class="recipe-type-badge">Salad Bowl</div>
-            </div>
-            
-            <div class="recipe-body">
-              <div class="recipe-header">
-                <h3>Adapted Lunch Bowl</h3>
-                <span class="recipe-sub">Serves {{ store.servings }}</span>
-              </div>
-              <p class="recipe-intro">A large volume, low energy density lunch. Preserves the original's "satiety sponge" concept but strips away overclaimed molecular additions like trehalose.</p>
-              
-              <div class="recipe-tab-content active">
-                <ul class="ingredient-list">
-                  <li v-for="ing in store.convertedBowlIngredients" :class="{ 'budget-swapped': ing.isSwapped }">
-                    <span>{{ ing.name }}</span>
-                    <strong>{{ ing.displayQty }}</strong>
-                  </li>
-                </ul>
-              </div>
-              
-              <div class="recipe-card-footer">
-                <button class="btn btn-primary btn-block" @click="store.addRecipeToShoppingList('bowl')">Add Ingredients to Shopping List</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Recipe Card 3: Breakfast Parfait -->
-          <div class="recipe-card" id="recipe-parfait">
-            <div class="recipe-img-container">
-              <img src="images/parfait.png" alt="Adapted Breakfast Parfait">
-              <div class="recipe-time">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="time-icon">
-                  <circle cx="12" cy="12" r="10"/>
-                  <polyline points="12 6 12 12 16 14"/>
-                </svg>
-                <span>10 Mins (Overnight)</span>
-              </div>
-              <div class="recipe-type-badge">Breakfast</div>
-            </div>
-            
-            <div class="recipe-body">
-              <div class="recipe-header">
-                <h3>Adapted Breakfast Parfait</h3>
-                <span class="recipe-sub">Serves {{ store.servings }}</span>
-              </div>
-              <p class="recipe-intro">A fiber-packed, slow-digesting overnight breakfast. Offers two evidence-based dietary pathways: Satiety Oats default or a Lower-Carb seeds/nuts configuration.</p>
-              
-              <div class="recipe-pathways">
-                <button class="pathway-btn" :class="{ active: store.parfaitPathway === 'oats' }" @click="store.parfaitPathway = 'oats'">Satiety Oats (Default)</button>
-                <button class="pathway-btn" :class="{ active: store.parfaitPathway === 'lowcarb' }" @click="store.parfaitPathway = 'lowcarb'">Lower-Carb / Nut-Dense</button>
-              </div>
-
-              <div class="recipe-tab-content active">
-                <ul class="ingredient-list">
-                  <li v-for="ing in store.convertedParfaitIngredients" :class="{ 'budget-swapped': ing.isSwapped }">
-                    <span>{{ ing.name }}</span>
-                    <strong>{{ ing.displayQty }}</strong>
-                  </li>
-                </ul>
-              </div>
-              
-              <div class="recipe-card-footer">
-                <button class="btn btn-primary btn-block" @click="store.addRecipeToShoppingList('parfait')">Add Ingredients to Shopping List</button>
+                <button class="btn btn-primary btn-block" @click="store.addRecipeToShoppingList(recipe.id)">Add Ingredients to Shopping List</button>
               </div>
             </div>
           </div>

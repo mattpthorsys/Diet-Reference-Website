@@ -75,58 +75,139 @@ interface AuditRow {
    Fallback Mock Data & Constants
    ========================================================================== */
 
-// Base recipe ingredients per single serving (1 serving)
-const recipeBases: Record<string, any> = {
-  stew: [
-    { name: 'brown or green lentils, dry', qty: 45, unit: 'g', zone: 'bulk', alt: 'generic brown lentils', cupWeight: 180, tbspWeight: 11.5 },
-    { name: 'firm tofu, cubed', qty: 75, unit: 'g', zone: 'asian', alt: 'supermarket own-brand firm tofu', cupWeight: 220 },
-    { name: 'sweet potato or potato, diced', qty: 75, unit: 'g', zone: 'greengrocer', alt: 'ordinary dirty potatoes', cupWeight: 150 },
-    { name: 'cauliflower, florets', qty: 100, unit: 'g', zone: 'greengrocer', alt: 'frozen cauliflower florets', cupWeight: 100 },
-    { name: 'carrots, sliced', qty: 50, unit: 'g', zone: 'greengrocer', alt: 'bulk carrots', cupWeight: 120 },
-    { name: 'celery, sliced', qty: 37.5, unit: 'g', zone: 'greengrocer', alt: 'celery stalks', cupWeight: 100 },
-    { name: 'onion, diced', qty: 37.5, unit: 'g', zone: 'greengrocer', alt: 'brown onions', cupWeight: 150 },
-    { name: 'garlic, minced', qty: 1, unit: 'clove', zone: 'greengrocer', alt: 'jar minced garlic' },
-    { name: 'tinned chopped tomatoes (no salt)', qty: 0.5, unit: 'tin', zone: 'supermarket', alt: 'home brand tinned tomatoes' },
-    { name: 'spinach or kale', qty: 37.5, unit: 'g', zone: 'supermarket', alt: 'frozen spinach blocks', cupWeight: 30 },
-    { name: 'lower-sodium tamari or soy sauce', qty: 0.5, unit: 'tbsp', zone: 'asian', alt: 'supermarket house brand soy', tbspWeight: 15 },
-    { name: 'extra virgin olive oil', qty: 0.5, unit: 'tbsp', zone: 'supermarket', alt: 'standard cooking olive oil', tbspWeight: 14 },
-    { name: 'lemon juice or vinegar', qty: 0.5, unit: 'tbsp', zone: 'greengrocer', alt: 'bottled lemon juice', tbspWeight: 15 },
-    { name: 'water or low-salt stock', qty: 250, unit: 'ml', zone: 'supermarket', alt: 'plain water / home stock', cupWeight: 250, tbspWeight: 15 }
-  ],
-  bowl: [
-    { name: 'mushrooms, sliced', qty: 200, unit: 'g', zone: 'greengrocer', alt: 'canned sliced mushrooms', cupWeight: 70 },
-    { name: 'cucumber, chopped', qty: 0.5, unit: 'large', zone: 'greengrocer', alt: 'local cucumber' },
-    { name: 'kale or mixed leafy greens', qty: 75, unit: 'g', zone: 'greengrocer', alt: 'shredded cabbage / slaw mix', cupWeight: 25 },
-    { name: 'edamame, tofu, or chickpeas', qty: 100, unit: 'g', zone: 'supermarket', alt: 'canned drained chickpeas', cupWeight: 170 },
-    { name: 'olive or canola oil', qty: 0.5, unit: 'tbsp', zone: 'supermarket', alt: 'canola oil', tbspWeight: 14 },
-    { name: 'apple cider vinegar or rice vinegar', qty: 1, unit: 'tbsp', zone: 'supermarket', alt: 'white vinegar', tbspWeight: 15 },
-    { name: 'lemon juice', qty: 0.5, unit: 'tbsp', zone: 'greengrocer', alt: 'bottled lemon juice', tbspWeight: 15 },
-    { name: 'nutritional yeast (savoury)', qty: 1, unit: 'tbsp', zone: 'bulk', alt: 'omit / home spices', tbspWeight: 5 },
-    { name: 'sesame seeds', qty: 0.5, unit: 'tbsp', zone: 'bulk', alt: 'sunflower seeds', tbspWeight: 9 }
-  ],
-  parfait: {
-    oats: [
-      { name: 'rolled or steel-cut oats', qty: 35, unit: 'g', zone: 'bulk', alt: 'supermarket rolled oats', cupWeight: 90, tbspWeight: 6 },
-      { name: 'chia seeds', qty: 10, unit: 'g', zone: 'supermarket', alt: 'flaxseeds only', cupWeight: 160, tbspWeight: 10 },
-      { name: 'ground flaxseed', qty: 10, unit: 'g', zone: 'supermarket', alt: 'ground linseed', cupWeight: 150, tbspWeight: 7.5 },
-      { name: 'plain unsweetened yoghurt / soy yoghurt', qty: 135, unit: 'g', zone: 'supermarket', alt: 'supermarket brand Greek yoghurt', cupWeight: 240 },
-      { name: 'milk or fortified unsweetened soy drink', qty: 110, unit: 'ml', zone: 'supermarket', alt: 'generic soy milk', cupWeight: 250, tbspWeight: 15 },
-      { name: 'berries, fresh or frozen', qty: 110, unit: 'g', zone: 'supermarket', alt: 'frozen mixed berries', cupWeight: 150 },
-      { name: 'nuts, chopped', qty: 12.5, unit: 'g', zone: 'bulk', alt: 'peanuts', cupWeight: 130, tbspWeight: 8 },
-      { name: 'cinnamon', qty: 0.25, unit: 'tsp', zone: 'bulk', alt: 'cinnamon powder' }
+interface Recipe {
+  id: string;
+  title: string;
+  category: string;
+  defaultServings: number;
+  intro: string;
+  cookingTime: string;
+  typeBadge: string;
+  ingredients: any;
+  instructions: string[];
+  scienceNotes: string[];
+  imgUrl: string;
+}
+
+// Base recipes schema structure matching database document templates
+const defaultRecipes: Recipe[] = [
+  {
+    id: "stew",
+    title: "Adapted Dinner Stew",
+    category: "stew",
+    defaultServings: 4,
+    intro: "A cheap, high-volume batch stew built around lentils, sweet potato, and firm tofu. Focuses on moist, low-temp cooking to support portion-controlled dietary quality.",
+    cookingTime: "45 Mins",
+    typeBadge: "Stew",
+    imgUrl: "images/stew.png",
+    ingredients: [
+      { name: 'brown or green lentils, dry', qty: 45, unit: 'g', zone: 'bulk', alt: 'generic brown lentils', cupWeight: 180, tbspWeight: 11.5 },
+      { name: 'firm tofu, cubed', qty: 75, unit: 'g', zone: 'asian', alt: 'supermarket own-brand firm tofu', cupWeight: 220 },
+      { name: 'sweet potato or potato, diced', qty: 75, unit: 'g', zone: 'greengrocer', alt: 'ordinary dirty potatoes', cupWeight: 150 },
+      { name: 'cauliflower, florets', qty: 100, unit: 'g', zone: 'greengrocer', alt: 'frozen cauliflower florets', cupWeight: 100 },
+      { name: 'carrots, sliced', qty: 50, unit: 'g', zone: 'greengrocer', alt: 'bulk carrots', cupWeight: 120 },
+      { name: 'celery, sliced', qty: 37.5, unit: 'g', zone: 'greengrocer', alt: 'celery stalks', cupWeight: 100 },
+      { name: 'onion, diced', qty: 37.5, unit: 'g', zone: 'greengrocer', alt: 'brown onions', cupWeight: 150 },
+      { name: 'garlic, minced', qty: 1, unit: 'clove', zone: 'greengrocer', alt: 'jar minced garlic' },
+      { name: 'tinned chopped tomatoes (no salt)', qty: 0.5, unit: 'tin', zone: 'supermarket', alt: 'home brand tinned tomatoes' },
+      { name: 'spinach or kale', qty: 37.5, unit: 'g', zone: 'supermarket', alt: 'frozen spinach blocks', cupWeight: 30 },
+      { name: 'lower-sodium tamari or soy sauce', qty: 0.5, unit: 'tbsp', zone: 'asian', alt: 'supermarket house brand soy', tbspWeight: 15 },
+      { name: 'extra virgin olive oil', qty: 0.5, unit: 'tbsp', zone: 'supermarket', alt: 'standard cooking olive oil', tbspWeight: 14 },
+      { name: 'lemon juice or vinegar', qty: 0.5, unit: 'tbsp', zone: 'greengrocer', alt: 'bottled lemon juice', tbspWeight: 15 },
+      { name: 'water or low-salt stock', qty: 250, unit: 'ml', zone: 'supermarket', alt: 'plain water / home stock', cupWeight: 250, tbspWeight: 15 }
     ],
-    lowcarb: [
-      { name: 'rolled or steel-cut oats', qty: 12.5, unit: 'g', zone: 'bulk', alt: 'supermarket rolled oats', cupWeight: 90, tbspWeight: 6 },
-      { name: 'chia seeds', qty: 15, unit: 'g', zone: 'supermarket', alt: 'chia seeds', cupWeight: 160, tbspWeight: 10 },
-      { name: 'ground flaxseed', qty: 15, unit: 'g', zone: 'supermarket', alt: 'ground flaxseed', cupWeight: 150, tbspWeight: 7.5 },
-      { name: 'plain unsweetened yoghurt / soy yoghurt', qty: 135, unit: 'g', zone: 'supermarket', alt: 'supermarket brand Greek yoghurt', cupWeight: 240 },
-      { name: 'milk or fortified unsweetened soy drink', qty: 110, unit: 'ml', zone: 'supermarket', alt: 'generic soy milk', cupWeight: 250, tbspWeight: 15 },
-      { name: 'berries, fresh or frozen', qty: 110, unit: 'g', zone: 'supermarket', alt: 'frozen mixed berries', cupWeight: 150 },
-      { name: 'nuts, chopped', qty: 20, unit: 'g', zone: 'bulk', alt: 'peanuts', cupWeight: 130, tbspWeight: 8 },
-      { name: 'cinnamon', qty: 0.25, unit: 'tsp', zone: 'bulk', alt: 'cinnamon powder' }
+    instructions: [
+      "Sauté onion, celery, and carrot in 1 tbsp olive oil or a splash of water/stock over medium-low heat until softened, not scorched.",
+      "Add garlic and spices (cumin, paprika, black pepper, chili); cook briefly for 1 minute until fragrant.",
+      "Add dry lentils, chopped tomatoes, cauliflower florets, diced sweet potato/potato, cubed tofu, and low-salt stock or water.",
+      "Simmer gently for 25-30 minutes until the lentils are tender and vegetables are soft. (Use the Simmer Timer above!)",
+      "Add spinach or kale near the end of cooking (final 3 minutes) until wilted.",
+      "Finish by stirring in lemon juice or vinegar and check seasoning. Prioritize acid, pepper, and herbs before adding any salt."
+    ],
+    scienceNotes: [
+      "Lentils & Tofu: High-protein, high-fiber core provides high satiety, promoting spontaneous calorie reduction.",
+      "Lower-Sodium Soy Sauce: Directly maps to NHS/WHO guidelines for blood pressure control (<5g salt/day).",
+      "Moist Heat: Stewing avoids harsh frying and excessive browning, keeping diet clean and lowering AGEs (advanced glycation end-products) in a practical way."
+    ]
+  },
+  {
+    id: "bowl",
+    title: "Adapted Lunch Bowl",
+    category: "bowl",
+    defaultServings: 2,
+    intro: "A large volume, low energy density lunch. Preserves the original's 'satiety sponge' concept but strips away overclaimed molecular additions like trehalose.",
+    cookingTime: "15 Mins",
+    typeBadge: "Salad Bowl",
+    imgUrl: "images/bowl.png",
+    ingredients: [
+      { name: 'mushrooms, sliced', qty: 200, unit: 'g', zone: 'greengrocer', alt: 'canned sliced mushrooms', cupWeight: 70 },
+      { name: 'cucumber, chopped', qty: 0.5, unit: 'large', zone: 'greengrocer', alt: 'local cucumber' },
+      { name: 'kale or mixed leafy greens', qty: 75, unit: 'g', zone: 'greengrocer', alt: 'shredded cabbage / slaw mix', cupWeight: 25 },
+      { name: 'edamame, tofu, or chickpeas', qty: 100, unit: 'g', zone: 'supermarket', alt: 'canned drained chickpeas', cupWeight: 170 },
+      { name: 'olive or canola oil', qty: 0.5, unit: 'tbsp', zone: 'supermarket', alt: 'canola oil', tbspWeight: 14 },
+      { name: 'apple cider vinegar or rice vinegar', qty: 1, unit: 'tbsp', zone: 'supermarket', alt: 'white vinegar', tbspWeight: 15 },
+      { name: 'lemon juice', qty: 0.5, unit: 'tbsp', zone: 'greengrocer', alt: 'bottled lemon juice', tbspWeight: 15 },
+      { name: 'nutritional yeast (savoury)', qty: 1, unit: 'tbsp', zone: 'bulk', alt: 'omit / home spices', tbspWeight: 5 },
+      { name: 'sesame seeds', qty: 0.5, unit: 'tbsp', zone: 'bulk', alt: 'sunflower seeds', tbspWeight: 9 }
+    ],
+    instructions: [
+      "Steam or lightly sauté sliced mushrooms in a non-stick pan without heavy browning.",
+      "Massage kale or leafy greens with a tiny splash of oil and lemon juice to soften tough leaves.",
+      "Cut cucumber into thick chunks or smash them with a rolling pin for enhanced texture.",
+      "Prepare the protein element: shell edamame, cube raw tofu, or drain/rinse canned chickpeas.",
+      "Whisk vinegar, lemon juice, oil, chilli flakes, garlic, ginger, and nutritional yeast to make a dressing.",
+      "Assemble vegetables and protein in a large bowl, drizzle with dressing, sprinkle sesame seeds, and chill before serving."
+    ],
+    scienceNotes: [
+      "Satiety Sponge: Cucumbers, greens, and mushrooms hold structural water, bulk-filling the stomach without caloric load.",
+      "Removal of Trehalose: Done to align with WHO and NHS. Trehalose (a sugar) does not have proven clinically meaningful autophagy benefits in healthy humans.",
+      "Balanced Protein: Adding edamame/chickpeas ensures the salad functions as a complete, balanced meal rather than just low-calorie plants."
+    ]
+  },
+  {
+    id: "parfait",
+    title: "Adapted Breakfast Parfait",
+    category: "parfait",
+    defaultServings: 2,
+    intro: "A fiber-packed, slow-digesting overnight breakfast. Offers two evidence-based dietary pathways: Satiety Oats default or a Lower-Carb seeds/nuts configuration.",
+    cookingTime: "10 Mins (Overnight)",
+    typeBadge: "Breakfast",
+    imgUrl: "images/parfait.png",
+    ingredients: {
+      oats: [
+        { name: 'rolled or steel-cut oats', qty: 35, unit: 'g', zone: 'bulk', alt: 'supermarket rolled oats', cupWeight: 90, tbspWeight: 6 },
+        { name: 'chia seeds', qty: 10, unit: 'g', zone: 'supermarket', alt: 'flaxseeds only', cupWeight: 160, tbspWeight: 10 },
+        { name: 'ground flaxseed', qty: 10, unit: 'g', zone: 'supermarket', alt: 'ground linseed', cupWeight: 150, tbspWeight: 7.5 },
+        { name: 'plain unsweetened yoghurt / soy yoghurt', qty: 135, unit: 'g', zone: 'supermarket', alt: 'supermarket brand Greek yoghurt', cupWeight: 240 },
+        { name: 'milk or fortified unsweetened soy drink', qty: 110, unit: 'ml', zone: 'supermarket', alt: 'generic soy milk', cupWeight: 250, tbspWeight: 15 },
+        { name: 'berries, fresh or frozen', qty: 110, unit: 'g', zone: 'supermarket', alt: 'frozen mixed berries', cupWeight: 150 },
+        { name: 'nuts, chopped', qty: 12.5, unit: 'g', zone: 'bulk', alt: 'peanuts', cupWeight: 130, tbspWeight: 8 },
+        { name: 'cinnamon', qty: 0.25, unit: 'tsp', zone: 'bulk', alt: 'cinnamon powder' }
+      ],
+      lowcarb: [
+        { name: 'rolled or steel-cut oats', qty: 12.5, unit: 'g', zone: 'bulk', alt: 'supermarket rolled oats', cupWeight: 90, tbspWeight: 6 },
+        { name: 'chia seeds', qty: 15, unit: 'g', zone: 'supermarket', alt: 'chia seeds', cupWeight: 160, tbspWeight: 10 },
+        { name: 'ground flaxseed', qty: 15, unit: 'g', zone: 'supermarket', alt: 'ground flaxseed', cupWeight: 150, tbspWeight: 7.5 },
+        { name: 'plain unsweetened yoghurt / soy yoghurt', qty: 135, unit: 'g', zone: 'supermarket', alt: 'supermarket brand Greek yoghurt', cupWeight: 240 },
+        { name: 'milk or fortified unsweetened soy drink', qty: 110, unit: 'ml', zone: 'supermarket', alt: 'generic soy milk', cupWeight: 250, tbspWeight: 15 },
+        { name: 'berries, fresh or frozen', qty: 110, unit: 'g', zone: 'supermarket', alt: 'frozen mixed berries', cupWeight: 150 },
+        { name: 'nuts, chopped', qty: 20, unit: 'g', zone: 'bulk', alt: 'peanuts', cupWeight: 130, tbspWeight: 8 },
+        { name: 'cinnamon', qty: 0.25, unit: 'tsp', zone: 'bulk', alt: 'cinnamon powder' }
+      ]
+    },
+    instructions: [
+      "Combine oats (if using), chia seeds, and ground flaxseed with milk in a glass jar or bowl.",
+      "If adding extra protein powder (pea/soy), whisk it thoroughly into the milk mixture now.",
+      "Refrigerate overnight (or at least 4 hours) to allow chia/oats to expand and form a thick parfait.",
+      "In the morning, top with plain unsweetened dairy or soy yoghurt, berries, cinnamon, and portion-controlled chopped nuts."
+    ],
+    scienceNotes: [
+      "Whole Oats: Contains beta-glucan soluble fiber, heavily supported by clinical trials for glucose regulation and LDL control.",
+      "Nuts Caution: Rich in healthy fats, but energy-dense. The recipe strictly portions nuts (20-30g) to prevent accidental caloric overshoot.",
+      "Soy/Dairy Yoghurt: Unsweetened yoghurts provide calcium and protein without free sugars, which WHO advises restricting."
     ]
   }
-};
+];
 
 const defaultShoppingList: ShoppingItem[] = [
   { name: 'Brown or green lentils', qty: '180g', zone: 'bulk', checked: false },
@@ -291,6 +372,7 @@ const store = {
   auditFilter: 'all',
   
   // Main Data lists
+  recipes: [] as Recipe[],
   shoppingList: [] as ShoppingItem[],
   healthLogs: [] as LogEntry[],
   auditRows: defaultAuditRows,
@@ -401,11 +483,32 @@ const store = {
 
   loadDatabaseSyncs() {
     if (!this.user) return;
+    const uid = this.user.uid;
     
-    // Sync Shopping list
+    // Sync Recipes & Shopping List & Health Logs
     if (db && isFirebaseOnline) {
-      // Sync from Firestore real-time listener
-      onSnapshot(collection(db, 'users', this.user.uid, 'shoppingList'), (snapshot: any) => {
+      // 1. Sync recipes (with self-healing auto-population if collection is empty)
+      onSnapshot(collection(db, 'users', uid, 'recipes'), (snapshot: any) => {
+        const items: Recipe[] = [];
+        snapshot.forEach((doc: any) => {
+          items.push({ id: doc.id, ...doc.data() } as Recipe);
+        });
+        
+        if (items.length === 0) {
+          // Self-heal: Database was empty, load defaults and write to cloud Firestore
+          defaultRecipes.forEach(async (recipe) => {
+            await setDoc(doc(db as any, 'users', uid, 'recipes', recipe.id), recipe);
+          });
+        } else {
+          // Sort recipes to keep chronological display: stew, bowl, parfait
+          const order = ['stew', 'bowl', 'parfait'];
+          items.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
+          this.recipes = items;
+        }
+      });
+
+      // 2. Sync Shopping list
+      onSnapshot(collection(db, 'users', uid, 'shoppingList'), (snapshot: any) => {
         const items: ShoppingItem[] = [];
         snapshot.forEach((doc: any) => {
           items.push({ id: doc.id, ...doc.data() } as ShoppingItem);
@@ -413,8 +516,8 @@ const store = {
         this.shoppingList = items;
       });
       
-      // Sync Health Logs
-      onSnapshot(collection(db, 'users', this.user.uid, 'healthLogs'), (snapshot: any) => {
+      // 3. Sync Health Logs
+      onSnapshot(collection(db, 'users', uid, 'healthLogs'), (snapshot: any) => {
         const logs: LogEntry[] = [];
         snapshot.forEach((doc: any) => {
           logs.push({ id: doc.id, ...doc.data() } as LogEntry);
@@ -423,6 +526,14 @@ const store = {
       });
     } else {
       // Fallback local storage
+      const localRecipes = localStorage.getItem('successor_recipes');
+      if (localRecipes) {
+        this.recipes = JSON.parse(localRecipes);
+      } else {
+        this.recipes = defaultRecipes.map(recipe => ({ ...recipe }));
+        localStorage.setItem('successor_recipes', JSON.stringify(this.recipes));
+      }
+
       const localShopping = localStorage.getItem('successor_shopping_list');
       if (localShopping) {
         this.shoppingList = JSON.parse(localShopping);
@@ -445,17 +556,18 @@ const store = {
   /* ====================================
      Portions Converter & Scaling Engine
      ==================================== */
-  get convertedStewIngredients(): any[] {
-    return recipeBases.stew.map((ing: Ingredient) => this.formatIngredient(ing, this.servings / 4));
-  },
-
-  get convertedBowlIngredients(): any[] {
-    return recipeBases.bowl.map((ing: Ingredient) => this.formatIngredient(ing, this.servings / 2));
-  },
-
-  get convertedParfaitIngredients(): any[] {
-    const list = recipeBases.parfait[this.parfaitPathway];
-    return list.map((ing: Ingredient) => this.formatIngredient(ing, this.servings / 2));
+  convertedIngredients(recipe: any): any[] {
+    if (!recipe || !recipe.ingredients) return [];
+    
+    // Parfait breakfast has two pathway toggles
+    let list = recipe.ingredients;
+    if (recipe.id === 'parfait') {
+      list = recipe.ingredients[this.parfaitPathway] || recipe.ingredients;
+    }
+    
+    // Calculate scale ratio relative to recipe's default servings size
+    const factor = this.servings / recipe.defaultServings;
+    return list.map((ing: Ingredient) => this.formatIngredient(ing, factor));
   },
 
   /**
@@ -705,13 +817,18 @@ const store = {
     nameInput.value = '';
   },
 
-  async addRecipeToShoppingList(recipeKey: string) {
+  async addRecipeToShoppingList(recipeId: string) {
+    const recipe = this.recipes.find(r => r.id === recipeId);
+    if (!recipe) return;
+
     let list: Ingredient[] = [];
-    if (recipeKey === 'stew') list = recipeBases.stew;
-    else if (recipeKey === 'bowl') list = recipeBases.bowl;
-    else if (recipeKey === 'parfait') list = recipeBases.parfait[this.parfaitPathway];
+    if (recipeId === 'parfait') {
+      list = recipe.ingredients[this.parfaitPathway] || recipe.ingredients;
+    } else {
+      list = recipe.ingredients;
+    }
     
-    const factor = recipeKey === 'stew' ? this.servings / 4 : this.servings / 2;
+    const factor = this.servings / recipe.defaultServings;
     
     for (const ing of list) {
       const formatted = this.formatIngredient(ing, factor);
@@ -724,9 +841,8 @@ const store = {
       };
       
       if (db && isFirebaseOnline && this.user) {
-        // Generate a deterministic document ID to prevent duplicate clicks adding duplicates
-        const docId = `${recipeKey}_${ing.name.replace(/\s+/g, '_')}`;
-        await setDoc(doc(db, 'users', this.user.uid, 'shoppingList', docId), newItem);
+        const docId = `${recipeId}_${ing.name.replace(/\s+/g, '_')}`;
+        await setDoc(doc(db as any, 'users', this.user.uid, 'shoppingList', docId), newItem);
       } else {
         const existing = this.shoppingList.find(i => i.name === newItem.name);
         if (existing) {
@@ -740,7 +856,7 @@ const store = {
     if (!isFirebaseOnline) {
       this.saveShoppingListOffline();
     }
-    alert(`Ingredients for ${recipeKey} added to your shopping list!`);
+    alert(`Ingredients for ${recipe.title} added to your shopping list!`);
   },
 
   async clearCheckedShoppingItems() {
