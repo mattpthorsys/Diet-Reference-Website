@@ -36,14 +36,14 @@
         Sign in with Google
       </button>
 
-      <div class="auth-separator"><span>OR</span></div>
+      <div class="auth-separator" v-if="store.isLocalhost"><span>OR</span></div>
 
-      <button class="btn btn-secondary btn-block btn-sm" @click="store.bypassAuthOffline">
+      <button class="btn btn-secondary btn-block btn-sm" @click="store.bypassAuthOffline" v-if="store.isLocalhost">
         Run in Offline Fallback Mode
       </button>
       
       <div class="auth-footer">
-        *Access limited to authorized @thorsys.com.au Google accounts.
+        *Access limited exclusively to authorized account (mattp@thorsys.com.au).
       </div>
     </div>
   </div>

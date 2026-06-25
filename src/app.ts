@@ -887,6 +887,7 @@ const store = {
   loginEmail: '',
   isCheckingAuth: true,
   isFirebaseOnline: isFirebaseOnline,
+  isLocalhost: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1',
   
   // Navigation & Preferences
   activeTab: 'dashboard',
@@ -1051,13 +1052,13 @@ const store = {
     onAuthStateChanged(auth, (firebaseUser: any) => {
       this.isCheckingAuth = false;
       if (firebaseUser) {
-        // Enforce the @thorsys.com.au domain restriction rules
-        const email = firebaseUser.email || '';
-        if (email.endsWith('@thorsys.com.au')) {
+        // Enforce strict email restriction rules (only mattp@thorsys.com.au)
+        const email = (firebaseUser.email || '').toLowerCase().trim();
+        if (email === 'mattp@thorsys.com.au') {
           this.user = firebaseUser;
           this.loadDatabaseSyncs();
         } else {
-          alert("Access Denied: Only @thorsys.com.au accounts are authorized.");
+          alert("Access Denied: Only mattp@thorsys.com.au is authorized.");
           signOut(auth);
           this.user = null;
         }
