@@ -10,9 +10,17 @@
       "**/.*",
       "**/node_modules/**",
       "src/**",
+      "tests/**",
+      ".git/**",
+      ".github/**",
+      ".agents/**",
+      "run.bat",
       "tsconfig.json",
       "package.json",
-      "package-lock.json"
+      "package-lock.json",
+      "skills-lock.json",
+      "firestore.rules",
+      "firestore.indexes.json"
     ]
   },
   "emulators": {
