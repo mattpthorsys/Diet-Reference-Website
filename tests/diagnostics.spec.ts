@@ -50,9 +50,9 @@ test.describe('Successor Recipe App E2E Tests', () => {
     // Filter by "treat" category
     await page.locator('#recipe-category').selectOption('treat');
 
-    // Should only show 1 recipe card (Dark Cocoa Bark)
-    await expect(recipeCards).toHaveCount(1);
-    const barkTitle = page.locator('.recipe-card h3');
+    // Should show 2 recipe cards (Dark Cocoa Bark & Bread and Butter Pudding)
+    await expect(recipeCards).toHaveCount(2);
+    const barkTitle = page.locator('.recipe-card h3').first();
     await expect(barkTitle).toHaveText('Adelaide Dark Cocoa Bark');
   });
 

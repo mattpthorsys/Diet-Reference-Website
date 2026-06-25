@@ -1,4 +1,4 @@
-const CACHE_NAME = 'successor-health-v2';
+const CACHE_NAME = 'successor-health-v3';
 const ASSETS = [
   './',
   './index.html',
@@ -13,6 +13,18 @@ const ASSETS = [
   './images/bark.png',
   './images/superveggie.png',
   './images/nuttypudding.png',
+  './images/egg-noodle-soup.png',
+  './images/gochujang-booster.png',
+  './images/loaded-potato.png',
+  './images/tofu-stir-fry.png',
+  './images/lentil-curry.png',
+  './images/sardine-couscous.png',
+  './images/blade-stew.png',
+  './images/protein-bars.png',
+  './images/super-veggie.png',
+  './images/dijon-chicken.png',
+  './images/chicken-paprikash.png',
+  './images/bread-pudding.png',
   './manifest.json'
 ];
 

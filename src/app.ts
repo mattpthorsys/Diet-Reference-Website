@@ -351,6 +351,433 @@ const defaultRecipes: Recipe[] = [
       "Antioxidant Rich: Cocoa and berries contain high concentrations of anthocyanins and polyphenols.",
       "Cardiometabolic Fiber: Chia and flax seeds deliver high amounts of soluble fiber, slowing digestion and smoothing glucose responses."
     ]
+  },
+  {
+    id: "egg-veggie-noodle-soup",
+    title: "10-Minute Egg & Veggie Noodle Soup",
+    category: "healthy",
+    defaultServings: 1,
+    intro: "A fast miso noodle soup built from soba, frozen vegetables and eggs. It delivers a more filling, lower-sodium upgrade on instant noodles with protein, fibre and umami.",
+    cookingTime: "10 Mins",
+    typeBadge: "Soup",
+    imgUrl: "images/egg-noodle-soup.png",
+    caloriesPerServing: 540,
+    carbsPerServing: 66,
+    gi: 45,
+    ingredients: [
+      { name: "soba noodles", qty: 80, unit: "g", zone: "bulk", alt: "wholewheat egg noodles" },
+      { name: "frozen mixed vegetables", qty: 150, unit: "g", zone: "supermarket", alt: "frozen peas and carrots" },
+      { name: "eggs", qty: 2, unit: "egg", zone: "supermarket", alt: "liquid egg whites" },
+      { name: "reduced-salt miso paste", qty: 20, unit: "g", zone: "asian", alt: "0.5 low-salt stock cube and 5 ml low-salt soy sauce" },
+      { name: "garlic powder", qty: 0.5, unit: "tsp", zone: "supermarket", alt: "1 small garlic clove, finely grated" },
+      { name: "ground ginger", qty: 0.25, unit: "tsp", zone: "supermarket", alt: "0.5 tsp fresh grated ginger" },
+      { name: "white pepper", qty: 0.125, unit: "tsp", zone: "supermarket", alt: "black pepper" },
+      { name: "rice vinegar", qty: 1, unit: "tsp", zone: "asian", alt: "apple cider vinegar" },
+      { name: "toasted sesame oil", qty: 0.5, unit: "tsp", zone: "asian", alt: "olive oil" },
+      { name: "water", qty: 500, unit: "ml", zone: "supermarket", alt: "salt-free vegetable stock" }
+    ],
+    instructions: [
+      "Boil the soba noodles in 500 ml water; when almost tender, add the frozen mixed vegetables and simmer for 2 minutes.",
+      "Turn off the heat and stir in the miso paste until dissolved, then add garlic powder, ground ginger, white pepper, rice vinegar and sesame oil.",
+      "Crack in the eggs, gently stir for about 30 seconds to form ribbons, then cover and let the soup stand for 1 minute to finish cooking."
+    ],
+    scienceNotes: [
+      "Eggs add high-quality protein, which generally increases satiety compared with a noodle-only soup.",
+      "Buckwheat noodles and mixed vegetables provide more fibre and a lower glycaemic load than refined instant noodles."
+    ]
+  },
+  {
+    id: "gochujang-miso-booster",
+    title: "Gochujang–Miso Booster",
+    category: "healthy",
+    defaultServings: 1,
+    intro: "A quick umami-heat booster for soups, noodles or grain bowls. The blend layers fermented savoury notes with a small amount of chilli sweetness so you can build flavour without much extra sodium.",
+    cookingTime: "2 Mins",
+    typeBadge: "Sauce",
+    imgUrl: "images/gochujang-booster.png",
+    caloriesPerServing: 85,
+    carbsPerServing: 5,
+    gi: 28,
+    ingredients: [
+      { name: "gochujang", qty: 2, unit: "tsp", zone: "asian", alt: "sambal oelek plus 0.5 tsp tomato paste" },
+      { name: "low-salt soy sauce", qty: 1, unit: "tsp", zone: "asian", alt: "tamari" },
+      { name: "garlic powder", qty: 1, unit: "tsp", zone: "supermarket", alt: "1 garlic clove, finely grated" },
+      { name: "toasted sesame oil", qty: 1, unit: "tsp", zone: "asian", alt: "olive oil" },
+      { name: "vinegar", qty: 1, unit: "tsp", zone: "supermarket", alt: "rice vinegar" }
+    ],
+    instructions: [
+      "Whisk the gochujang, soy sauce, garlic powder, sesame oil and vinegar together in a small bowl until smooth.",
+      "Stir the booster into hot soup, noodles or rice bowls just before serving."
+    ],
+    scienceNotes: [
+      "Fermented soybean pastes such as gochujang and miso concentrate umami, which can improve flavour intensity even in relatively light meals.",
+      "Using acidic ingredients like vinegar can brighten flavour perception and sometimes helps reduce the need for extra salt."
+    ]
+  },
+  {
+    id: "loaded-potato-cottage-cheese-chickpeas",
+    title: "Loaded Potato with Cottage Cheese & Chickpeas",
+    category: "healthy",
+    defaultServings: 1,
+    intro: "A microwave jacket potato topped with cottage cheese, chickpeas and green vegetables. It is designed for low-cost fullness by combining a high-satiety potato base with protein and fibre.",
+    cookingTime: "7 Mins",
+    typeBadge: "Jacket Potato",
+    imgUrl: "images/loaded-potato.png",
+    caloriesPerServing: 480,
+    carbsPerServing: 61,
+    gi: 52,
+    ingredients: [
+      { name: "potato", qty: 300, unit: "g", zone: "greengrocer", alt: "sweet potato" },
+      { name: "chickpeas", qty: 120, unit: "g", zone: "supermarket", alt: "cannellini beans" },
+      { name: "reduced-fat cottage cheese", qty: 150, unit: "g", zone: "supermarket", alt: "high-protein plain yoghurt" },
+      { name: "frozen broccoli florets", qty: 100, unit: "g", zone: "supermarket", alt: "frozen brussels sprouts" },
+      { name: "black pepper", qty: 0.25, unit: "tsp", zone: "supermarket", alt: "white pepper" }
+    ],
+    instructions: [
+      "Pierce the potato and microwave for about 5 minutes until soft; alternatively, parboil it in kettle water for about 10 minutes.",
+      "Microwave the broccoli and drained chickpeas together in a bowl for about 2 minutes until hot.",
+      "Split the potato open, top with the cottage cheese, chickpeas and broccoli, then season with black pepper."
+    ],
+    scienceNotes: [
+      "Potatoes are highly satiating per calorie, especially when eaten with the skin for extra fibre and volume.",
+      "Combining dairy protein with chickpea fibre slows gastric emptying and generally gives steadier post-meal hunger control."
+    ]
+  },
+  {
+    id: "tofu-veggie-stir-fry-brown-rice",
+    title: "Tofu Veggie Stir-Fry with Brown Rice",
+    category: "healthy",
+    defaultServings: 1,
+    intro: "A fast plant-based stir-fry using crumbled tofu, frozen vegetables and microwave brown rice. It emphasises whole grains, moderate glycaemic load and practical weeknight protein.",
+    cookingTime: "10 Mins",
+    typeBadge: "Stir-Fry",
+    imgUrl: "images/tofu-stir-fry.png",
+    caloriesPerServing: 490,
+    carbsPerServing: 44,
+    gi: 42,
+    ingredients: [
+      { name: "firm tofu", qty: 200, unit: "g", zone: "asian", alt: "2 eggs" },
+      { name: "frozen stir-fry vegetable mix", qty: 200, unit: "g", zone: "supermarket", alt: "frozen mixed vegetables" },
+      { name: "cooking oil", qty: 1, unit: "tsp", zone: "supermarket", alt: "olive oil spray" },
+      { name: "reduced-salt soy sauce", qty: 1, unit: "tbsp", zone: "asian", alt: "tamari" },
+      { name: "cooked brown rice", qty: 125, unit: "g", zone: "supermarket", alt: "cooked quinoa" }
+    ],
+    instructions: [
+      "Heat the oil in a non-stick pan, crumble in the tofu and stir-fry with the frozen vegetables on high heat for about 5 minutes.",
+      "When the vegetables are hot and the tofu is lightly browned, add the soy sauce and toss for about 30 seconds.",
+      "Microwave the brown rice and serve the stir-fry over the rice."
+    ],
+    scienceNotes: [
+      "Soy foods such as tofu supply complete plant protein, which supports fullness and muscle protein synthesis.",
+      "Brown rice and mixed vegetables typically produce a lower glycaemic response than a stir-fry built around refined white rice alone."
+    ]
+  },
+  {
+    id: "lentil-spinach-curry-brown-rice",
+    title: "Lentil Spinach Curry with Brown Rice",
+    category: "longevity",
+    defaultServings: 1,
+    intro: "A microwave lentil curry with spinach, brown rice and yoghurt for creaminess. The recipe is built around legumes, greens and intact grains to keep glycaemic impact modest.",
+    cookingTime: "7 Mins",
+    typeBadge: "Curry",
+    imgUrl: "images/lentil-curry.png",
+    caloriesPerServing: 460,
+    carbsPerServing: 43,
+    gi: 34,
+    ingredients: [
+      { name: "cooked brown rice", qty: 125, unit: "g", zone: "supermarket", alt: "cooked barley" },
+      { name: "brown lentils", qty: 240, unit: "g", zone: "supermarket", alt: "green lentils" },
+      { name: "frozen chopped spinach", qty: 100, unit: "g", zone: "supermarket", alt: "frozen kale" },
+      { name: "curry powder", qty: 1, unit: "tsp", zone: "supermarket", alt: "garam masala" },
+      { name: "unsweetened greek yoghurt", qty: 100, unit: "g", zone: "supermarket", alt: "unsweetened soy yoghurt" },
+      { name: "water", qty: 30, unit: "ml", zone: "supermarket", alt: "salt-free vegetable stock" }
+    ],
+    instructions: [
+      "Microwave the brown rice for 90 seconds.",
+      "In a bowl, combine the drained lentils, frozen spinach, water and curry powder, then microwave for about 3 minutes, stirring once.",
+      "Stir the yoghurt through the hot lentil mixture and spoon it over the warm brown rice."
+    ],
+    scienceNotes: [
+      "Lentils are rich in slowly digested starch and soluble fibre, which generally lower post-meal glucose and improve satiety.",
+      "Leafy greens supply folate, vitamin K and carotenoids while adding bulk with very little energy density."
+    ]
+  },
+  {
+    id: "sardine-chickpea-couscous-bowl",
+    title: "Sardine & Chickpea Couscous Bowl",
+    category: "healthy",
+    defaultServings: 1,
+    intro: "A pantry-friendly couscous bowl with sardines, chickpeas and mixed vegetables. It pairs omega-3-rich fish with fibre-rich legumes for a filling meal with minimal prep.",
+    cookingTime: "7 Mins",
+    typeBadge: "Bowl",
+    imgUrl: "images/sardine-couscous.png",
+    caloriesPerServing: 500,
+    carbsPerServing: 44,
+    gi: 46,
+    ingredients: [
+      { name: "instant wholemeal couscous", qty: 40, unit: "g", zone: "bulk", alt: "quick-cook bulgur" },
+      { name: "sardines in springwater", qty: 100, unit: "g", zone: "supermarket", alt: "tuna in springwater" },
+      { name: "chickpeas", qty: 120, unit: "g", zone: "supermarket", alt: "cannellini beans" },
+      { name: "frozen mixed vegetables", qty: 150, unit: "g", zone: "supermarket", alt: "frozen cauliflower and pea mix" },
+      { name: "lemon juice", qty: 1, unit: "tsp", zone: "greengrocer", alt: "vinegar" },
+      { name: "black pepper", qty: 0.25, unit: "tsp", zone: "supermarket", alt: "white pepper" },
+      { name: "boiling water", qty: 60, unit: "ml", zone: "supermarket", alt: "hot stock" }
+    ],
+    instructions: [
+      "Put the couscous in a bowl with 60 ml boiling water, cover and let it stand for 5 minutes.",
+      "Microwave the frozen vegetables and drained chickpeas for about 2 minutes until hot.",
+      "Fluff the couscous, fold through the vegetables, chickpeas and flaked sardines, then finish with lemon juice and black pepper."
+    ],
+    scienceNotes: [
+      "Sardines provide EPA and DHA omega-3 fats, which are associated with cardiovascular benefits when they replace more heavily processed proteins.",
+      "Legumes and vegetables increase meal volume and fibre, which can improve fullness relative to a fish-and-grain meal alone."
+    ]
+  },
+  {
+    id: "smoky-paprika-marjoram-blade-stew",
+    title: "Smoky Paprika & Marjoram Blade Stew",
+    category: "regular",
+    defaultServings: 5,
+    intro: "A slow-cooked beef stew built on blade steak, paprika, tomato paste and aromatic vegetables. It keeps a traditional comfort-food profile while using moist heat and plenty of vegetables for a more balanced bowl.",
+    cookingTime: "8 Hrs",
+    typeBadge: "Stew",
+    imgUrl: "images/blade-stew.png",
+    caloriesPerServing: 565,
+    carbsPerServing: 10,
+    gi: 19,
+    ingredients: [
+      { name: "blade steak", qty: 1200, unit: "g", zone: "supermarket", alt: "beef chuck" },
+      { name: "fine salt", qty: 11, unit: "g", zone: "supermarket", alt: "sea salt" },
+      { name: "black pepper", qty: 1, unit: "tsp", zone: "supermarket", alt: "white pepper" },
+      { name: "olive oil", qty: 2, unit: "tbsp", zone: "supermarket", alt: "canola oil" },
+      { name: "onion", qty: 1, unit: "whole", zone: "greengrocer", alt: "2 medium brown onions" },
+      { name: "carrot", qty: 2, unit: "whole", zone: "greengrocer", alt: "frozen diced carrots" },
+      { name: "celery", qty: 2, unit: "stick", zone: "greengrocer", alt: "fennel" },
+      { name: "leek", qty: 0.5, unit: "whole", zone: "greengrocer", alt: "extra onion" },
+      { name: "yellow capsicum", qty: 1, unit: "whole", zone: "greengrocer", alt: "red capsicum" },
+      { name: "garlic", qty: 4, unit: "clove", zone: "greengrocer", alt: "2 tsp jar garlic" },
+      { name: "smoked paprika", qty: 1.25, unit: "tbsp", zone: "supermarket", alt: "sweet paprika plus a pinch of cumin" },
+      { name: "dried marjoram", qty: 1, unit: "tsp", zone: "supermarket", alt: "dried oregano" },
+      { name: "bay leaf", qty: 1, unit: "leaf", zone: "supermarket", alt: "thyme sprig" },
+      { name: "tomato paste", qty: 75, unit: "g", zone: "supermarket", alt: "passata reduced on the stove" },
+      { name: "low-sodium beef stock", qty: 375, unit: "ml", zone: "supermarket", alt: "salt-reduced vegetable stock" },
+      { name: "balsamic vinegar", qty: 1.5, unit: "tbsp", zone: "supermarket", alt: "red wine vinegar" },
+      { name: "butter", qty: 20, unit: "g", zone: "supermarket", alt: "olive oil" },
+      { name: "cornflour", qty: 1, unit: "tbsp", zone: "supermarket", alt: "plain flour" },
+      { name: "cold water", qty: 2, unit: "tbsp", zone: "supermarket", alt: "stock" }
+    ],
+    instructions: [
+      "Season the beef with salt and pepper, then brown it in batches in olive oil until well coloured.",
+      "Cook the onion, carrot, celery, leek and capsicum until lightly golden, add the garlic, then briefly darken the tomato paste and stir in the smoked paprika off the heat.",
+      "Deglaze the pan with a little stock, transfer everything to the slow cooker with the marjoram, bay leaf, remaining stock and beef, then cook on low for 6 to 8 hours until fork-tender.",
+      "Stir in the balsamic vinegar, and if you want a thicker sauce, add a cornflour slurry near the end and cook on high until glossy.",
+      "Off the heat, whisk in the butter for shine, then taste and adjust the seasoning before serving."
+    ],
+    scienceNotes: [
+      "Slow, moist cooking generally forms fewer advanced glycation end-products than hard charring or dry roasting of meat.",
+      "Adding onions, carrots, celery and capsicum increases potassium, phytochemicals and fibre without heavily changing the classic stew profile."
+    ]
+  },
+  {
+    id: "chocolate-buckwheat-protein-bars",
+    title: "Simple Crunchy Chocolate Buckwheat Protein Bars",
+    category: "protein-dense",
+    defaultServings: 12,
+    intro: "A high-protein baked bar made with plant proteins, cocoa, tahini and crunchy buckwheat groats. It is formulated as a portable recovery snack with more protein and fibre than a standard sweet bake.",
+    cookingTime: "35 Mins",
+    typeBadge: "Bar",
+    imgUrl: "images/protein-bars.png",
+    caloriesPerServing: 305,
+    carbsPerServing: 17,
+    gi: 38,
+    ingredients: [
+      { name: "chocolate plant protein powder", qty: 180, unit: "g", zone: "supermarket", alt: "vanilla plant protein powder plus extra cocoa" },
+      { name: "unflavoured pea protein", qty: 80, unit: "g", zone: "supermarket", alt: "soy protein isolate" },
+      { name: "coconut flour", qty: 60, unit: "g", zone: "bulk", alt: "oat flour" },
+      { name: "semolina", qty: 100, unit: "g", zone: "bulk", alt: "fine oat flour" },
+      { name: "tapioca starch", qty: 40, unit: "g", zone: "bulk", alt: "cornstarch" },
+      { name: "cocoa powder", qty: 40, unit: "g", zone: "supermarket", alt: "raw cacao powder" },
+      { name: "baking powder", qty: 2, unit: "tsp", zone: "supermarket", alt: "self-raising flour and omit semolina" },
+      { name: "bicarbonate of soda", qty: 0.25, unit: "tsp", zone: "supermarket", alt: "extra baking powder" },
+      { name: "potassium chloride salt substitute", qty: 0.5, unit: "tsp", zone: "supermarket", alt: "fine salt" },
+      { name: "ground cinnamon", qty: 2, unit: "tsp", zone: "supermarket", alt: "pumpkin spice" },
+      { name: "ground nutmeg", qty: 0.5, unit: "tsp", zone: "supermarket", alt: "mixed spice" },
+      { name: "buckwheat groats", qty: 120, unit: "g", zone: "bulk", alt: "rolled oats" },
+      { name: "sesame seeds", qty: 30, unit: "g", zone: "bulk", alt: "hemp seeds" },
+      { name: "pear puree", qty: 140, unit: "g", zone: "greengrocer", alt: "apple puree" },
+      { name: "banana", qty: 1, unit: "whole", zone: "greengrocer", alt: "extra pear or apple puree" },
+      { name: "eggs", qty: 3, unit: "egg", zone: "supermarket", alt: "flax eggs" },
+      { name: "tahini", qty: 100, unit: "g", zone: "asian", alt: "peanut butter" },
+      { name: "extra-virgin olive oil", qty: 10, unit: "g", zone: "supermarket", alt: "canola oil" },
+      { name: "brandy", qty: 30, unit: "ml", zone: "supermarket", alt: "vanilla extract and extra almond milk" },
+      { name: "unsweetened almond milk", qty: 495, unit: "ml", zone: "supermarket", alt: "skim milk" },
+      { name: "granulated 1:1 sweetener", qty: 95, unit: "g", zone: "supermarket", alt: "caster sugar" }
+    ],
+    instructions: [
+      "Microwave the diced pear with a teaspoon of water and a little lemon juice until soft, mash it smooth and weigh out 140 g of puree, then mash in the banana.",
+      "Heat the oven to 180°C and line a roughly 33 x 23 cm baking dish with paper.",
+      "Whisk the pear-banana puree with the eggs, tahini, olive oil, brandy, almond milk and sweetener until smooth.",
+      "Fold in all the dry ingredients, then stir through the buckwheat groats and spread the batter to a 2 to 3 cm thickness; scatter over the sesame seeds if using.",
+      "Bake for 28 to 34 minutes until the centre springs back and a skewer shows moist crumbs, cool for 30 minutes, chill for 1 hour and cut into 12 bars."
+    ],
+    scienceNotes: [
+      "Protein-enriched snacks can improve fullness and help distribute protein more evenly across the day, especially around training.",
+      "Cocoa, buckwheat and tahini contribute polyphenols, minerals and fibre that make the carbohydrate profile slower than a conventional frosted bar."
+    ]
+  },
+  {
+    id: "matts-cheap-super-veggie-variant",
+    title: "Matt’s Cheap Super Veggie Variant",
+    category: "longevity",
+    defaultServings: 4,
+    intro: "A batch-prepped vegetable and black lentil meal built around broccoli, cauliflower, shiitake and a turmeric-cumin dressing. It is extremely produce-forward, fibre-dense and designed for freezer-friendly longevity eating.",
+    cookingTime: "45 Mins",
+    typeBadge: "Prep Box",
+    imgUrl: "images/super-veggie.png",
+    caloriesPerServing: 420,
+    carbsPerServing: 34,
+    gi: 25,
+    ingredients: [
+      { name: "turmeric", qty: 1, unit: "tbsp", zone: "supermarket", alt: "ground turmeric and curry powder blend" },
+      { name: "black pepper", qty: 1, unit: "tsp", zone: "supermarket", alt: "white pepper" },
+      { name: "ginger powder", qty: 1, unit: "tbsp", zone: "supermarket", alt: "fresh grated ginger" },
+      { name: "ground cumin", qty: 3, unit: "tbsp", zone: "supermarket", alt: "curry powder" },
+      { name: "potassium chloride", qty: 1, unit: "tsp", zone: "supermarket", alt: "fine salt" },
+      { name: "broccoli", qty: 3, unit: "head", zone: "greengrocer", alt: "broccolini" },
+      { name: "cauliflower", qty: 1, unit: "whole", zone: "greengrocer", alt: "2 small cauliflowers" },
+      { name: "shiitake mushrooms", qty: 200, unit: "g", zone: "greengrocer", alt: "button mushrooms" },
+      { name: "dry black lentils", qty: 180, unit: "g", zone: "bulk", alt: "brown lentils" },
+      { name: "lime juice", qty: 4, unit: "tbsp", zone: "greengrocer", alt: "lemon juice" },
+      { name: "garlic paste", qty: 2, unit: "tbsp", zone: "supermarket", alt: "4 garlic cloves, crushed" },
+      { name: "extra-virgin olive oil", qty: 2, unit: "tbsp", zone: "supermarket", alt: "canola oil" },
+      { name: "apple cider vinegar", qty: 4, unit: "tbsp", zone: "supermarket", alt: "white wine vinegar" },
+      { name: "cacao nibs", qty: 1, unit: "tbsp", zone: "bulk", alt: "chopped walnuts" },
+      { name: "hemp seeds", qty: 1.5, unit: "tsp", zone: "bulk", alt: "sesame seeds" },
+      { name: "nutritional yeast", qty: 1, unit: "tsp", zone: "supermarket", alt: "finely grated parmesan" }
+    ],
+    instructions: [
+      "The day before, bloom the turmeric, ginger and black pepper with a splash of boiling water, then stir in the cumin, lime juice, garlic paste, apple cider vinegar and olive oil and refrigerate the dressing.",
+      "Cook the soaked lentils until tender, steam the finely chopped broccoli and cauliflower stems first, then add the cauliflower florets, remaining broccoli and shiitake and steam until just soft.",
+      "Blend the cooked stem mixture with the dressing, divide the lentils and vegetables between four containers, spoon over the blended sauce and top each serve with shiitake.",
+      "When serving, finish each portion with cacao nibs, hemp seeds and nutritional yeast."
+    ],
+    scienceNotes: [
+      "Cruciferous vegetables such as broccoli and cauliflower provide glucosinolate precursors that are studied for their role in cellular defence pathways.",
+      "Lentils, mushrooms and seeds increase fibre, prebiotic substrates and mineral density while keeping the meal’s glycaemic response low."
+    ]
+  },
+  {
+    id: "creamy-dijon-chicken-mince",
+    title: "Creamy Dijon Chicken Mince with Potatoes & Tomatoes",
+    category: "regular",
+    defaultServings: 4,
+    intro: "A creamy chicken mince skillet with potatoes, tomatoes and Dijon served over rice. It keeps the comfort-food body of a mince-and-sauce dinner while leaning on chicken for a lighter protein base.",
+    cookingTime: "40 Mins",
+    typeBadge: "Skillet",
+    imgUrl: "images/dijon-chicken.png",
+    caloriesPerServing: 690,
+    carbsPerServing: 74,
+    gi: 56,
+    ingredients: [
+      { name: "chicken mince", qty: 500, unit: "g", zone: "supermarket", alt: "turkey mince" },
+      { name: "potato", qty: 300, unit: "g", zone: "greengrocer", alt: "sweet potato" },
+      { name: "tomato", qty: 2, unit: "whole", zone: "greengrocer", alt: "200 g canned diced tomatoes" },
+      { name: "brown onion", qty: 1, unit: "whole", zone: "greengrocer", alt: "2 small onions" },
+      { name: "garlic", qty: 3, unit: "clove", zone: "greengrocer", alt: "1.5 tsp jar garlic" },
+      { name: "sour cream", qty: 200, unit: "ml", zone: "supermarket", alt: "plain greek yoghurt" },
+      { name: "dijon mustard", qty: 1.5, unit: "tbsp", zone: "supermarket", alt: "wholegrain mustard" },
+      { name: "stock", qty: 250, unit: "ml", zone: "supermarket", alt: "water plus 1 stock cube" },
+      { name: "uncooked rice", qty: 300, unit: "g", zone: "bulk", alt: "basmati rice" },
+      { name: "dried mixed herbs", qty: 1, unit: "tsp", zone: "supermarket", alt: "0.5 tsp thyme and 0.5 tsp oregano" },
+      { name: "paprika", qty: 0.5, unit: "tsp", zone: "supermarket", alt: "sweet smoked paprika" },
+      { name: "peas or baby spinach", qty: 60, unit: "g", zone: "supermarket", alt: "frozen mixed vegetables" },
+      { name: "oil", qty: 1.5, unit: "tbsp", zone: "supermarket", alt: "olive oil spray" },
+      { name: "salt", qty: 0.5, unit: "tsp", zone: "supermarket", alt: "potassium salt" },
+      { name: "black pepper", qty: 0.5, unit: "tsp", zone: "supermarket", alt: "white pepper" }
+    ],
+    instructions: [
+      "Rinse the rice, simmer it with water and a pinch of salt until tender, then rest it covered.",
+      "In a large pan, soften the onion in oil, add the garlic, then cook the diced potato for about 5 minutes before adding the chicken mince and browning it lightly.",
+      "Stir in the tomato, dried herbs, paprika, stock and Dijon, season lightly and simmer for 10 to 15 minutes until the potatoes are tender; add the peas or spinach near the end if using.",
+      "Temper the sour cream with a few spoonfuls of hot sauce, stir it gently back into the pan on low heat and warm through without boiling hard.",
+      "Serve the creamy chicken mixture over the cooked rice."
+    ],
+    scienceNotes: [
+      "Chicken mince usually provides a leaner saturated-fat profile than an equivalent beef mince dish, especially when paired with a yoghurt-style creamy element.",
+      "Cooling and reheating potato-and-rice dishes can modestly increase resistant starch, which slightly reduces available glycaemic impact."
+    ]
+  },
+  {
+    id: "chicken-paprikash",
+    title: "Chicken Paprikash",
+    category: "regular",
+    defaultServings: 4,
+    intro: "A classic paprika-forward chicken braise finished with sour cream and cream. It is a rich traditional dish, but the wet-cooked format avoids the heavy browning load of roasted or fried chicken casseroles.",
+    cookingTime: "1 Hr",
+    typeBadge: "Braise",
+    imgUrl: "images/chicken-paprikash.png",
+    caloriesPerServing: 560,
+    carbsPerServing: 16,
+    gi: 19,
+    ingredients: [
+      { name: "butter", qty: 2, unit: "tbsp", zone: "supermarket", alt: "olive oil" },
+      { name: "chicken pieces", qty: 1350, unit: "g", zone: "supermarket", alt: "bone-in chicken thighs" },
+      { name: "onion", qty: 3, unit: "whole", zone: "greengrocer", alt: "2 large onions" },
+      { name: "garlic paste", qty: 3, unit: "tsp", zone: "supermarket", alt: "3 garlic cloves, crushed" },
+      { name: "tomato", qty: 3, unit: "whole", zone: "greengrocer", alt: "200 g canned diced tomatoes" },
+      { name: "capsicum", qty: 1, unit: "whole", zone: "greengrocer", alt: "red bell pepper" },
+      { name: "sweet hungarian paprika", qty: 3, unit: "tbsp", zone: "supermarket", alt: "sweet paprika" },
+      { name: "salt", qty: 1.5, unit: "tsp", zone: "supermarket", alt: "potassium salt" },
+      { name: "black pepper", qty: 0.5, unit: "tsp", zone: "supermarket", alt: "white pepper" },
+      { name: "flour", qty: 2, unit: "tbsp", zone: "bulk", alt: "buckwheat flour" },
+      { name: "sour cream", qty: 200, unit: "ml", zone: "supermarket", alt: "plain greek yoghurt" },
+      { name: "cream", qty: 80, unit: "ml", zone: "supermarket", alt: "evaporated milk" },
+      { name: "chicken broth", qty: 500, unit: "ml", zone: "supermarket", alt: "vegetable stock" }
+    ],
+    instructions: [
+      "Brown the chicken pieces in butter, then remove them from the pan.",
+      "In the same pan, briefly cook the onions, garlic, tomatoes and capsicum, then add the paprika, salt and pepper and return the chicken to the pot.",
+      "Pour in the chicken broth until the chicken is mostly covered and simmer for about 40 minutes.",
+      "Remove the chicken, whisk the flour with the sour cream and cream until smooth, then stir the mixture into the sauce to thicken it.",
+      "Return the chicken to the pot and simmer gently until the sauce is creamy and fully heated through."
+    ],
+    scienceNotes: [
+      "Paprika contributes carotenoid pigments and polyphenols, adding antioxidant compounds as well as flavour.",
+      "Braising keeps the cooking environment moist, which generally produces fewer advanced glycation end-products than higher-temperature dry cooking."
+    ]
+  },
+  {
+    id: "bread-and-butter-pudding",
+    title: "Bread and Butter Pudding",
+    category: "treat",
+    defaultServings: 6,
+    intro: "A classic baked bread pudding with raisins, cinnamon and a rich milk-and-cream custard. It is best treated as a dessert-style recipe rather than an everyday staple because of its dense energy and sugar load.",
+    cookingTime: "30 Mins",
+    typeBadge: "Pudding",
+    imgUrl: "images/bread-pudding.png",
+    caloriesPerServing: 495,
+    carbsPerServing: 55,
+    gi: 60,
+    ingredients: [
+      { name: "bread", qty: 8, unit: "slice", zone: "supermarket", alt: "day-old wholemeal bread" },
+      { name: "raisins", qty: 1, unit: "cup", zone: "bulk", alt: "sultanas" },
+      { name: "eggs", qty: 3, unit: "egg", zone: "supermarket", alt: "2 eggs and 2 yolks" },
+      { name: "milk", qty: 1.5, unit: "cup", zone: "supermarket", alt: "reduced-fat milk" },
+      { name: "heavy cream", qty: 1, unit: "cup", zone: "supermarket", alt: "evaporated milk" },
+      { name: "butter", qty: 3, unit: "tbsp", zone: "supermarket", alt: "light butter spread" },
+      { name: "white sugar", qty: 0.5, unit: "cup", zone: "supermarket", alt: "caster sugar" },
+      { name: "cinnamon", qty: 1, unit: "tsp", zone: "supermarket", alt: "mixed spice" },
+      { name: "vanilla extract", qty: 1, unit: "tsp", zone: "supermarket", alt: "vanilla essence" }
+    ],
+    instructions: [
+      "Heat the oven to 180°C and whisk the eggs with the milk, cream, sugar, cinnamon and vanilla.",
+      "Soak the bread and raisins in the custard for about 3 minutes, then transfer the mixture to a baking dish and drizzle over the melted butter.",
+      "Bake for 25 to 30 minutes until the custard is set and the top is lightly golden, then dust with icing sugar if desired."
+    ],
+    scienceNotes: [
+      "Compared with savoury high-protein meals, desserts rich in refined starch, sugar and dairy fat usually have a higher energy density and weaker satiety per calorie.",
+      "Using wholemeal bread or reducing the added sugar can modestly lower the glycaemic impact, but this remains a treat-style dish."
+    ]
   }
 ];
 
@@ -726,8 +1153,21 @@ const store = {
           });
         } else {
           // Sort recipes to keep structured display
-          const order = ['stew', 'bowl', 'parfait', 'salmon', 'superveggie', 'nuttypudding', 'bark'];
-          items.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
+          const order = [
+            'stew', 'bowl', 'parfait', 'salmon', 'superveggie', 'nuttypudding', 'bark',
+            'egg-veggie-noodle-soup', 'gochujang-miso-booster', 'loaded-potato-cottage-cheese-chickpeas',
+            'tofu-veggie-stir-fry-brown-rice', 'lentil-spinach-curry-brown-rice', 'sardine-chickpea-couscous-bowl',
+            'smoky-paprika-marjoram-blade-stew', 'chocolate-buckwheat-protein-bars', 'matts-cheap-super-veggie-variant',
+            'creamy-dijon-chicken-mince', 'chicken-paprikash', 'bread-and-butter-pudding'
+          ];
+          items.sort((a, b) => {
+            const idxA = order.indexOf(a.id);
+            const idxB = order.indexOf(b.id);
+            if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+            if (idxA !== -1) return -1;
+            if (idxB !== -1) return 1;
+            return a.title.localeCompare(b.title);
+          });
           this.recipes = items;
         }
       });
