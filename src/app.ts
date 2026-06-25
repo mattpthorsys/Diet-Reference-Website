@@ -1050,6 +1050,16 @@ const store = {
       navigator.serviceWorker.register('./sw.js')
         .then(() => console.log("[PWA] Service Worker registered successfully."))
         .catch(err => console.error("[PWA] Service Worker registration failed:", err));
+
+      // Force reload when a new service worker takes control
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+          refreshing = true;
+          console.log("[PWA] New service worker took control, refreshing page...");
+          window.location.reload();
+        }
+      });
     }
   },
 
