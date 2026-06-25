@@ -967,12 +967,13 @@ const store = {
 
   async initFirebase() {
     const firebaseConfig = {
-      apiKey: "local-emulator-dummy-api-key",
+      apiKey: "AIzaSyCWRjKdIFJpKO94real379Vri7LSQleCI4",
       authDomain: "successor-health-hub.firebaseapp.com",
       projectId: "successor-health-hub",
-      storageBucket: "successor-health-hub.appspot.com",
-      messagingSenderId: "12345678",
-      appId: "1:123456:web:1234"
+      storageBucket: "successor-health-hub.firebasestorage.app",
+      messagingSenderId: "947143207025",
+      appId: "1:947143207025:web:74c5e6580c08c39f0213d0",
+      measurementId: "G-LE8TLZQG0L"
     };
 
     try {
