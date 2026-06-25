@@ -5,12 +5,14 @@
   "scripts": {
     "copy-libs": "powershell -Command \"New-Item -ItemType Directory -Force -Path 'lib'; Copy-Item 'node_modules/petite-vue/dist/petite-vue.es.js' 'lib/petite-vue.js'\"",
     "build": "tsc",
-    "start": "tsc && npm run copy-libs && npx http-server -p 8000 -c-1"
+    "start": "tsc && npm run copy-libs && npx http-server -p 8000 -c-1",
+    "test": "playwright test"
   },
   "dependencies": {
     "petite-vue": "^0.4.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.61.1",
     "http-server": "^14.1.1",
     "typescript": "^5.3.3"
   }

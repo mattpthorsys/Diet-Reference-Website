@@ -1,5 +1,5 @@
 // @ts-ignore
-import { createApp } from '../lib/petite-vue.js';
+import { createApp, reactive } from '../lib/petite-vue.js';
 
 let initializeApp: any = null;
 let getAuth: any = null;
@@ -1322,7 +1322,10 @@ const store = {
   }
 };
 
+const reactiveStore = reactive(store);
+(window as any).appStore = reactiveStore;
+
 // Mount the reactive store in the document scope using Petite-Vue
-createApp({ store }).mount();
+createApp({ store: reactiveStore }).mount();
 // Initialize preferences, auth observers, and service workers
-store.init();
+reactiveStore.init();
