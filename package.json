@@ -3,9 +3,15 @@
   "version": "1.0.0",
   "description": "An interactive, premium, science-backed cardiometabolic health reference site.",
   "scripts": {
-    "start": "npx http-server -p 8000 -c-1"
+    "copy-libs": "powershell -Command \"New-Item -ItemType Directory -Force -Path 'lib'; Copy-Item 'node_modules/petite-vue/dist/petite-vue.es.js' 'lib/petite-vue.js'\"",
+    "build": "tsc",
+    "start": "tsc && npm run copy-libs && npx http-server -p 8000 -c-1"
+  },
+  "dependencies": {
+    "petite-vue": "^0.4.1"
   },
   "devDependencies": {
-    "http-server": "^14.1.1"
+    "http-server": "^14.1.1",
+    "typescript": "^5.3.3"
   }
 }

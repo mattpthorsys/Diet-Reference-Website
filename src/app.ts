@@ -1,0 +1,873 @@
+// @ts-ignore
+import { createApp } from '../lib/petite-vue.js';
+
+// Firebase SDK ES Modules loaded via CDN (gstatic)
+// These will be cached locally by our Service Worker for offline use.
+// @ts-ignore
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+// @ts-ignore
+import { 
+  getAuth, 
+  signInWithPopup, 
+  GoogleAuthProvider, 
+  signOut, 
+  onAuthStateChanged,
+  connectAuthEmulator,
+  User
+} from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+// @ts-ignore
+import { 
+  getFirestore, 
+  doc, 
+  collection, 
+  onSnapshot, 
+  setDoc, 
+  updateDoc, 
+  deleteDoc, 
+  connectFirestoreEmulator,
+  Firestore
+} from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+
+/* ==========================================================================
+   Type Definitions & Interfaces
+   ========================================================================== */
+
+interface Ingredient {
+  name: string;
+  qty: number;
+  unit: string;
+  zone: 'supermarket' | 'greengrocer' | 'bulk' | 'asian';
+  alt: string;
+  cupWeight?: number;   // Weight of 1 cup in grams (e.g. oats = 90g)
+  tbspWeight?: number;  // Weight of 1 tablespoon in grams (e.g. oats = 5.6g)
+}
+
+interface LogEntry {
+  id?: string;
+  date: string;
+  weight: number;
+  waist: number | null;
+  bpSys: number | null;
+  bpDia: number | null;
+  adherence: number;
+  satiety: number;
+  notes: string;
+}
+
+interface ShoppingItem {
+  id?: string;
+  name: string;
+  qty: string;
+  zone: 'supermarket' | 'greengrocer' | 'bulk' | 'asian';
+  checked: boolean;
+  custom?: boolean;
+}
+
+interface AuditRow {
+  topic: string;
+  original: string;
+  successor: string;
+  evidence: 'strong' | 'moderate' | 'limited';
+  rationale: string;
+}
+
+/* ==========================================================================
+   Fallback Mock Data & Constants
+   ========================================================================== */
+
+// Base recipe ingredients per single serving (1 serving)
+const recipeBases: Record<string, any> = {
+  stew: [
+    { name: 'brown or green lentils, dry', qty: 45, unit: 'g', zone: 'bulk', alt: 'generic brown lentils', cupWeight: 180, tbspWeight: 11.5 },
+    { name: 'firm tofu, cubed', qty: 75, unit: 'g', zone: 'asian', alt: 'supermarket own-brand firm tofu', cupWeight: 220 },
+    { name: 'sweet potato or potato, diced', qty: 75, unit: 'g', zone: 'greengrocer', alt: 'ordinary dirty potatoes', cupWeight: 150 },
+    { name: 'cauliflower, florets', qty: 100, unit: 'g', zone: 'greengrocer', alt: 'frozen cauliflower florets', cupWeight: 100 },
+    { name: 'carrots, sliced', qty: 50, unit: 'g', zone: 'greengrocer', alt: 'bulk carrots', cupWeight: 120 },
+    { name: 'celery, sliced', qty: 37.5, unit: 'g', zone: 'greengrocer', alt: 'celery stalks', cupWeight: 100 },
+    { name: 'onion, diced', qty: 37.5, unit: 'g', zone: 'greengrocer', alt: 'brown onions', cupWeight: 150 },
+    { name: 'garlic, minced', qty: 1, unit: 'clove', zone: 'greengrocer', alt: 'jar minced garlic' },
+    { name: 'tinned chopped tomatoes (no salt)', qty: 0.5, unit: 'tin', zone: 'supermarket', alt: 'home brand tinned tomatoes' },
+    { name: 'spinach or kale', qty: 37.5, unit: 'g', zone: 'supermarket', alt: 'frozen spinach blocks', cupWeight: 30 },
+    { name: 'lower-sodium tamari or soy sauce', qty: 0.5, unit: 'tbsp', zone: 'asian', alt: 'supermarket house brand soy', tbspWeight: 15 },
+    { name: 'extra virgin olive oil', qty: 0.5, unit: 'tbsp', zone: 'supermarket', alt: 'standard cooking olive oil', tbspWeight: 14 },
+    { name: 'lemon juice or vinegar', qty: 0.5, unit: 'tbsp', zone: 'greengrocer', alt: 'bottled lemon juice', tbspWeight: 15 },
+    { name: 'water or low-salt stock', qty: 250, unit: 'ml', zone: 'supermarket', alt: 'plain water / home stock', cupWeight: 250, tbspWeight: 15 }
+  ],
+  bowl: [
+    { name: 'mushrooms, sliced', qty: 200, unit: 'g', zone: 'greengrocer', alt: 'canned sliced mushrooms', cupWeight: 70 },
+    { name: 'cucumber, chopped', qty: 0.5, unit: 'large', zone: 'greengrocer', alt: 'local cucumber' },
+    { name: 'kale or mixed leafy greens', qty: 75, unit: 'g', zone: 'greengrocer', alt: 'shredded cabbage / slaw mix', cupWeight: 25 },
+    { name: 'edamame, tofu, or chickpeas', qty: 100, unit: 'g', zone: 'supermarket', alt: 'canned drained chickpeas', cupWeight: 170 },
+    { name: 'olive or canola oil', qty: 0.5, unit: 'tbsp', zone: 'supermarket', alt: 'canola oil', tbspWeight: 14 },
+    { name: 'apple cider vinegar or rice vinegar', qty: 1, unit: 'tbsp', zone: 'supermarket', alt: 'white vinegar', tbspWeight: 15 },
+    { name: 'lemon juice', qty: 0.5, unit: 'tbsp', zone: 'greengrocer', alt: 'bottled lemon juice', tbspWeight: 15 },
+    { name: 'nutritional yeast (savoury)', qty: 1, unit: 'tbsp', zone: 'bulk', alt: 'omit / home spices', tbspWeight: 5 },
+    { name: 'sesame seeds', qty: 0.5, unit: 'tbsp', zone: 'bulk', alt: 'sunflower seeds', tbspWeight: 9 }
+  ],
+  parfait: {
+    oats: [
+      { name: 'rolled or steel-cut oats', qty: 35, unit: 'g', zone: 'bulk', alt: 'supermarket rolled oats', cupWeight: 90, tbspWeight: 6 },
+      { name: 'chia seeds', qty: 10, unit: 'g', zone: 'supermarket', alt: 'flaxseeds only', cupWeight: 160, tbspWeight: 10 },
+      { name: 'ground flaxseed', qty: 10, unit: 'g', zone: 'supermarket', alt: 'ground linseed', cupWeight: 150, tbspWeight: 7.5 },
+      { name: 'plain unsweetened yoghurt / soy yoghurt', qty: 135, unit: 'g', zone: 'supermarket', alt: 'supermarket brand Greek yoghurt', cupWeight: 240 },
+      { name: 'milk or fortified unsweetened soy drink', qty: 110, unit: 'ml', zone: 'supermarket', alt: 'generic soy milk', cupWeight: 250, tbspWeight: 15 },
+      { name: 'berries, fresh or frozen', qty: 110, unit: 'g', zone: 'supermarket', alt: 'frozen mixed berries', cupWeight: 150 },
+      { name: 'nuts, chopped', qty: 12.5, unit: 'g', zone: 'bulk', alt: 'peanuts', cupWeight: 130, tbspWeight: 8 },
+      { name: 'cinnamon', qty: 0.25, unit: 'tsp', zone: 'bulk', alt: 'cinnamon powder' }
+    ],
+    lowcarb: [
+      { name: 'rolled or steel-cut oats', qty: 12.5, unit: 'g', zone: 'bulk', alt: 'supermarket rolled oats', cupWeight: 90, tbspWeight: 6 },
+      { name: 'chia seeds', qty: 15, unit: 'g', zone: 'supermarket', alt: 'chia seeds', cupWeight: 160, tbspWeight: 10 },
+      { name: 'ground flaxseed', qty: 15, unit: 'g', zone: 'supermarket', alt: 'ground flaxseed', cupWeight: 150, tbspWeight: 7.5 },
+      { name: 'plain unsweetened yoghurt / soy yoghurt', qty: 135, unit: 'g', zone: 'supermarket', alt: 'supermarket brand Greek yoghurt', cupWeight: 240 },
+      { name: 'milk or fortified unsweetened soy drink', qty: 110, unit: 'ml', zone: 'supermarket', alt: 'generic soy milk', cupWeight: 250, tbspWeight: 15 },
+      { name: 'berries, fresh or frozen', qty: 110, unit: 'g', zone: 'supermarket', alt: 'frozen mixed berries', cupWeight: 150 },
+      { name: 'nuts, chopped', qty: 20, unit: 'g', zone: 'bulk', alt: 'peanuts', cupWeight: 130, tbspWeight: 8 },
+      { name: 'cinnamon', qty: 0.25, unit: 'tsp', zone: 'bulk', alt: 'cinnamon powder' }
+    ]
+  }
+};
+
+const defaultShoppingList: ShoppingItem[] = [
+  { name: 'Brown or green lentils', qty: '180g', zone: 'bulk', checked: false },
+  { name: 'Rolled oats', qty: '80g', zone: 'bulk', checked: false },
+  { name: 'Nutritional yeast', qty: '2 tbsp', zone: 'bulk', checked: false },
+  { name: 'Cinnamon & Spices', qty: 'To taste', zone: 'bulk', checked: false },
+  { name: 'Chia & Flax seeds', qty: '40g total', zone: 'supermarket', checked: false },
+  { name: 'Plain unsweetened Greek or soy yoghurt', qty: '300g', zone: 'supermarket', checked: false },
+  { name: 'Fortified unsweetened soy drink / milk', qty: '250ml', zone: 'supermarket', checked: false },
+  { name: 'Frozen mixed berries', qty: '250g', zone: 'supermarket', checked: false },
+  { name: 'Tinned chopped tomatoes (no salt)', qty: '2 tins', zone: 'supermarket', checked: false },
+  { name: 'Frozen spinach or kale', qty: '150g', zone: 'supermarket', checked: false },
+  { name: 'Cauliflower', qty: '1 head (400g)', zone: 'greengrocer', checked: false },
+  { name: 'Sweet potato', qty: '300g', zone: 'greengrocer', checked: false },
+  { name: 'Carrots, Celery, Onions', qty: 'Bulk pack', zone: 'greengrocer', checked: false },
+  { name: 'Cucumber & Lemon', qty: '1 each', zone: 'greengrocer', checked: false },
+  { name: 'Fresh mushrooms', qty: '400g', zone: 'greengrocer', checked: false },
+  { name: 'Firm tofu', qty: '300g', zone: 'asian', checked: false },
+  { name: 'Lower-sodium tamari or soy sauce', qty: '1 bottle', zone: 'asian', checked: false }
+];
+
+const defaultAuditRows: AuditRow[] = [
+  { topic: 'Overall Frame', original: 'Longevity through Blueprint & SENS ingredient rules', successor: 'General weight-management & cardiometabolic pattern', evidence: 'strong', rationale: 'Fibre, sodium reduction, and unsaturated fats are heavily supported by WHO/NHS guidelines; single-molecule longevity claims lack direct human proof.' },
+  { topic: 'Potatoes', original: 'Implicitly problematic for glycation', successor: 'Acceptable in portion-controlled meals; prefer fibre-rich patterns', evidence: 'moderate', rationale: 'Potatoes are a whole carbohydrate. They are not toxic; rather, portions should be managed within the 25% starch plate guideline.' },
+  { topic: 'Whole grains', original: 'Grain-free breakfast (contradicted by oats in recipe)', successor: 'Oats and whole grains remain acceptable for most adults', evidence: 'strong', rationale: 'Whole oats contain beta-glucans which improve glucose regulation and lipid profiles. Grain-free mandates are unsupported for general health.' },
+  { topic: 'Soy / Tofu', original: 'Accepted in one recipe but anti-soy framing elsewhere', successor: 'Soy and tofu are acceptable as healthy protein options', evidence: 'strong', rationale: 'Legumes and soy are clinical priorities for plant protein. High intakes correlate with lower blood pressure and cardiovascular benefits.' },
+  { topic: 'Gluten-free', original: 'Presented as healthier by default', successor: 'Only indicated for coeliac disease or confirmed sensitivity', evidence: 'strong', rationale: 'NHS guidelines indicate gluten avoidance is a medical necessity for coeliac disease, not a general public health longevity rule.' },
+  { topic: 'Dairy / Yoghurt', original: 'Treated suspiciously at points', successor: 'Plain yoghurt or unsweetened soy yoghurt is healthy and acceptable', evidence: 'strong', rationale: 'Standard low-fat/unsweetened yoghurts provide calcium and protein, helping satiety without introducing harmful free sugars.' },
+  { topic: 'Oils', original: 'Strong preference for premium oils, "raw only"', successor: 'Measured use of unsaturated oils; avoid deep-frying', evidence: 'strong', rationale: 'Replacing saturated fats with olive/canola oil is supported. However, they are energy-dense and must be measured to prevent calorie creep.' },
+  { topic: 'Sweeteners', original: 'Included trehalose; "natural" sweetener framing', successor: 'Minimise sweeteners; WHO advises against non-sugar sweeteners for weight loss', evidence: 'strong', rationale: 'WHO guidelines advise minimizing both free sugars and non-sugar sweeteners to control weight and avoid non-communicable diseases.' },
+  { topic: 'Salt / Soy Sauce', original: 'Lower-sodium choices mentioned but not centered', successor: 'Sodium reduction upgraded as a primary recommendation', evidence: 'strong', rationale: 'Reducing sodium to under 5g salt/day is one of the highest-confidence, clinically-proven blood pressure control targets.' },
+  { topic: 'AGE Reduction', original: 'Central anti-ageing strategy', successor: 'Secondary culinary consideration; not a clinical aging lever', evidence: 'limited', rationale: 'While lower-temperature, moist cooking is good practice, direct clinical proof that reducing dietary AGEs slows human biological aging remains unproven.' },
+  { topic: 'Ultra-processed foods', original: 'Implicitly criticised', successor: 'Explicitly minimize reliance on them', evidence: 'moderate', rationale: '2024 umbrella reviews and a 2025 controlled trial show that high UPF intake causes rapid adverse cardiometabolic effects even in calorie-matched conditions.' }
+];
+
+/* ==========================================================================
+   Helper Utilities
+   ========================================================================== */
+
+/**
+ * Converts decimal numbers to neat fractional representations (e.g. 1.25 -> "1 1/4")
+ */
+function formatFraction(val: number): string {
+  if (val <= 0) return '0';
+  const integer = Math.floor(val);
+  const decimal = val - integer;
+  
+  let fracStr = '';
+  // Match closest kitchen fractions (tolerance 0.05)
+  if (decimal >= 0.08 && decimal < 0.2) fracStr = '1/8';
+  else if (decimal >= 0.2 && decimal < 0.3) fracStr = '1/4';
+  else if (decimal >= 0.3 && decimal < 0.4) fracStr = '1/3';
+  else if (decimal >= 0.4 && decimal < 0.6) fracStr = '1/2';
+  else if (decimal >= 0.6 && decimal < 0.7) fracStr = '2/3';
+  else if (decimal >= 0.7 && decimal < 0.85) fracStr = '3/4';
+  else if (decimal >= 0.85) return (integer + 1).toString(); // Round up
+  
+  if (integer > 0) {
+    return fracStr ? `${integer} ${fracStr}` : integer.toString();
+  }
+  return fracStr || val.toFixed(1).replace(/\.0$/, '');
+}
+
+/**
+ * Double-beep alert using the Web Audio API
+ */
+function triggerAudioBeep(): void {
+  try {
+    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const playTone = (time: number, freq: number) => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, time);
+      gain.gain.setValueAtTime(0.2, time);
+      gain.gain.exponentialRampToValueAtTime(0.01, time + 0.15);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(time);
+      osc.stop(time + 0.18);
+    };
+    const now = audioCtx.currentTime;
+    playTone(now, 880);
+    playTone(now + 0.25, 880);
+  } catch (e) {
+    console.error("Audio beep failed to initialize", e);
+  }
+}
+
+/* ==========================================================================
+   Firebase Initialization
+   ========================================================================== */
+
+let db: any = null;
+let auth: any = null;
+let isFirebaseOnline = false;
+
+// Initialize Firebase with dummy configurations.
+// For local emulators, the configuration details are ignored, so dummy strings work fine.
+const firebaseConfig = {
+  apiKey: "local-emulator-dummy-api-key",
+  authDomain: "successor-health-hub.firebaseapp.com",
+  projectId: "successor-health-hub",
+  storageBucket: "successor-health-hub.appspot.com",
+  messagingSenderId: "12345678",
+  appId: "1:123456:web:1234"
+};
+
+try {
+  const app = initializeApp(firebaseConfig);
+  db = getFirestore(app);
+  auth = getAuth(app);
+  
+  // Detect if running on localhost to automatically route to local emulators
+  if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+    connectAuthEmulator(auth, 'http://localhost:9099');
+    connectFirestoreEmulator(db, 'localhost', 8080);
+    console.log("[Firebase] Successfully connected to local emulators.");
+  }
+  isFirebaseOnline = true;
+} catch (e) {
+  console.warn("[Firebase] Could not initialize. Falling back to offline LocalStorage mode.", e);
+  isFirebaseOnline = false;
+}
+
+/* ==========================================================================
+   Petite-Vue Reactive App Store definition
+   ========================================================================== */
+
+const store = {
+  // Authentication state
+  user: null as any,
+  loginEmail: '',
+  isCheckingAuth: true,
+  isFirebaseOnline: isFirebaseOnline,
+  
+  // Navigation & Preferences
+  activeTab: 'dashboard',
+  theme: 'dark',
+  servings: 4,
+  budgetMode: false,
+  parfaitPathway: 'oats' as 'oats' | 'lowcarb',
+  unitSystem: 'metric' as 'metric' | 'cups' | 'spoons',
+  
+  // Dashboard Plate ratios (Veg, Protein, Starch)
+  plate: {
+    veg: 50,
+    prot: 25,
+    starch: 25
+  },
+  
+  // Satiety Calculator target inputs
+  calcCalories: 2000,
+  calcActivity: 1.375,
+  
+  // Active science node details
+  activeScienceNode: 'high',
+  activeRoadmapPhase: '2',
+  
+  // Search and filter inputs
+  auditQuery: '',
+  auditFilter: 'all',
+  
+  // Main Data lists
+  shoppingList: [] as ShoppingItem[],
+  healthLogs: [] as LogEntry[],
+  auditRows: defaultAuditRows,
+  
+  // Timer state for Dinner Stew simmering
+  timerInterval: null as any,
+  timerSecondsRemaining: 25 * 60,
+  timerState: 'idle' as 'idle' | 'running' | 'paused',
+
+  // Initialize store bindings and lifecycle events
+  init() {
+    this.loadLocalPreferences();
+    this.setupAuthListener();
+    this.loadDatabaseSyncs();
+    this.updatePlateFromSliders();
+    this.startPwaServiceWorker();
+  },
+
+  /* ====================================
+     PWA & Service Worker
+     ==================================== */
+  startPwaServiceWorker() {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js')
+        .then(() => console.log("[PWA] Service Worker registered successfully."))
+        .catch(err => console.error("[PWA] Service Worker registration failed:", err));
+    }
+  },
+
+  /* ====================================
+     Authentication Gateway
+     ==================================== */
+  setupAuthListener() {
+    if (!auth) {
+      this.isCheckingAuth = false;
+      return;
+    }
+    
+    onAuthStateChanged(auth, (firebaseUser: any) => {
+      this.isCheckingAuth = false;
+      if (firebaseUser) {
+        // Enforce the @thorsys.com.au domain restriction rules
+        const email = firebaseUser.email || '';
+        if (email.endsWith('@thorsys.com.au')) {
+          this.user = firebaseUser;
+          this.loadDatabaseSyncs();
+        } else {
+          alert("Access Denied: Only @thorsys.com.au accounts are authorized.");
+          signOut(auth);
+          this.user = null;
+        }
+      } else {
+        this.user = null;
+      }
+    });
+  },
+
+  async loginWithGoogle() {
+    if (!auth) {
+      alert("Local Fallback Mode: Google Auth requires running the Firebase Emulators.");
+      return;
+    }
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (e) {
+      console.error("Login failed:", e);
+      alert("Authentication failed. Make sure local emulator is running.");
+    }
+  },
+
+  // Mock login for offline testing when emulator is offline
+  bypassAuthOffline() {
+    this.user = {
+      uid: "mock-offline-user",
+      email: "developer@thorsys.com.au",
+      displayName: "Offline Developer"
+    } as any;
+    this.isFirebaseOnline = false;
+    this.loadDatabaseSyncs();
+  },
+
+  logout() {
+    if (auth) {
+      signOut(auth);
+    } else {
+      this.user = null;
+    }
+  },
+
+  /* ====================================
+     Local Storage / Database Syncing
+     ==================================== */
+  loadLocalPreferences() {
+    const savedTheme = localStorage.getItem('successor_theme') || 'dark';
+    this.theme = savedTheme;
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    
+    const savedUnit = localStorage.getItem('successor_units') || 'metric';
+    this.unitSystem = savedUnit as any;
+  },
+
+  toggleTheme() {
+    this.theme = this.theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', this.theme);
+    localStorage.setItem('successor_theme', this.theme);
+  },
+
+  loadDatabaseSyncs() {
+    if (!this.user) return;
+    
+    // Sync Shopping list
+    if (db && isFirebaseOnline) {
+      // Sync from Firestore real-time listener
+      onSnapshot(collection(db, 'users', this.user.uid, 'shoppingList'), (snapshot: any) => {
+        const items: ShoppingItem[] = [];
+        snapshot.forEach((doc: any) => {
+          items.push({ id: doc.id, ...doc.data() } as ShoppingItem);
+        });
+        this.shoppingList = items;
+      });
+      
+      // Sync Health Logs
+      onSnapshot(collection(db, 'users', this.user.uid, 'healthLogs'), (snapshot: any) => {
+        const logs: LogEntry[] = [];
+        snapshot.forEach((doc: any) => {
+          logs.push({ id: doc.id, ...doc.data() } as LogEntry);
+        });
+        this.healthLogs = logs;
+      });
+    } else {
+      // Fallback local storage
+      const localShopping = localStorage.getItem('successor_shopping_list');
+      if (localShopping) {
+        this.shoppingList = JSON.parse(localShopping);
+      } else {
+        this.shoppingList = defaultShoppingList.map(item => ({ ...item }));
+        this.saveShoppingListOffline();
+      }
+      
+      const localLogs = localStorage.getItem('successor_health_logs');
+      if (localLogs) {
+        this.healthLogs = JSON.parse(localLogs);
+      }
+    }
+  },
+
+  saveShoppingListOffline() {
+    localStorage.setItem('successor_shopping_list', JSON.stringify(this.shoppingList));
+  },
+
+  /* ====================================
+     Portions Converter & Scaling Engine
+     ==================================== */
+  get convertedStewIngredients(): any[] {
+    return recipeBases.stew.map((ing: Ingredient) => this.formatIngredient(ing, this.servings / 4));
+  },
+
+  get convertedBowlIngredients(): any[] {
+    return recipeBases.bowl.map((ing: Ingredient) => this.formatIngredient(ing, this.servings / 2));
+  },
+
+  get convertedParfaitIngredients(): any[] {
+    const list = recipeBases.parfait[this.parfaitPathway];
+    return list.map((ing: Ingredient) => this.formatIngredient(ing, this.servings / 2));
+  },
+
+  /**
+   * Main recipe conversion mapping. Computes quantity dynamically based on
+   * scale factor, and formats weight/volume density values (grams, cups, spoons).
+   */
+  formatIngredient(ing: Ingredient, factor: number): { displayQty: string; name: string; isSwapped: boolean } {
+    const baseGrams = ing.qty * factor;
+    const nameStr = this.budgetMode ? ing.alt : ing.name;
+    const isSwapped = this.budgetMode && ing.alt !== ing.name;
+
+    // 1. Metric: return grams/ml
+    if (this.unitSystem === 'metric' || !ing.unit) {
+      const formattedQty = baseGrams.toFixed(1).replace(/\.0$/, '');
+      return {
+        displayQty: ing.unit ? `${formattedQty}${ing.unit}` : formattedQty,
+        name: nameStr,
+        isSwapped
+      };
+    }
+
+    // 2. Cups System (Weight density conversion)
+    if (this.unitSystem === 'cups') {
+      if (ing.unit === 'g' && ing.cupWeight) {
+        const cupsVal = baseGrams / ing.cupWeight;
+        return {
+          displayQty: `${formatFraction(cupsVal)} cup`,
+          name: nameStr,
+          isSwapped
+        };
+      }
+      if (ing.unit === 'ml') {
+        const cupsVal = baseGrams / 250; // AU cup metric standard (250ml)
+        return {
+          displayQty: `${formatFraction(cupsVal)} cup`,
+          name: nameStr,
+          isSwapped
+        };
+      }
+    }
+
+    // 3. Spoons System (Spoons/Tablespoons conversion)
+    if (this.unitSystem === 'spoons') {
+      if (ing.unit === 'g' && ing.tbspWeight) {
+        const spoonsVal = baseGrams / ing.tbspWeight;
+        return {
+          displayQty: `${formatFraction(spoonsVal)} tbsp`,
+          name: nameStr,
+          isSwapped
+        };
+      }
+      if (ing.unit === 'ml') {
+        const spoonsVal = baseGrams / 20; // AU tablespoon standard (20ml)
+        return {
+          displayQty: `${formatFraction(spoonsVal)} tbsp`,
+          name: nameStr,
+          isSwapped
+        };
+      }
+    }
+
+    // Fallback: return raw values
+    const formattedQty = baseGrams.toFixed(1).replace(/\.0$/, '');
+    return {
+      displayQty: ing.unit ? `${formattedQty}${ing.unit}` : formattedQty,
+      name: nameStr,
+      isSwapped
+    };
+  },
+
+  /* ====================================
+     Interactive Plate Sliders
+     ==================================== */
+  adjustPlateProportions(changedSlider: 'veg' | 'prot' | 'starch', newValue: number) {
+    const currentVeg = this.plate.veg;
+    const currentProt = this.plate.prot;
+    const currentStarch = this.plate.starch;
+    
+    if (changedSlider === 'veg') {
+      const diff = newValue - currentVeg;
+      const sumOther = currentProt + currentStarch;
+      this.plate.veg = newValue;
+      if (sumOther > 0) {
+        this.plate.prot = Math.max(10, currentProt - (diff * currentProt / sumOther));
+        this.plate.starch = Math.max(10, 100 - this.plate.veg - this.plate.prot);
+      }
+    } else if (changedSlider === 'prot') {
+      const diff = newValue - currentProt;
+      const sumOther = currentVeg + currentStarch;
+      this.plate.prot = newValue;
+      if (sumOther > 0) {
+        this.plate.veg = Math.max(10, currentVeg - (diff * currentVeg / sumOther));
+        this.plate.starch = Math.max(10, 100 - this.plate.veg - this.plate.prot);
+      }
+    } else if (changedSlider === 'starch') {
+      const diff = newValue - currentStarch;
+      const sumOther = currentVeg + currentProt;
+      this.plate.starch = newValue;
+      if (sumOther > 0) {
+        this.plate.veg = Math.max(10, currentVeg - (diff * currentVeg / sumOther));
+        this.plate.prot = Math.max(10, 100 - this.plate.veg - this.plate.starch);
+      }
+    }
+    
+    // Normalize sum to exactly 100%
+    const sum = this.plate.veg + this.plate.prot + this.plate.starch;
+    this.plate.veg = (this.plate.veg / sum) * 100;
+    this.plate.prot = (this.plate.prot / sum) * 100;
+    this.plate.starch = (this.plate.starch / sum) * 100;
+    
+    this.updatePlateFromSliders();
+  },
+
+  updatePlateFromSliders() {
+    const plateEl = document.getElementById('interactive-plate');
+    if (plateEl) {
+      plateEl.style.setProperty('--veg-pct', `${this.plate.veg}%`);
+      plateEl.style.setProperty('--prot-pct', `${this.plate.prot}%`);
+      plateEl.style.setProperty('--starch-pct', `${this.plate.starch}%`);
+    }
+  },
+
+  setPlatePreset(type: 'successor' | 'standard' | 'extreme') {
+    if (type === 'successor') {
+      this.plate = { veg: 50, prot: 25, starch: 25 };
+    } else if (type === 'standard') {
+      this.plate = { veg: 15, prot: 25, starch: 60 };
+    } else if (type === 'extreme') {
+      this.plate = { veg: 10, prot: 30, starch: 60 };
+    }
+    this.updatePlateFromSliders();
+  },
+
+  get plateEvaluation(): string {
+    if (this.plate.veg >= 45) {
+      return 'optimal';
+    } else if (this.plate.veg >= 25 && this.plate.veg < 45) {
+      return 'suboptimal';
+    }
+    return 'danger';
+  },
+
+  /* ====================================
+     Satiety & Portion Calculator
+     ==================================== */
+  get calcBreakfastOats(): string {
+    const energyNeed = this.calcCalories;
+    const oatsPortion = Math.round((energyNeed / 2000) * 70);
+    return `${oatsPortion}g oats`;
+  },
+  
+  get calcLunchGreens(): string {
+    const energyNeed = this.calcCalories;
+    const greensPortion = Math.round((energyNeed / 2000) * 150);
+    return `${greensPortion}g greens`;
+  },
+  
+  get calcDinnerLentils(): string {
+    const energyNeed = this.calcCalories;
+    const lentilPortion = Math.round((energyNeed / 2000) * 45);
+    return `${lentilPortion}g lentils / serv`;
+  },
+
+  /* ====================================
+     Cooking Timer
+     ==================================== */
+  get timerClockDisplay(): string {
+    const min = Math.floor(this.timerSecondsRemaining / 60);
+    const sec = this.timerSecondsRemaining % 60;
+    return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+  },
+
+  startStewTimer() {
+    if (this.timerInterval) return;
+    this.timerState = 'running';
+    
+    this.timerInterval = setInterval(() => {
+      if (this.timerSecondsRemaining <= 0) {
+        clearInterval(this.timerInterval);
+        this.timerInterval = null;
+        this.timerState = 'idle';
+        this.timerSecondsRemaining = 25 * 60;
+        triggerAudioBeep();
+        alert("Simmer time complete! Ready to add spinach/kale.");
+      } else {
+        this.timerSecondsRemaining--;
+      }
+    }, 1000);
+  },
+
+  pauseStewTimer() {
+    clearInterval(this.timerInterval);
+    this.timerInterval = null;
+    this.timerState = 'paused';
+  },
+
+  resetStewTimer() {
+    clearInterval(this.timerInterval);
+    this.timerInterval = null;
+    this.timerSecondsRemaining = 25 * 60;
+    this.timerState = 'idle';
+  },
+
+  /* ====================================
+     Shopping List Operations
+     ==================================== */
+  async toggleShoppingItem(item: ShoppingItem) {
+    if (db && isFirebaseOnline && this.user && item.id) {
+      await updateDoc(doc(db, 'users', this.user.uid, 'shoppingList', item.id), {
+        checked: item.checked
+      });
+    } else {
+      this.saveShoppingListOffline();
+    }
+  },
+
+  async deleteShoppingItem(item: ShoppingItem) {
+    if (db && isFirebaseOnline && this.user && item.id) {
+      await deleteDoc(doc(db, 'users', this.user.uid, 'shoppingList', item.id));
+    } else {
+      this.shoppingList = this.shoppingList.filter(i => i !== item);
+      this.saveShoppingListOffline();
+    }
+  },
+
+  async addCustomShoppingItem(e: Event) {
+    e.preventDefault();
+    const nameInput = document.getElementById('item-name') as HTMLInputElement;
+    const zoneSelect = document.getElementById('item-zone') as HTMLSelectElement;
+    
+    const newItem: Omit<ShoppingItem, 'id'> = {
+      name: nameInput.value,
+      qty: 'Custom',
+      zone: zoneSelect.value as any,
+      checked: false,
+      custom: true
+    };
+    
+    if (db && isFirebaseOnline && this.user) {
+      const newDocRef = doc(collection(db, 'users', this.user.uid, 'shoppingList'));
+      await setDoc(newDocRef, newItem);
+    } else {
+      this.shoppingList.push(newItem);
+      this.saveShoppingListOffline();
+    }
+    
+    nameInput.value = '';
+  },
+
+  async addRecipeToShoppingList(recipeKey: string) {
+    let list: Ingredient[] = [];
+    if (recipeKey === 'stew') list = recipeBases.stew;
+    else if (recipeKey === 'bowl') list = recipeBases.bowl;
+    else if (recipeKey === 'parfait') list = recipeBases.parfait[this.parfaitPathway];
+    
+    const factor = recipeKey === 'stew' ? this.servings / 4 : this.servings / 2;
+    
+    for (const ing of list) {
+      const formatted = this.formatIngredient(ing, factor);
+      
+      const newItem: Omit<ShoppingItem, 'id'> = {
+        name: formatted.name,
+        qty: formatted.displayQty,
+        zone: ing.zone,
+        checked: false
+      };
+      
+      if (db && isFirebaseOnline && this.user) {
+        // Generate a deterministic document ID to prevent duplicate clicks adding duplicates
+        const docId = `${recipeKey}_${ing.name.replace(/\s+/g, '_')}`;
+        await setDoc(doc(db, 'users', this.user.uid, 'shoppingList', docId), newItem);
+      } else {
+        const existing = this.shoppingList.find(i => i.name === newItem.name);
+        if (existing) {
+          existing.qty = `${newItem.qty} (added)`;
+        } else {
+          this.shoppingList.push(newItem);
+        }
+      }
+    }
+    
+    if (!isFirebaseOnline) {
+      this.saveShoppingListOffline();
+    }
+    alert(`Ingredients for ${recipeKey} added to your shopping list!`);
+  },
+
+  async clearCheckedShoppingItems() {
+    const checkedItems = this.shoppingList.filter(i => i.checked);
+    
+    if (db && isFirebaseOnline && this.user) {
+      for (const item of checkedItems) {
+        if (item.id) {
+          await deleteDoc(doc(db, 'users', this.user.uid, 'shoppingList', item.id));
+        }
+      }
+    } else {
+      this.shoppingList = this.shoppingList.filter(i => !i.checked);
+      this.saveShoppingListOffline();
+    }
+  },
+
+  async resetDefaultShoppingList() {
+    if (confirm("Reset shopping list to default baseline? Your additions will be deleted.")) {
+      if (db && isFirebaseOnline && this.user) {
+        // Delete all current items in collection
+        for (const item of this.shoppingList) {
+          if (item.id) {
+            await deleteDoc(doc(db, 'users', this.user.uid, 'shoppingList', item.id));
+          }
+        }
+        // Write defaults
+        for (const item of defaultShoppingList) {
+          const newDocRef = doc(collection(db, 'users', this.user.uid, 'shoppingList'));
+          await setDoc(newDocRef, item);
+        }
+      } else {
+        this.shoppingList = defaultShoppingList.map(item => ({ ...item }));
+        this.saveShoppingListOffline();
+      }
+    }
+  },
+
+  exportShoppingListToClipboard() {
+    const lines = ["SUCCESSOR HEALTH SHOPPING LIST", "=============================="];
+    const zones = {
+      supermarket: "SUPERMARKET (Staples & Cold)",
+      greengrocer: "GREENGROCER & MARKET (Fresh Produce)",
+      bulk: "BULK SHOP (Dry Grains & Spices)",
+      asian: "ASIAN GROCER (Tofu & Seasonings)"
+    };
+    
+    Object.keys(zones).forEach(key => {
+      const items = this.shoppingList.filter(i => i.zone === key && !i.checked);
+      if (items.length > 0) {
+        lines.push(`\n[${(zones as any)[key]}]`);
+        items.forEach(i => {
+          lines.push(`- [ ] ${i.name} (${i.qty})`);
+        });
+      }
+    });
+    
+    navigator.clipboard.writeText(lines.join('\n')).then(() => {
+      alert("Shopping list copied to clipboard in plain-text checklist format!");
+    }).catch(err => {
+      alert("Clipboard export failed: " + err);
+    });
+  },
+
+  /* ====================================
+     Health Logs Operations
+     ==================================== */
+  async submitHealthLog(e: Event) {
+    e.preventDefault();
+    
+    const logEntry: Omit<LogEntry, 'id'> = {
+      date: new Date().toISOString(),
+      weight: parseFloat((document.getElementById('log-weight') as HTMLInputElement).value),
+      waist: parseFloat((document.getElementById('log-waist') as HTMLInputElement).value) || null,
+      bpSys: parseInt((document.getElementById('log-bp-sys') as HTMLInputElement).value) || null,
+      bpDia: parseInt((document.getElementById('log-bp-dia') as HTMLInputElement).value) || null,
+      adherence: parseInt((document.getElementById('log-adherence') as HTMLSelectElement).value),
+      satiety: parseInt((document.getElementById('log-satiety') as HTMLSelectElement).value),
+      notes: (document.getElementById('log-notes') as HTMLInputElement).value || ''
+    };
+    
+    if (db && isFirebaseOnline && this.user) {
+      const newDocRef = doc(collection(db, 'users', this.user.uid, 'healthLogs'));
+      await setDoc(newDocRef, logEntry);
+    } else {
+      this.healthLogs.push(logEntry);
+      localStorage.setItem('successor_health_logs', JSON.stringify(this.healthLogs));
+    }
+    
+    // Clear inputs except weight
+    (document.getElementById('log-waist') as HTMLInputElement).value = '';
+    (document.getElementById('log-bp-sys') as HTMLInputElement).value = '';
+    (document.getElementById('log-bp-dia') as HTMLInputElement).value = '';
+    (document.getElementById('log-notes') as HTMLInputElement).value = '';
+    
+    alert("Health log saved successfully!");
+  },
+
+  async clearHealthLogs() {
+    if (confirm("Permanently delete your historical metrics logs?")) {
+      if (db && isFirebaseOnline && this.user) {
+        for (const log of this.healthLogs) {
+          if (log.id) {
+            await deleteDoc(doc(db, 'users', this.user.uid, 'healthLogs', log.id));
+          }
+        }
+      } else {
+        this.healthLogs = [];
+        localStorage.removeItem('successor_health_logs');
+      }
+    }
+  },
+
+  /* ====================================
+     Scientific Audit Filters
+     ==================================== */
+  get filteredAuditRows(): AuditRow[] {
+    const q = this.auditQuery.toLowerCase();
+    return this.auditRows.filter(row => {
+      const matchesSearch = row.topic.toLowerCase().includes(q) || row.rationale.toLowerCase().includes(q);
+      const matchesFilter = this.auditFilter === 'all' || row.evidence === this.auditFilter;
+      return matchesSearch && matchesFilter;
+    });
+  }
+};
+
+// Mount the reactive store in the document scope using Petite-Vue
+createApp({ store }).mount();
+// Initialize preferences, auth observers, and service workers
+store.init();

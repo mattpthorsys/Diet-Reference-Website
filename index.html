@@ -3,16 +3,53 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Successor Health Hub | Evidence-Based Cardiometabolic Reference</title>
-  <meta name="description" content="An interactive companion for weight management and cardiometabolic health, adapted from the Successor Health Report.">
+  <title>Successor Health Hub | PWA Dynamic Reference</title>
+  <meta name="description" content="An interactive database-backed PWA for weight management and cardiometabolic health, secured with Firebase.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <link rel="manifest" href="manifest.json">
 </head>
-<body>
-  <!-- App Container -->
-  <div class="app-container">
+<body v-scope>
+  <!-- Loading Checker -->
+  <div class="loading-overlay" v-if="store.isCheckingAuth">
+    <div class="spinner"></div>
+    <p>Authenticating Portal...</p>
+  </div>
+
+  <!-- Google Authentication Gateway Overlay -->
+  <div class="auth-overlay" v-if="!store.user && !store.isCheckingAuth">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="logo-icon">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+      <h2>Successor Health Hub</h2>
+      <p>Secure evidence-based cardiometabolic health portal. Private access restriction is enabled.</p>
+      
+      <button class="btn btn-primary btn-block" @click="store.loginWithGoogle">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" style="margin-right: 8px;">
+          <path d="M12.24 10.285V13.4h6.887c-.275 1.565-1.88 4.604-6.887 4.604-4.33 0-7.866-3.577-7.866-8s3.536-8 7.866-8c2.46 0 4.105 1.025 5.047 1.926l2.427-2.334C17.955 2.192 15.34 1 12.24 1 6.14 1 1.2 5.926 1.2 12s4.94 11 11.04 11c6.368 0 10.597-4.474 10.597-10.796 0-.728-.078-1.285-.175-1.92H12.24z"/>
+        </svg>
+        Sign in with Google
+      </button>
+
+      <div class="auth-separator"><span>OR</span></div>
+
+      <button class="btn btn-secondary btn-block btn-sm" @click="store.bypassAuthOffline">
+        Run in Offline Fallback Mode
+      </button>
+      
+      <div class="auth-footer">
+        *Access limited to authorized @thorsys.com.au Google accounts.
+      </div>
+    </div>
+  </div>
+
+  <!-- App Shell Container -->
+  <div class="app-container" v-if="store.user">
     
     <!-- Sidebar Navigation -->
     <aside class="sidebar">
@@ -24,12 +61,12 @@
         </div>
         <div class="brand-info">
           <h2>Successor Health</h2>
-          <span>Science-backed Vitality</span>
+          <span>Database Linked</span>
         </div>
       </div>
       
       <nav class="nav-menu">
-        <button class="nav-item active" data-tab="dashboard" id="btn-tab-dashboard">
+        <button class="nav-item" :class="{ active: store.activeTab === 'dashboard' }" @click="store.activeTab = 'dashboard'">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="nav-icon">
             <rect x="3" y="3" width="7" height="9" rx="1"/>
             <rect x="14" y="3" width="7" height="5" rx="1"/>
@@ -38,13 +75,13 @@
           </svg>
           Dashboard
         </button>
-        <button class="nav-item" data-tab="recipes" id="btn-tab-recipes">
+        <button class="nav-item" :class="{ active: store.activeTab === 'recipes' }" @click="store.activeTab = 'recipes'">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="nav-icon">
             <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
           </svg>
           Recipe Hub
         </button>
-        <button class="nav-item" data-tab="shopping" id="btn-tab-shopping">
+        <button class="nav-item" :class="{ active: store.activeTab === 'shopping' }" @click="store.activeTab = 'shopping'">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="nav-icon">
             <circle cx="9" cy="21" r="1"/>
             <circle cx="20" cy="21" r="1"/>
@@ -52,7 +89,7 @@
           </svg>
           Shopping List
         </button>
-        <button class="nav-item" data-tab="roadmap" id="btn-tab-roadmap">
+        <button class="nav-item" :class="{ active: store.activeTab === 'roadmap' }" @click="store.activeTab = 'roadmap'">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="nav-icon">
             <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
             <line x1="16" y1="2" x2="16" y2="6"/>
@@ -61,7 +98,7 @@
           </svg>
           Implementation
         </button>
-        <button class="nav-item" data-tab="audit" id="btn-tab-audit">
+        <button class="nav-item" :class="{ active: store.activeTab === 'audit' }" @click="store.activeTab = 'audit'">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="nav-icon">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
             <polyline points="14 2 14 8 20 8"/>
@@ -74,7 +111,7 @@
       </nav>
 
       <div class="sidebar-footer">
-        <button id="theme-toggle" class="theme-btn" aria-label="Toggle dark/light theme">
+        <button @click="store.toggleTheme" class="theme-btn" aria-label="Toggle dark/light theme">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sun-icon">
             <circle cx="12" cy="12" r="5"/>
             <line x1="12" y1="1" x2="12" y2="3"/>
@@ -89,11 +126,17 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="moon-icon">
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
           </svg>
-          <span class="theme-text">Light Mode</span>
+          <span class="theme-text">{{ store.theme === 'dark' ? 'Light Mode' : 'Dark Mode' }}</span>
         </button>
-        <div class="credits">
-          <span>Target Audience: Adelaide NE Suburbs</span>
-          <span>Based on June 2026 Guidelines</span>
+        
+        <div class="profile-box" v-if="store.user">
+          <div class="profile-details">
+            <span class="profile-name">{{ store.user.displayName || 'Developer' }}</span>
+            <span class="profile-email">{{ store.user.email }}</span>
+          </div>
+          <button class="logout-btn" @click="store.logout" title="Sign Out">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+          </button>
         </div>
       </div>
     </aside>
@@ -105,7 +148,7 @@
       <header class="top-bar">
         <div class="welcome-text">
           <h1>Successor Health Reference</h1>
-          <p id="current-date-display">June 2026 Diet Adaptation Guide</p>
+          <p>Database Connectivity: <span class="sync-status" :class="{ online: store.isFirebaseOnline }">{{ store.isFirebaseOnline ? 'Cloud Synced' : 'Offline Mode' }}</span></p>
         </div>
         <div class="adelaide-badge">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="badge-icon">
@@ -117,11 +160,11 @@
       </header>
 
       <!-- Tab Content: Dashboard -->
-      <section id="dashboard" class="tab-content active">
+      <section id="dashboard" class="tab-content" :class="{ active: store.activeTab === 'dashboard' }">
         <!-- Hero Section -->
         <div class="hero-card" id="dashboard-hero-card">
           <div class="hero-content">
-            <span class="category-tag">Evidence-Based Lifestyle</span>
+            <span class="category-tag">Evidence-Based PWA App</span>
             <h2>Move Past the Longevity Hype</h2>
             <p>We replace speculative ingredient folklore like "senolytics" and "autophagy clears" with clinical realities: high-satiety, vegetable-rich, low-sodium meals that support cardiometabolic health and weight management sustainably.</p>
             <div class="hero-stats">
@@ -150,8 +193,8 @@
             <div class="plate-flex-container">
               <div class="plate-circle-wrapper">
                 <div class="plate-outer">
-                  <div class="plate-inner" id="interactive-plate">
-                    <!-- Conic gradient sets slices dynamically -->
+                  <div class="plate-inner" id="interactive-plate" 
+                       :style="{ background: 'conic-gradient(var(--veg-color) 0% ' + store.plate.veg + '%, var(--prot-color) ' + store.plate.veg + '% ' + (store.plate.veg + store.plate.prot) + '%, var(--starch-color) ' + (store.plate.veg + store.plate.prot) + '% 100%)' }">
                     <div class="plate-center-badge">Plate</div>
                   </div>
                 </div>
@@ -159,44 +202,62 @@
               
               <div class="plate-details">
                 <div class="preset-buttons">
-                  <button class="btn btn-secondary active" id="btn-preset-successor">Successor Diet</button>
-                  <button class="btn btn-secondary" id="btn-preset-standard">Standard Western</button>
-                  <button class="btn btn-secondary" id="btn-preset-extreme">High-Fat Low-Carb</button>
+                  <button class="btn btn-secondary" :class="{ active: store.plate.veg === 50 && store.plate.prot === 25 }" @click="store.setPlatePreset('successor')">Successor Diet</button>
+                  <button class="btn btn-secondary" :class="{ active: store.plate.veg === 15 && store.plate.prot === 25 }" @click="store.setPlatePreset('standard')">Standard Western</button>
+                  <button class="btn btn-secondary" :class="{ active: store.plate.veg === 10 && store.plate.prot === 30 }" @click="store.setPlatePreset('extreme')">High-Fat Low-Carb</button>
                 </div>
                 
                 <div class="sliders-container">
                   <div class="slider-group">
                     <div class="slider-label">
                       <span>Vegetables & Salad (Fiber)</span>
-                      <span id="label-val-veg">50%</span>
+                      <span>{{ Math.round(store.plate.veg) }}%</span>
                     </div>
-                    <input type="range" id="slider-veg" min="10" max="80" value="50" class="range-slider">
+                    <input type="range" min="10" max="80" v-model.number="store.plate.veg" @input="store.adjustPlateProportions('veg', $event.target.value)" class="range-slider">
                   </div>
                   <div class="slider-group">
                     <div class="slider-label">
-                      <span>Protein (Tofu/Pulse/Fish/Lean Meat)</span>
-                      <span id="label-val-prot">25%</span>
+                      <span>Protein (Tofu/Pulse/Lean Meat)</span>
+                      <span>{{ Math.round(store.plate.prot) }}%</span>
                     </div>
-                    <input type="range" id="slider-prot" min="10" max="50" value="25" class="range-slider">
+                    <input type="range" min="10" max="50" v-model.number="store.plate.prot" @input="store.adjustPlateProportions('prot', $event.target.value)" class="range-slider">
                   </div>
                   <div class="slider-group">
                     <div class="slider-label">
                       <span>Whole Grain / Pulse Starch</span>
-                      <span id="label-val-starch">25%</span>
+                      <span>{{ Math.round(store.plate.starch) }}%</span>
                     </div>
-                    <input type="range" id="slider-starch" min="10" max="50" value="25" class="range-slider">
+                    <input type="range" min="10" max="50" v-model.number="store.plate.starch" @input="store.adjustPlateProportions('starch', $event.target.value)" class="range-slider">
                   </div>
                 </div>
               </div>
             </div>
             
-            <div class="evidence-box success" id="plate-eval-box">
+            <div class="evidence-box success" v-if="store.plateEvaluation === 'optimal'">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="box-icon">
                 <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
                 <polyline points="22 4 12 14.01 9 11.01"/>
               </svg>
               <div>
                 <strong>Successor Balance</strong>: Grounded in WHO & NHS guidelines. Optimizes fiber-driven fullness and keeps energy density controlled.
+              </div>
+            </div>
+
+            <div class="evidence-box warning" v-if="store.plateEvaluation === 'suboptimal'">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="box-icon">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              <div>
+                <strong>Sub-optimal Fibre</strong>: Low vegetable proportion increases calorie density. Satiety window is shortened, potentially causing earlier hunger.
+              </div>
+            </div>
+
+            <div class="evidence-box danger" v-if="store.plateEvaluation === 'danger'">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="box-icon">
+                <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              <div>
+                <strong>Caloric Creep Warning</strong>: Plate dominated by starches or lipids. Risk of unintended caloric surplus and high postprandial glucose surges.
               </div>
             </div>
           </div>
@@ -210,18 +271,18 @@
               <div class="input-group">
                 <label for="calc-calories">Target Daily Calories (kcal)</label>
                 <div class="input-with-action">
-                  <input type="number" id="calc-calories" min="1200" max="4000" value="2000">
+                  <input type="number" id="calc-calories" min="1200" max="4000" v-model.number="store.calcCalories">
                   <span>kcal</span>
                 </div>
               </div>
               
               <div class="input-group">
                 <label for="calc-activity">Weekly Physical Activity Level</label>
-                <select id="calc-activity">
-                  <option value="1.2">Sedentary (No formal exercise)</option>
-                  <option value="1.375" selected>Lightly Active (WHO Target: 150m activity/wk)</option>
-                  <option value="1.55">Moderately Active (Daily walks / gym)</option>
-                  <option value="1.725">Highly Active (Athletic/Physical labor)</option>
+                <select id="calc-activity" v-model="store.calcActivity">
+                  <option :value="1.2">Sedentary (No formal exercise)</option>
+                  <option :value="1.375">Lightly Active (WHO Target: 150m activity/wk)</option>
+                  <option :value="1.55">Moderately Active (Daily walks / gym)</option>
+                  <option :value="1.725">Highly Active (Athletic/Physical labor)</option>
                 </select>
               </div>
             </div>
@@ -231,17 +292,17 @@
               <div class="results-grid">
                 <div class="result-tile">
                   <span class="result-meal">Breakfast Parfait</span>
-                  <span class="result-value" id="calc-breakfast-oats">70g oats</span>
+                  <span class="result-value">{{ store.calcBreakfastOats }}</span>
                   <span class="result-desc">High-fiber baseline</span>
                 </div>
                 <div class="result-tile">
                   <span class="result-meal">Lunch Salad Bowl</span>
-                  <span class="result-value" id="calc-lunch-greens">150g greens</span>
+                  <span class="result-value">{{ store.calcLunchGreens }}</span>
                   <span class="result-desc">Hydrating, low energy density</span>
                 </div>
                 <div class="result-tile">
                   <span class="result-meal">Dinner Stew Batch</span>
-                  <span class="result-value" id="calc-dinner-lentils">45g dry lentils / serv</span>
+                  <span class="result-value">{{ store.calcDinnerLentils }}</span>
                   <span class="result-desc">Complex carb & plant protein</span>
                 </div>
               </div>
@@ -257,21 +318,21 @@
           
           <div class="timeline-horizontal">
             <!-- High Confidence -->
-            <div class="timeline-node high-confidence active" data-node="high">
+            <div class="timeline-node high-confidence" :class="{ active: store.activeScienceNode === 'high' }" @click="store.activeScienceNode = 'high'">
               <div class="node-badge">High Confidence</div>
               <h4>Satiety, Fiber & Salt</h4>
               <p>WHO/NHS backed focus on dietary fiber, sodium reduction, and unsaturated fats.</p>
               <span class="read-more-indicator">Click to expand details</span>
             </div>
             <!-- Moderate Confidence -->
-            <div class="timeline-node mod-confidence" data-node="mod">
+            <div class="timeline-node mod-confidence" :class="{ active: store.activeScienceNode === 'mod' }" @click="store.activeScienceNode = 'mod'">
               <div class="node-badge">Moderate Confidence</div>
               <h4>Ultra-Processed Foods</h4>
               <p>2024 umbrella reviews linking UPF diets to adverse cardiometabolic effects.</p>
               <span class="read-more-indicator">Click to expand details</span>
             </div>
             <!-- Limited Confidence -->
-            <div class="timeline-node low-confidence" data-node="low">
+            <div class="timeline-node low-confidence" :class="{ active: store.activeScienceNode === 'low' }" @click="store.activeScienceNode = 'low'">
               <div class="node-badge">Limited Confidence</div>
               <h4>Molecular Hype</h4>
               <p>Speculative claims regarding "senolytics", "autophagy", and anti-AGE longevity.</p>
@@ -279,30 +340,52 @@
             </div>
           </div>
           
-          <div class="node-detail-panel" id="node-detail-text">
-            <h4>High Confidence Mechanisms (NHS, WHO, Heart Foundation Standards)</h4>
-            <p><strong>Mechanisms</strong>: Higher fiber intake improves gastric distension and satiety hormones. Saturated fat substitution with monounsaturated oils (like measured olive oil) improves blood lipid profile. Lowering sodium directly reduces systemic blood pressure.</p>
-            <p><strong>Verifiable Evidence</strong>: Strong clinical trial consensus. Consistent evidence up to June 2026 showing cardioprotection, glycemic control, and weight maintenance via satiety, not ingredient magic.</p>
+          <div class="node-detail-panel">
+            <div v-if="store.activeScienceNode === 'high'">
+              <h4>High Confidence Mechanisms (NHS, WHO, Heart Foundation Standards)</h4>
+              <p><strong>Fibre & Satiety</strong>: Viscous soluble fibres slow gastric emptying, extending physical fullness. Insoluble fibres from lentils and greens bulk stool, signalling mechanoreceptors in the gut to limit appetite.</p>
+              <p><strong>Sodium & Blood Pressure</strong>: Restricting sodium intake to under 2g/day decreases blood volume and peripheral vascular resistance, producing clinically proven reductions in blood pressure, particularly in hypertensive populations.</p>
+              <p><strong>Unsaturated Fats</strong>: Replacing saturated fats with mono- and polyunsaturated fats reliably improves serum lipid profiles (lowering LDL-C and ApoB).</p>
+            </div>
+            <div v-if="store.activeScienceNode === 'mod'">
+              <h4>Moderate Confidence Mechanisms (UPF Reduction)</h4>
+              <p><strong>Ultra-Processed Food Avoidance</strong>: Formulated foods (UPFs) bypass natural satiety mechanisms through hyper-palatability (engineered fat-salt-sugar combinations) and low physical structure. Systematic reviews show positive correlations between high UPF intake and cardiovascular events.</p>
+              <p><strong>A controlled 2025 feeding trial</strong> demonstrated rapid adverse metabolic effects of UPF diets even when calories and macronutrient ratios were held identical to unprocessed diets, suggesting that the physical matrix and processing additives themselves disrupt metabolic homeostasis.</p>
+            </div>
+            <div v-if="store.activeScienceNode === 'low'">
+              <h4>Limited Confidence or Overclaimed Mechanisms</h4>
+              <p><strong>Autophagy, Senolysis & NAD+</strong>: The original report asserted that onions or garlic could serve as "senolytics" (clearing aging cells) or that trehalose stimulates autophagy clinically. Current research shows these mechanisms occur in isolated cellular or mouse models at massive doses, with no robust clinical trials proving they slow human aging at culinary levels.</p>
+              <p><strong>AGE Reduction (Advanced Glycation End-products)</strong>: While low-temperature, moist cooking is culinary best practice to avoid carcinogens and over-browning, claims that lower-AGE meals slow human biological aging remain hypothesis-generating. A healthy diet works through caloric balance and nutrient quality, not "AGE avoidance theatre."</p>
+            </div>
           </div>
         </div>
       </section>
 
       <!-- Tab Content: Recipe Hub -->
-      <section id="recipes" class="tab-content">
+      <section id="recipes" class="tab-content" :class="{ active: store.activeTab === 'recipes' }">
         <!-- Controls Bar -->
         <div class="recipes-control-bar">
           <div class="control-group">
             <label for="servings-global">Global Servings Scaler:</label>
             <div class="scaler-slider-wrapper">
-              <input type="range" id="servings-global" min="1" max="10" value="4">
-              <span class="scaler-badge" id="servings-global-val">4 Servings</span>
+              <input type="range" id="servings-global" min="1" max="10" v-model.number="store.servings">
+              <span class="scaler-badge">{{ store.servings }} Servings</span>
             </div>
+          </div>
+
+          <div class="control-group">
+            <label for="unit-system">Measurement Units:</label>
+            <select id="unit-system" v-model="store.unitSystem" style="width: 180px;">
+              <option value="metric">Metric (g/ml)</option>
+              <option value="cups">US Cups/Imperial</option>
+              <option value="spoons">Spoons/Tablespoons</option>
+            </select>
           </div>
           
           <div class="btn-group-toggle">
             <span class="toggle-label">Budget Adelaide Substitutions:</span>
             <label class="switch">
-              <input type="checkbox" id="toggle-budget-mode">
+              <input type="checkbox" v-model="store.budgetMode">
               <span class="switch-slider"></span>
             </label>
           </div>
@@ -327,105 +410,35 @@
             <div class="recipe-body">
               <div class="recipe-header">
                 <h3>Adapted Dinner Stew</h3>
-                <span class="recipe-sub">Serves <span class="recipe-servings-display">4</span></span>
+                <span class="recipe-sub">Serves {{ store.servings }}</span>
               </div>
               <p class="recipe-intro">A cheap, high-volume batch stew built around lentils, sweet potato, and firm tofu. Focuses on moist, low-temp cooking to support portion-controlled dietary quality.</p>
               
-              <div class="recipe-tabs">
-                <button class="recipe-tab-btn active" data-recipe-tab="ingredients">Ingredients</button>
-                <button class="recipe-tab-btn" data-recipe-tab="instructions">Instructions</button>
-                <button class="recipe-tab-btn" data-recipe-tab="science">Science Note</button>
-              </div>
-
-              <!-- Ingredients tab -->
-              <div class="recipe-tab-content active" id="stew-ingredients">
+              <!-- Ingredients list -->
+              <div class="recipe-tab-content active">
                 <ul class="ingredient-list">
-                  <li data-base="180" data-unit="g" data-alt="Brown/green lentils (staple value)"><strong><span class="ing-qty">180</span>g</strong> brown or green lentils, dry</li>
-                  <li data-base="300" data-unit="g" data-alt="Supermarket own-brand firm tofu"><strong><span class="ing-qty">300</span>g</strong> firm tofu, cubed</li>
-                  <li data-base="300" data-unit="g" data-alt="Ordinary potatoes (cheaper)"><strong><span class="ing-qty">300</span>g</strong> sweet potato or potato, diced</li>
-                  <li data-base="400" data-unit="g" data-alt="Cauliflower (frozen florets, cheaper)"><strong><span class="ing-qty">400</span>g</strong> cauliflower, florets</li>
-                  <li data-base="200" data-unit="g" data-alt="Carrots"><strong><span class="ing-qty">200</span>g</strong> carrots, sliced</li>
-                  <li data-base="150" data-unit="g" data-alt="Celery"><strong><span class="ing-qty">150</span>g</strong> celery, sliced</li>
-                  <li data-base="150" data-unit="g" data-alt="Onion"><strong><span class="ing-qty">150</span>g</strong> onion, diced</li>
-                  <li data-base="4" data-unit="cloves" data-alt="Garlic cloves"><strong><span class="ing-qty">4</span> cloves</strong> garlic, minced</li>
-                  <li data-base="2" data-unit="tins" data-alt="No-name tinned chopped tomatoes (no salt)"><strong><span class="ing-qty">2</span> tins</strong> tinned chopped tomatoes, no added salt (400g/tin)</li>
-                  <li data-base="150" data-unit="g" data-alt="Frozen spinach (budget friendly)"><strong><span class="ing-qty">150</span>g</strong> spinach or kale</li>
-                  <li data-base="2" data-unit="tbsp" data-alt="House brand lower-sodium soy sauce"><strong><span class="ing-qty">2</span> tbsp</strong> lower-sodium tamari or soy sauce</li>
-                  <li data-base="2" data-unit="tbsp" data-alt="Standard olive oil (avoid markup)"><strong><span class="ing-qty">2</span> tbsp</strong> extra virgin olive oil</li>
-                  <li data-base="2" data-unit="tbsp" data-alt="Lemon juice (commercial bottle)"><strong><span class="ing-qty">2</span> tbsp</strong> lemon juice or vinegar</li>
-                  <li data-base="1" data-unit="tsp" data-alt="Cumin, paprika, black pepper, chili">Spices (Cumin, paprika, black pepper, chili) to taste</li>
-                  <li data-base="1000" data-unit="ml" data-alt="Water or home-made low-salt stock"><strong><span class="ing-qty">1000</span>ml</strong> water or low-salt stock</li>
+                  <li v-for="ing in store.convertedStewIngredients" :class="{ 'budget-swapped': ing.isSwapped }">
+                    <span>{{ ing.name }}</span>
+                    <strong>{{ ing.displayQty }}</strong>
+                  </li>
                 </ul>
               </div>
 
-              <!-- Instructions tab -->
-              <div class="recipe-tab-content" id="stew-instructions">
-                <div class="cooking-timer-box">
-                  <div class="timer-display">
-                    <span id="stew-timer-clock">25:00</span>
-                    <span class="timer-phase">Simmering Lentils</span>
-                  </div>
-                  <div class="timer-controls">
-                    <button class="btn btn-sm btn-primary" id="btn-stew-timer-start">Start Simmer Timer</button>
-                    <button class="btn btn-sm btn-secondary" id="btn-stew-timer-pause">Pause</button>
-                    <button class="btn btn-sm btn-secondary" id="btn-stew-timer-reset">Reset</button>
-                  </div>
+              <!-- Interactive Timer box -->
+              <div class="cooking-timer-box" style="margin-top: 16px;">
+                <div class="timer-display">
+                  <span>{{ store.timerClockDisplay }}</span>
+                  <span class="timer-phase">Simmering Lentils ({{ store.timerState.toUpperCase() }})</span>
                 </div>
-                
-                <ol class="instruction-list">
-                  <li>
-                    <label class="inst-label">
-                      <input type="checkbox">
-                      <span>Sauté onion, celery, and carrot in 1 tbsp olive oil or a splash of water/stock over medium-low heat until softened, not scorched.</span>
-                    </label>
-                  </li>
-                  <li>
-                    <label class="inst-label">
-                      <input type="checkbox">
-                      <span>Add garlic and spices (cumin, paprika, black pepper, chili); cook briefly for 1 minute until fragrant.</span>
-                    </label>
-                  </li>
-                  <li>
-                    <label class="inst-label">
-                      <input type="checkbox">
-                      <span>Add dry lentils, chopped tomatoes, cauliflower florets, diced sweet potato/potato, cubed tofu, and low-salt stock or water.</span>
-                    </label>
-                  </li>
-                  <li>
-                    <label class="inst-label">
-                      <input type="checkbox">
-                      <span>Simmer gently for 25-30 minutes until the lentils are tender and vegetables are soft. (Use the Simmer Timer above!)</span>
-                    </label>
-                  </li>
-                  <li>
-                    <label class="inst-label">
-                      <input type="checkbox">
-                      <span>Add spinach or kale near the end of cooking (final 3 minutes) until wilted.</span>
-                    </label>
-                  </li>
-                  <li>
-                    <label class="inst-label">
-                      <input type="checkbox">
-                      <span>Finish by stirring in lemon juice or vinegar and check seasoning. Prioritize acid, pepper, and herbs before adding any salt.</span>
-                    </label>
-                  </li>
-                </ol>
-              </div>
-
-              <!-- Science tab -->
-              <div class="recipe-tab-content" id="stew-science">
-                <div class="science-card">
-                  <h5>Evidence Review</h5>
-                  <ul>
-                    <li><strong>Lentils & Tofu</strong>: High-protein, high-fiber core provides high satiety, promoting spontaneous calorie reduction.</li>
-                    <li><strong>Lower-Sodium Soy Sauce</strong>: Directly maps to NHS/WHO guidelines for blood pressure control (&lt;5g salt/day).</li>
-                    <li><strong>Moist Heat</strong>: Stewing avoids harsh frying and excessive browning, keeping diet clean and lowering AGEs (advanced glycation end-products) in a practical way.</li>
-                  </ul>
+                <div class="timer-controls">
+                  <button class="btn btn-sm btn-primary" v-if="store.timerState !== 'running'" @click="store.startStewTimer">Start Simmer</button>
+                  <button class="btn btn-sm btn-secondary" v-if="store.timerState === 'running'" @click="store.pauseStewTimer">Pause</button>
+                  <button class="btn btn-sm btn-secondary" @click="store.resetStewTimer">Reset</button>
                 </div>
               </div>
               
               <div class="recipe-card-footer">
-                <button class="btn btn-primary btn-block add-to-list-btn" data-recipe="stew">Add Ingredients to Shopping List</button>
+                <button class="btn btn-primary btn-block" @click="store.addRecipeToShoppingList('stew')">Add Ingredients to Shopping List</button>
               </div>
             </div>
           </div>
@@ -447,89 +460,21 @@
             <div class="recipe-body">
               <div class="recipe-header">
                 <h3>Adapted Lunch Bowl</h3>
-                <span class="recipe-sub">Serves <span class="recipe-servings-display">2</span></span>
+                <span class="recipe-sub">Serves {{ store.servings }}</span>
               </div>
               <p class="recipe-intro">A large volume, low energy density lunch. Preserves the original's "satiety sponge" concept but strips away overclaimed molecular additions like trehalose.</p>
               
-              <div class="recipe-tabs">
-                <button class="recipe-tab-btn active" data-recipe-tab="ingredients">Ingredients</button>
-                <button class="recipe-tab-btn" data-recipe-tab="instructions">Instructions</button>
-                <button class="recipe-tab-btn" data-recipe-tab="science">Science Note</button>
-              </div>
-
-              <!-- Ingredients tab -->
-              <div class="recipe-tab-content active" id="bowl-ingredients">
+              <div class="recipe-tab-content active">
                 <ul class="ingredient-list">
-                  <li data-base="400" data-unit="g" data-alt="Canned/sliced standard mushrooms"><strong><span class="ing-qty">400</span>g</strong> mushrooms, sliced</li>
-                  <li data-base="1" data-unit="large" data-alt="Cucumber"><strong><span class="ing-qty">1</span> large</strong> cucumber, chopped</li>
-                  <li data-base="150" data-unit="g" data-alt="Cabbage/slaw mix (cheaper option)"><strong><span class="ing-qty">150</span>g</strong> kale or mixed leafy greens</li>
-                  <li data-base="200" data-unit="g" data-alt="Canned chickpeas (budget friendly)"><strong><span class="ing-qty">200</span>g</strong> edamame, tofu, or chickpeas</li>
-                  <li data-base="1" data-unit="tbsp" data-alt="Standard vegetable or canola oil"><strong><span class="ing-qty">1</span> tbsp</strong> olive or canola oil</li>
-                  <li data-base="2" data-unit="tbsp" data-alt="White vinegar or lemon juice"><strong><span class="ing-qty">2</span> tbsp</strong> apple cider vinegar or rice vinegar</li>
-                  <li data-base="1" data-unit="tbsp" data-alt="Lemon juice"><strong><span class="ing-qty">1</span> tbsp</strong> lemon juice</li>
-                  <li data-base="2" data-unit="tbsp" data-alt="Nutritional yeast (omit if too expensive)"><strong><span class="ing-qty">2</span> tbsp</strong> nutritional yeast (optional savoury flavour)</li>
-                  <li data-base="1" data-unit="tbsp" data-alt="Sesame seeds"><strong><span class="ing-qty">1</span> tbsp</strong> sesame seeds</li>
-                  <li data-base="1" data-unit="tsp" data-alt="Chili flakes, garlic, ginger">Chili flakes, garlic, ginger to taste</li>
-                  <li class="add-on-item"><strong>1/2 cup</strong> cooked brown rice or quinoa per serving (Optional add-on for high activity)</li>
+                  <li v-for="ing in store.convertedBowlIngredients" :class="{ 'budget-swapped': ing.isSwapped }">
+                    <span>{{ ing.name }}</span>
+                    <strong>{{ ing.displayQty }}</strong>
+                  </li>
                 </ul>
-              </div>
-
-              <!-- Instructions tab -->
-              <div class="recipe-tab-content" id="bowl-instructions">
-                <ol class="instruction-list">
-                  <li>
-                    <label class="inst-label">
-                      <input type="checkbox">
-                      <span>Steam or lightly sauté sliced mushrooms in a non-stick pan without heavy browning.</span>
-                    </label>
-                  </li>
-                  <li>
-                    <label class="inst-label">
-                      <input type="checkbox">
-                      <span>Massage kale or leafy greens with a tiny splash of oil and lemon juice to soften tough leaves.</span>
-                    </label>
-                  </li>
-                  <li>
-                    <label class="inst-label">
-                      <input type="checkbox">
-                      <span>Cut cucumber into thick chunks or smash them with a rolling pin for enhanced texture.</span>
-                    </label>
-                  </li>
-                  <li>
-                    <label class="inst-label">
-                      <input type="checkbox">
-                      <span>Prepare the protein element: shell edamame, cube raw tofu, or drain/rinse canned chickpeas.</span>
-                    </label>
-                  </li>
-                  <li>
-                    <label class="inst-label">
-                      <input type="checkbox">
-                      <span>Whisk vinegar, lemon juice, oil, chilli flakes, garlic, ginger, and nutritional yeast to make a dressing.</span>
-                    </label>
-                  </li>
-                  <li>
-                    <label class="inst-label">
-                      <input type="checkbox">
-                      <span>Assemble vegetables and protein in a large bowl, drizzle with dressing, sprinkle sesame seeds, and chill before serving.</span>
-                    </label>
-                  </li>
-                </ol>
-              </div>
-
-              <!-- Science tab -->
-              <div class="recipe-tab-content" id="bowl-science">
-                <div class="science-card">
-                  <h5>Evidence Review</h5>
-                  <ul>
-                    <li><strong>Satiety Sponge</strong>: Cucumbers, greens, and mushrooms hold structural water, bulk-filling the stomach without caloric load.</li>
-                    <li><strong>Removal of Trehalose</strong>: Done to align with WHO and NHS. Trehalose (a sugar) does not have proven clinically meaningful autophagy benefits in healthy humans.</li>
-                    <li><strong>Balanced Protein</strong>: Adding edamame/chickpeas ensures the salad functions as a complete, balanced meal rather than just low-calorie plants.</li>
-                  </ul>
-                </div>
               </div>
               
               <div class="recipe-card-footer">
-                <button class="btn btn-primary btn-block add-to-list-btn" data-recipe="bowl">Add Ingredients to Shopping List</button>
+                <button class="btn btn-primary btn-block" @click="store.addRecipeToShoppingList('bowl')">Add Ingredients to Shopping List</button>
               </div>
             </div>
           </div>
@@ -551,72 +496,26 @@
             <div class="recipe-body">
               <div class="recipe-header">
                 <h3>Adapted Breakfast Parfait</h3>
-                <span class="recipe-sub">Serves <span class="recipe-servings-display">2</span></span>
+                <span class="recipe-sub">Serves {{ store.servings }}</span>
               </div>
               <p class="recipe-intro">A fiber-packed, slow-digesting overnight breakfast. Offers two evidence-based dietary pathways: Satiety Oats default or a Lower-Carb seeds/nuts configuration.</p>
               
               <div class="recipe-pathways">
-                <button class="pathway-btn active" id="btn-pathway-oats">Satiety Oats (Default)</button>
-                <button class="pathway-btn" id="btn-pathway-lowcarb">Lower-Carb / Nut-Dense</button>
+                <button class="pathway-btn" :class="{ active: store.parfaitPathway === 'oats' }" @click="store.parfaitPathway = 'oats'">Satiety Oats (Default)</button>
+                <button class="pathway-btn" :class="{ active: store.parfaitPathway === 'lowcarb' }" @click="store.parfaitPathway = 'lowcarb'">Lower-Carb / Nut-Dense</button>
               </div>
 
-              <div class="recipe-tabs">
-                <button class="recipe-tab-btn active" data-recipe-tab="ingredients">Ingredients</button>
-                <button class="recipe-tab-btn" data-recipe-tab="instructions">Instructions</button>
-                <button class="recipe-tab-btn" data-recipe-tab="science">Science Note</button>
-              </div>
-
-              <!-- Ingredients tab -->
-              <div class="recipe-tab-content active" id="parfait-ingredients">
-                <ul class="ingredient-list" id="parfait-ingredients-list">
-                  <!-- Generated dynamically in JS based on pathway -->
+              <div class="recipe-tab-content active">
+                <ul class="ingredient-list">
+                  <li v-for="ing in store.convertedParfaitIngredients" :class="{ 'budget-swapped': ing.isSwapped }">
+                    <span>{{ ing.name }}</span>
+                    <strong>{{ ing.displayQty }}</strong>
+                  </li>
                 </ul>
-              </div>
-
-              <!-- Instructions tab -->
-              <div class="recipe-tab-content" id="parfait-instructions">
-                <ol class="instruction-list">
-                  <li>
-                    <label class="inst-label">
-                      <input type="checkbox">
-                      <span>Combine oats (if using), chia seeds, and ground flaxseed with milk in a glass jar or bowl.</span>
-                    </label>
-                  </li>
-                  <li>
-                    <label class="inst-label">
-                      <input type="checkbox">
-                      <span>If adding extra protein powder (pea/soy), whisk it thoroughly into the milk mixture now.</span>
-                    </label>
-                  </li>
-                  <li>
-                    <label class="inst-label">
-                      <input type="checkbox">
-                      <span>Refrigerate overnight (or at least 4 hours) to allow chia/oats to expand and form a thick parfait.</span>
-                    </label>
-                  </li>
-                  <li>
-                    <label class="inst-label">
-                      <input type="checkbox">
-                      <span>In the morning, top with plain unsweetened dairy or soy yoghurt, berries, cinnamon, and portion-controlled chopped nuts.</span>
-                    </label>
-                  </li>
-                </ol>
-              </div>
-
-              <!-- Science tab -->
-              <div class="recipe-tab-content" id="parfait-science">
-                <div class="science-card">
-                  <h5>Evidence Review</h5>
-                  <ul>
-                    <li><strong>Whole Oats</strong>: Contains beta-glucan soluble fiber, heavily supported by clinical trials for glucose regulation and LDL control.</li>
-                    <li><strong>Nuts Caution</strong>: Rich in healthy fats, but energy-dense. The recipe strictly portions nuts (20-30g) to prevent accidental caloric overshoot.</li>
-                    <li><strong>Soy/Dairy Yoghurt</strong>: Unsweetened yoghurts provide calcium and protein without free sugars, which WHO advises restricting.</li>
-                  </ul>
-                </div>
               </div>
               
               <div class="recipe-card-footer">
-                <button class="btn btn-primary btn-block add-to-list-btn" data-recipe="parfait">Add Ingredients to Shopping List</button>
+                <button class="btn btn-primary btn-block" @click="store.addRecipeToShoppingList('parfait')">Add Ingredients to Shopping List</button>
               </div>
             </div>
           </div>
@@ -625,7 +524,7 @@
       </section>
 
       <!-- Tab Content: Smart Shopping List -->
-      <section id="shopping" class="tab-content">
+      <section id="shopping" class="tab-content" :class="{ active: store.activeTab === 'shopping' }">
         <div class="grid-2-col-asymmetric">
           
           <!-- Sourcing Cards -->
@@ -633,56 +532,94 @@
             <div class="shopping-header-actions">
               <h2>Smart Sourcing Guide</h2>
               <div class="btn-group">
-                <button class="btn btn-sm btn-secondary" id="btn-clear-shopping">Clear All Checked</button>
-                <button class="btn btn-sm btn-secondary" id="btn-reset-shopping">Reset Default List</button>
-                <button class="btn btn-sm btn-primary" id="btn-export-shopping">Export/Copy List</button>
+                <button class="btn btn-sm btn-secondary" @click="store.clearCheckedShoppingItems">Clear Checked</button>
+                <button class="btn btn-sm btn-secondary" @click="store.resetDefaultShoppingList">Reset Defaults</button>
+                <button class="btn btn-sm btn-primary" @click="store.exportShoppingListToClipboard">Export/Copy List</button>
               </div>
             </div>
-            <p class="subtitle">Adelaide-localized shopping items. Budget mode toggle is active on Recipe Hub.</p>
+            <p class="subtitle">Adelaide-localized shopping items. Items automatically adapt in Budget Mode.</p>
             
             <div class="shopping-grid">
               
               <!-- Section 1: Major Supermarket -->
-              <div class="shop-section" data-zone="supermarket">
+              <div class="shop-section">
                 <div class="shop-section-header">
                   <span class="shop-badge supermarket">Supermarket</span>
                   <h4>Staples & Cold Items</h4>
                 </div>
-                <ul class="shop-checklist" id="list-supermarket">
-                  <!-- Populated dynamically -->
+                <ul class="shop-checklist">
+                  <li class="shop-item-row" v-for="item in store.shoppingList.filter(i => i.zone === 'supermarket')">
+                    <label class="shop-item-check">
+                      <input type="checkbox" v-model="item.checked" @change="store.toggleShoppingItem(item)">
+                      <span>{{ item.name }} ({{ item.qty }})</span>
+                    </label>
+                    <button class="delete-item-btn" @click="store.deleteShoppingItem(item)">
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    </button>
+                  </li>
+                  <li class="text-center" v-if="store.shoppingList.filter(i => i.zone === 'supermarket').length === 0" style="font-size: 11px; color: var(--text-muted);">No supermarket items.</li>
                 </ul>
               </div>
 
               <!-- Section 2: Greengrocer/Market -->
-              <div class="shop-section" data-zone="greengrocer">
+              <div class="shop-section">
                 <div class="shop-section-header">
                   <span class="shop-badge market">Greengrocer</span>
                   <h4>Fresh Produce</h4>
                 </div>
-                <ul class="shop-checklist" id="list-greengrocer">
-                  <!-- Populated dynamically -->
+                <ul class="shop-checklist">
+                  <li class="shop-item-row" v-for="item in store.shoppingList.filter(i => i.zone === 'greengrocer')">
+                    <label class="shop-item-check">
+                      <input type="checkbox" v-model="item.checked" @change="store.toggleShoppingItem(item)">
+                      <span>{{ item.name }} ({{ item.qty }})</span>
+                      <span class="adelaide-alt-tip" v-if="item.name.toLowerCase().includes('sweet potato')">Central Market</span>
+                    </label>
+                    <button class="delete-item-btn" @click="store.deleteShoppingItem(item)">
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    </button>
+                  </li>
+                  <li class="text-center" v-if="store.shoppingList.filter(i => i.zone === 'greengrocer').length === 0" style="font-size: 11px; color: var(--text-muted);">No fresh produce items.</li>
                 </ul>
               </div>
 
               <!-- Section 3: Bulk Shop -->
-              <div class="shop-section" data-zone="bulk">
+              <div class="shop-section">
                 <div class="shop-section-header">
                   <span class="shop-badge bulk">Bulk Shop</span>
                   <h4>Dry Grains & Spices</h4>
                 </div>
-                <ul class="shop-checklist" id="list-bulk">
-                  <!-- Populated dynamically -->
+                <ul class="shop-checklist">
+                  <li class="shop-item-row" v-for="item in store.shoppingList.filter(i => i.zone === 'bulk')">
+                    <label class="shop-item-check">
+                      <input type="checkbox" v-model="item.checked" @change="store.toggleShoppingItem(item)">
+                      <span>{{ item.name }} ({{ item.qty }})</span>
+                    </label>
+                    <button class="delete-item-btn" @click="store.deleteShoppingItem(item)">
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    </button>
+                  </li>
+                  <li class="text-center" v-if="store.shoppingList.filter(i => i.zone === 'bulk').length === 0" style="font-size: 11px; color: var(--text-muted);">No bulk items.</li>
                 </ul>
               </div>
 
               <!-- Section 4: Asian Grocer -->
-              <div class="shop-section" data-zone="asian">
+              <div class="shop-section">
                 <div class="shop-section-header">
                   <span class="shop-badge asian">Asian Grocer</span>
                   <h4>Tofu & Seasonings</h4>
                 </div>
-                <ul class="shop-checklist" id="list-asian">
-                  <!-- Populated dynamically -->
+                <ul class="shop-checklist">
+                  <li class="shop-item-row" v-for="item in store.shoppingList.filter(i => i.zone === 'asian')">
+                    <label class="shop-item-check">
+                      <input type="checkbox" v-model="item.checked" @change="store.toggleShoppingItem(item)">
+                      <span>{{ item.name }} ({{ item.qty }})</span>
+                      <span class="adelaide-alt-tip" v-if="item.name.toLowerCase().includes('tamari')">Grote St Grocer</span>
+                    </label>
+                    <button class="delete-item-btn" @click="store.deleteShoppingItem(item)">
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    </button>
+                  </li>
+                  <li class="text-center" v-if="store.shoppingList.filter(i => i.zone === 'asian').length === 0" style="font-size: 11px; color: var(--text-muted);">No Asian grocer items.</li>
                 </ul>
               </div>
 
@@ -693,7 +630,7 @@
           <div class="shopping-sidebar">
             <div class="content-card">
               <h3>Add Custom Item</h3>
-              <form id="add-item-form" class="custom-item-form">
+              <form @submit="store.addCustomShoppingItem" class="custom-item-form">
                 <div class="input-group">
                   <label for="item-name">Item Name</label>
                   <input type="text" id="item-name" placeholder="e.g. Extra virgin olive oil" required>
@@ -721,35 +658,35 @@
       </section>
 
       <!-- Tab Content: Implementation Tracker -->
-      <section id="roadmap" class="tab-content">
+      <section id="roadmap" class="tab-content" :class="{ active: store.activeTab === 'roadmap' }">
         <!-- Timeline roadmap header -->
         <div class="content-card roadmap-progress-card">
           <h2>Prioritised Implementation Roadmap</h2>
           <p class="subtitle">A structured 12-week layout to slowly build habits, avoiding the friction of sudden restrictive diets.</p>
           
           <div class="roadmap-tracker">
-            <div class="roadmap-step completed" data-phase="1">
+            <div class="roadmap-step" :class="{ active: store.activeRoadmapPhase === '1', completed: store.activeRoadmapPhase > 1 }" @click="store.activeRoadmapPhase = '1'">
               <div class="step-num">1</div>
               <div class="step-details">
                 <h4>Setup</h4>
                 <span>Days 1-7</span>
               </div>
             </div>
-            <div class="roadmap-step active" data-phase="2">
+            <div class="roadmap-step" :class="{ active: store.activeRoadmapPhase === '2', completed: store.activeRoadmapPhase > 2 }" @click="store.activeRoadmapPhase = '2'">
               <div class="step-num">2</div>
               <div class="step-details">
                 <h4>Early Adoption</h4>
                 <span>Weeks 2-4</span>
               </div>
             </div>
-            <div class="roadmap-step" data-phase="3">
+            <div class="roadmap-step" :class="{ active: store.activeRoadmapPhase === '3', completed: store.activeRoadmapPhase > 3 }" @click="store.activeRoadmapPhase = '3'">
               <div class="step-num">3</div>
               <div class="step-details">
                 <h4>Consolidation</h4>
                 <span>Weeks 5-8</span>
               </div>
             </div>
-            <div class="roadmap-step" data-phase="4">
+            <div class="roadmap-step" :class="{ active: store.activeRoadmapPhase === '4' }" @click="store.activeRoadmapPhase = '4'">
               <div class="step-num">4</div>
               <div class="step-details">
                 <h4>Optimisation</h4>
@@ -758,10 +695,28 @@
             </div>
           </div>
 
-          <div class="phase-info-box" id="phase-desc-box">
-            <h4>Phase 2: Early Adoption (Weeks 2–4)</h4>
-            <p><strong>Primary Actions:</strong> Repeat the three core recipes. Standardize your plate portions (half vegetables, quarter protein, quarter starch). Identify hunger points and comfort eating triggers to address them with low energy-density vegetable snacks.</p>
-            <p><strong>Metrics & Goals:</strong> Focus on weight trends, meal compliance, and satiety ratings between meals. Do not worry about extreme restriction; adherence is key.</p>
+          <div class="phase-info-box">
+            <div v-if="store.activeRoadmapPhase === '1'">
+              <h4>Phase 1: Setup (Days 1–7)</h4>
+              <p><strong>Primary Actions:</strong> Acquire batch prep containers, kitchen scales, and standard measuring spoons. Clean out pantry sections of ultra-processed snacks. Buy core staples: dry lentils, whole oats, chia, flax, low-salt stock, and lower-sodium soy sauce.</p>
+              <p><strong>Sourcing Tip:</strong> Use Adelaide local markets or bulk stores to keep setup affordable. Standard, generic brands are chemically identical to premium health brands.</p>
+              <p><strong>Metrics:</strong> Completion of the first prep batch (stew and breakfasts).</p>
+            </div>
+            <div v-if="store.activeRoadmapPhase === '2'">
+              <h4>Phase 2: Early Adoption (Weeks 2–4)</h4>
+              <p><strong>Primary Actions:</strong> Repeat the three core recipes. Standardize your plate portions (half vegetables, quarter protein, quarter starch). Identify hunger points and comfort eating triggers to address them with low energy-density vegetable snacks.</p>
+              <p><strong>Metrics & Goals:</strong> Focus on weight trends, meal compliance, and satiety ratings between meals. Do not worry about extreme restriction; adherence is key.</p>
+            </div>
+            <div v-if="store.activeRoadmapPhase === '3'">
+              <h4>Phase 3: Consolidation (Weeks 5–8)</h4>
+              <p><strong>Primary Actions:</strong> Maintain the meal routine. If weight loss stalls or levels off, inspect portion sizes or slightly reduce starch/oil portions. Rotate fresh produce based on seasonal pricing at Adelaide markets. Habituate label-reading for hidden sugars/sodium.</p>
+              <p><strong>Metrics:</strong> Blood pressure logs (if hypertensive), waist measurements (monthly), and bowel regularity indicators.</p>
+            </div>
+            <div v-if="store.activeRoadmapPhase === '4'">
+              <h4>Phase 4: Optimisation (Weeks 9–12)</h4>
+              <p><strong>Primary Actions:</strong> Add a routine physical activity pattern (WHO minimum target: 150 minutes of moderate activity weekly, plus simple muscle strengthening). Refine grocery costs. Introduce protein variety (lean fish or plant alternatives) if desired.</p>
+              <p><strong>Metrics:</strong> Physical activity minutes, monthly grocery budgets, and long-term adherence check.</p>
+            </div>
           </div>
         </div>
 
@@ -771,7 +726,7 @@
             <h3>Health & Adherence Logger</h3>
             <p class="subtitle">Log your metrics locally to monitor cardiometabolic health and satiety levels over time.</p>
             
-            <form id="health-log-form">
+            <form @submit="store.submitHealthLog">
               <div class="grid-2-col-compact">
                 <div class="input-group">
                   <label for="log-weight">Weight (kg)</label>
@@ -829,12 +784,12 @@
           <div class="content-card logger-history-card">
             <div class="shopping-header-actions">
               <h3>Logged History</h3>
-              <button class="btn btn-sm btn-secondary" id="btn-clear-logs">Clear Logs</button>
+              <button class="btn btn-sm btn-secondary" @click="store.clearHealthLogs">Clear Logs</button>
             </div>
-            <p class="subtitle">Stored locally in your browser. (Click Clear to reset data)</p>
+            <p class="subtitle">Stored securely. (Synchronized across signed-in devices)</p>
             
             <div class="table-container">
-              <table id="logs-table">
+              <table>
                 <thead>
                   <tr>
                     <th>Date</th>
@@ -845,9 +800,16 @@
                     <th>Satiety</th>
                   </tr>
                 </thead>
-                <tbody id="logs-tbody">
-                  <!-- Loaded dynamically -->
-                  <tr id="empty-table-row">
+                <tbody>
+                  <tr v-for="log in store.healthLogs.slice().sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime())">
+                    <td><strong>{{ new Date(log.date).toLocaleDateString('en-AU', { day: '2-digit', month: 'short' }) }}</strong></td>
+                    <td>{{ log.weight }}kg</td>
+                    <td>{{ log.waist ? log.waist + 'cm' : '—' }}</td>
+                    <td>{{ log.bpSys && log.bpDia ? log.bpSys + '/' + log.bpDia : '—' }}</td>
+                    <td><span class="badge badge-strong">{{ log.adherence }}%</span></td>
+                    <td>{{ log.satiety }}/5</td>
+                  </tr>
+                  <tr v-if="store.healthLogs.length === 0">
                     <td colspan="6" class="text-center">No logs logged yet. Submit your first entry on the left!</td>
                   </tr>
                 </tbody>
@@ -858,7 +820,7 @@
       </section>
 
       <!-- Tab Content: Scientific Audit -->
-      <section id="audit" class="tab-content">
+      <section id="audit" class="tab-content" :class="{ active: store.activeTab === 'audit' }">
         <div class="content-card">
           <div class="audit-header">
             <div>
@@ -866,8 +828,8 @@
               <p class="subtitle">Direct contrast of original overclaims vs. successor cardiometabolic corrections, with levels of clinical evidence.</p>
             </div>
             <div class="audit-filters">
-              <input type="text" id="audit-search" placeholder="Search topics (e.g. soy, gluten)..." class="search-input">
-              <select id="audit-evidence-filter">
+              <input type="text" v-model="store.auditQuery" placeholder="Search topics (e.g. soy, gluten)..." class="search-input">
+              <select v-model="store.auditFilter">
                 <option value="all">All Evidence Strengths</option>
                 <option value="strong">Strong Evidence</option>
                 <option value="moderate">Moderate Evidence</option>
@@ -877,7 +839,7 @@
           </div>
           
           <div class="table-container">
-            <table class="audit-table" id="audit-table-el">
+            <table class="audit-table">
               <thead>
                 <tr>
                   <th>Topic</th>
@@ -888,82 +850,21 @@
                 </tr>
               </thead>
               <tbody>
-                <tr data-evidence="strong">
-                  <td><strong>Overall Frame</strong></td>
-                  <td>Longevity/anti-ageing through Blueprint & SENS ingredient rules</td>
-                  <td>General adult weight-management & cardiometabolic-health pattern</td>
-                  <td><span class="badge badge-strong">Strong</span></td>
-                  <td>Broad dietary quality (high fiber, low sodium, whole foods) is heavily backed by WHO/NHS/CDC clinical trial reviews; single-molecule longevity claims lack direct human proof.</td>
+                <tr v-for="row in store.filteredAuditRows">
+                  <td><strong>{{ row.topic }}</strong></td>
+                  <td>{{ row.original }}</td>
+                  <td>{{ row.successor }}</td>
+                  <td>
+                    <span class="badge" :class="{
+                      'badge-strong': row.evidence === 'strong',
+                      'badge-moderate': row.evidence === 'moderate',
+                      'badge-limited': row.evidence === 'limited'
+                    }">{{ row.evidence.toUpperCase() }}</span>
+                  </td>
+                  <td>{{ row.rationale }}</td>
                 </tr>
-                <tr data-evidence="moderate">
-                  <td><strong>Potatoes</strong></td>
-                  <td>Implicitly problematic for glycation</td>
-                  <td>Acceptable in portion-controlled meals; prefer fiber-rich patterns</td>
-                  <td><span class="badge badge-moderate">Moderate</span></td>
-                  <td>Potatoes are a whole carbohydrate. They are not toxic; rather, portions should be managed within the 25% starch plate guideline.</td>
-                </tr>
-                <tr data-evidence="strong">
-                  <td><strong>Whole grains</strong></td>
-                  <td>Grain-free breakfast (contradicted by oats in recipe)</td>
-                  <td>Oats and whole grains remain acceptable for most adults</td>
-                  <td><span class="badge badge-strong">Strong</span></td>
-                  <td>Whole oats contain beta-glucans which improve glucose regulation and lipid profiles. Grain-free mandates are unsupported for general health.</td>
-                </tr>
-                <tr data-evidence="strong">
-                  <td><strong>Soy / Tofu</strong></td>
-                  <td>Accepted in one recipe but anti-soy framing elsewhere</td>
-                  <td>Soy and tofu are acceptable as healthy protein options</td>
-                  <td><span class="badge badge-strong">Strong</span></td>
-                  <td>Legumes and soy are clinical priorities for plant protein. High intakes correlate with lower blood pressure and cardiovascular benefits.</td>
-                </tr>
-                <tr data-evidence="strong">
-                  <td><strong>Gluten-free</strong></td>
-                  <td>Presented as healthier by default</td>
-                  <td>Only indicated for coeliac disease or confirmed sensitivity</td>
-                  <td><span class="badge badge-strong">Strong</span></td>
-                  <td>NHS guidelines indicate gluten avoidance is a medical treatment for coeliac disease, not a general public health longevity rule.</td>
-                </tr>
-                <tr data-evidence="strong">
-                  <td><strong>Dairy / Yoghurt</strong></td>
-                  <td>Treated suspiciously at points</td>
-                  <td>Plain yoghurt or unsweetened soy yoghurt is healthy and acceptable</td>
-                  <td><span class="badge badge-strong">Strong</span></td>
-                  <td>Standard low-fat/unsweetened yoghurts provide calcium and protein, helping satiety without introducing harmful free sugars.</td>
-                </tr>
-                <tr data-evidence="strong">
-                  <td><strong>Oils</strong></td>
-                  <td>Strong preference for premium oils, "raw only"</td>
-                  <td>Measured use of unsaturated oils; avoid deep-frying</td>
-                  <td><span class="badge badge-strong">Strong</span></td>
-                  <td>Replacing saturated fats with olive/canola oil is supported. However, they are energy-dense and must be measured (1-2 tbsp) to prevent calorie creep.</td>
-                </tr>
-                <tr data-evidence="strong">
-                  <td><strong>Sweeteners</strong></td>
-                  <td>Included trehalose; "natural" sweetener framing</td>
-                  <td>Minimise sweeteners; WHO advises against non-sugar sweeteners for weight loss</td>
-                  <td><span class="badge badge-strong">Strong</span></td>
-                  <td>WHO guidelines advise minimizing both free sugars and non-sugar sweeteners to control weight and avoid non-communicable diseases.</td>
-                </tr>
-                <tr data-evidence="strong">
-                  <td><strong>Salt / Soy Sauce</strong></td>
-                  <td>Lower-sodium choices mentioned but not centered</td>
-                  <td>Sodium reduction upgraded as a primary recommendation</td>
-                  <td><span class="badge badge-strong">Strong</span></td>
-                  <td>Reducing sodium to under 5g salt/day (approx. 2g sodium) is one of the highest-confidence, clinically-proven blood pressure control targets.</td>
-                </tr>
-                <tr data-evidence="limited">
-                  <td><strong>AGE Reduction</strong></td>
-                  <td>Central anti-ageing strategy</td>
-                  <td>Secondary culinary consideration; not a clinical aging lever</td>
-                  <td><span class="badge badge-limited">Limited</span></td>
-                  <td>While lower-temperature, moist cooking is good practice, direct clinical proof that reducing dietary AGEs slows human biological aging remains unproven.</td>
-                </tr>
-                <tr data-evidence="moderate">
-                  <td><strong>Ultra-processed foods</strong></td>
-                  <td>Implicitly criticised</td>
-                  <td>Explicitly minimize reliance on them</td>
-                  <td><span class="badge badge-moderate">Moderate</span></td>
-                  <td>2024 umbrella reviews and a 2025 controlled trial show that high UPF intake causes rapid adverse cardiometabolic effects even in calorie-matched conditions.</td>
+                <tr v-if="store.filteredAuditRows.length === 0">
+                  <td colspan="5" class="text-center">No matching audit records found.</td>
                 </tr>
               </tbody>
             </table>
@@ -974,9 +875,7 @@
     </main>
   </div>
 
-  <!-- Audio elements for timer alerts -->
-  <audio id="audio-timer-alert" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-84.wav" preload="auto"></audio>
-
-  <script src="app.js"></script>
+  <!-- Script compilation link -->
+  <script type="module" src="dist/app.js"></script>
 </body>
 </html>
