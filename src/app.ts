@@ -51,6 +51,7 @@ interface ShoppingItem {
   zone: 'supermarket' | 'greengrocer' | 'bulk' | 'asian';
   checked: boolean;
   custom?: boolean;
+  recipeId?: string;
 }
 
 interface AuditRow {
@@ -80,6 +81,8 @@ interface Recipe {
   caloriesPerServing: number | { [pathway: string]: number };
   carbsPerServing: number | { [pathway: string]: number };
   gi: number | { [pathway: string]: number };
+  liked?: boolean;
+  pinned?: boolean;
 }
 
 // Base recipes schema structure matching database document templates
@@ -490,11 +493,15 @@ const store = {
   recipeCategory: 'all',
   recipeMaxCalories: 800,
   recipeEnergyUnit: 'kcal',
+  recipeShowLikedOnly: false,
+  recipeShowPinnedOnly: false,
   
   // Shopping list Search and filter inputs
   shoppingSearch: '',
   shoppingStatus: 'all', // 'all' | 'pending' | 'completed'
   shoppingZone: 'all',   // 'all' | 'supermarket' | 'greengrocer' | 'bulk' | 'asian'
+  shoppingShowLikedOnly: false,
+  shoppingShowPinnedOnly: false,
   
   // Main Data lists
   recipes: [] as Recipe[],
@@ -695,7 +702,13 @@ const store = {
       onSnapshot(collection(db, 'users', uid, 'recipes'), (snapshot: any) => {
         const items: Recipe[] = [];
         snapshot.forEach((doc: any) => {
-          items.push({ id: doc.id, ...doc.data() } as Recipe);
+          const data = doc.data();
+          items.push({ 
+            id: doc.id, 
+            ...data,
+            liked: data.liked || false,
+            pinned: data.pinned || false
+          } as Recipe);
         });
         
         if (items.length === 0) {
@@ -740,9 +753,17 @@ const store = {
       // Fallback local storage
       const localRecipes = localStorage.getItem('successor_recipes');
       if (localRecipes) {
-        this.recipes = JSON.parse(localRecipes);
+        this.recipes = JSON.parse(localRecipes).map((r: any) => ({
+          ...r,
+          liked: r.liked || false,
+          pinned: r.pinned || false
+        }));
       } else {
-        this.recipes = defaultRecipes.map(recipe => ({ ...recipe }));
+        this.recipes = defaultRecipes.map(recipe => ({ 
+          ...recipe,
+          liked: false,
+          pinned: false
+        }));
         localStorage.setItem('successor_recipes', JSON.stringify(this.recipes));
       }
 
@@ -1029,6 +1050,32 @@ const store = {
     nameInput.value = '';
   },
 
+  async toggleLikeRecipe(recipe: Recipe) {
+    recipe.liked = !recipe.liked;
+    if (db && isFirebaseOnline && this.user) {
+      await updateDoc(doc(db, 'users', this.user.uid, 'recipes', recipe.id), {
+        liked: recipe.liked
+      });
+    } else {
+      this.saveRecipesOffline();
+    }
+  },
+
+  async togglePinRecipe(recipe: Recipe) {
+    recipe.pinned = !recipe.pinned;
+    if (db && isFirebaseOnline && this.user) {
+      await updateDoc(doc(db, 'users', this.user.uid, 'recipes', recipe.id), {
+        pinned: recipe.pinned
+      });
+    } else {
+      this.saveRecipesOffline();
+    }
+  },
+
+  saveRecipesOffline() {
+    localStorage.setItem('successor_recipes', JSON.stringify(this.recipes));
+  },
+
   async addRecipeToShoppingList(recipeId: string) {
     const recipe = this.recipes.find(r => r.id === recipeId);
     if (!recipe) return;
@@ -1049,7 +1096,8 @@ const store = {
         name: formatted.name,
         qty: formatted.displayQty,
         zone: ing.zone,
-        checked: false
+        checked: false,
+        recipeId: recipeId
       };
       
       if (db && isFirebaseOnline && this.user) {
@@ -1251,20 +1299,26 @@ const store = {
     const q = this.recipeSearch.toLowerCase().trim();
     const cat = this.recipeCategory;
     const maxCal = this.recipeMaxCalories;
+    const showLiked = this.recipeShowLikedOnly;
+    const showPinned = this.recipeShowPinnedOnly;
     
-    return this.recipes.filter(recipe => {
-      // 1. Category filter
+    const filtered = this.recipes.filter(recipe => {
+      // 1. Likes/Pins filter
+      if (showLiked && !recipe.liked) return false;
+      if (showPinned && !recipe.pinned) return false;
+
+      // 2. Category filter
       if (cat !== 'all' && recipe.category !== cat) {
         return false;
       }
       
-      // 2. Calories filter (always compared in kcal)
+      // 3. Calories filter (always compared in kcal)
       const cals = this.getRecipeCalories(recipe);
       if (cals > maxCal) {
         return false;
       }
       
-      // 3. Search query filter
+      // 4. Search query filter
       if (q) {
         const titleMatch = recipe.title.toLowerCase().includes(q);
         const introMatch = recipe.intro.toLowerCase().includes(q);
@@ -1287,14 +1341,23 @@ const store = {
       
       return true;
     });
+
+    // Sort: Pinned recipes go to the top
+    return filtered.sort((a, b) => {
+      const aPinned = a.pinned ? 1 : 0;
+      const bPinned = b.pinned ? 1 : 0;
+      return bPinned - aPinned;
+    });
   },
 
   get filteredShoppingItems(): ShoppingItem[] {
     const q = this.shoppingSearch.toLowerCase().trim();
     const status = this.shoppingStatus;
     const zone = this.shoppingZone;
+    const showLiked = this.shoppingShowLikedOnly;
+    const showPinned = this.shoppingShowPinnedOnly;
     
-    return this.shoppingList.filter(item => {
+    const filtered = this.shoppingList.filter(item => {
       // 1. Zone filter
       if (zone !== 'all' && item.zone !== zone) {
         return false;
@@ -1316,8 +1379,27 @@ const store = {
           return false;
         }
       }
+
+      // 4. Likes/Pins filter on recipe context
+      if (showLiked) {
+        if (!item.recipeId) return false;
+        const recipe = this.recipes.find(r => r.id === item.recipeId);
+        if (!recipe || !recipe.liked) return false;
+      }
+      if (showPinned) {
+        if (!item.recipeId) return false;
+        const recipe = this.recipes.find(r => r.id === item.recipeId);
+        if (!recipe || !recipe.pinned) return false;
+      }
       
       return true;
+    });
+
+    // Sort: Items from pinned recipes go to the top
+    return filtered.sort((a, b) => {
+      const aPinned = (a.recipeId && this.recipes.find(r => r.id === a.recipeId)?.pinned) ? 1 : 0;
+      const bPinned = (b.recipeId && this.recipes.find(r => r.id === b.recipeId)?.pinned) ? 1 : 0;
+      return bPinned - aPinned;
     });
   }
 };

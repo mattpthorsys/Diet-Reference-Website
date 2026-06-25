@@ -2101,3 +2101,109 @@ tbody tr:hover {
   color: var(--danger);
 }
 
+/* Recipe Card Likes & Pins Actions Overlay */
+.recipe-card.pinned {
+  border-color: rgba(59, 130, 246, 0.5) !important;
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.15) !important;
+}
+
+.recipe-card-actions {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+}
+
+.card-action-btn {
+  background-color: rgba(11, 15, 25, 0.75);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.75);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  padding: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+}
+
+.card-action-btn:hover {
+  background-color: rgba(11, 15, 25, 0.95);
+  color: #ffffff;
+  transform: scale(1.1);
+}
+
+.card-action-btn .action-icon {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  transition: fill var(--transition-fast), stroke var(--transition-fast);
+}
+
+/* Liked State (Red) */
+.card-action-btn.like-btn.active {
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.35);
+}
+.card-action-btn.like-btn.active .action-icon {
+  fill: #ef4444;
+}
+
+/* Pinned State (Blue) */
+.card-action-btn.pin-btn.active {
+  color: #3b82f6;
+  border-color: rgba(59, 130, 246, 0.35);
+}
+.card-action-btn.pin-btn.active .action-icon {
+  fill: #3b82f6;
+}
+
+/* Filter Toggles */
+.favorites-toggle-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.favorites-toggle-buttons button {
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: var(--border-radius-sm);
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.favorites-toggle-buttons button:hover {
+  background-color: var(--bg-secondary);
+  border-color: var(--text-muted);
+  color: var(--text-primary);
+}
+
+.favorites-toggle-buttons button.active {
+  color: #ffffff;
+}
+
+.favorites-toggle-buttons button.toggle-liked.active {
+  background-color: #ef4444;
+  border-color: #ef4444;
+}
+
+.favorites-toggle-buttons button.toggle-pinned.active {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
+}
+

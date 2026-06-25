@@ -425,15 +425,44 @@
                 <button class="btn btn-sm btn-secondary" :class="{ active: store.recipeEnergyUnit === 'kJ' }" @click="store.recipeEnergyUnit = 'kJ'">kJ</button>
               </div>
             </div>
+
+            <div class="control-group favorites-group">
+              <label>Filter Lists:</label>
+              <div class="favorites-toggle-buttons">
+                <button class="btn btn-sm btn-secondary toggle-liked" :class="{ active: store.recipeShowLikedOnly }" @click="store.recipeShowLikedOnly = !store.recipeShowLikedOnly" title="Filter by Liked Recipes">
+                  <svg viewBox="0 0 24 24" class="favorites-icon" style="width: 12px; height: 12px; fill: currentColor; margin-right: 4px;"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                  <span>Liked</span>
+                </button>
+                <button class="btn btn-sm btn-secondary toggle-pinned" :class="{ active: store.recipeShowPinnedOnly }" @click="store.recipeShowPinnedOnly = !store.recipeShowPinnedOnly" title="Filter by Pinned Recipes">
+                  <svg viewBox="0 0 24 24" class="favorites-icon" style="width: 12px; height: 12px; fill: currentColor; margin-right: 4px;"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+                  <span>Pinned</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
         <div class="recipe-cards-container">
           
           <!-- Dynamic Database-Driven Recipe Card -->
-          <div class="recipe-card" v-for="recipe in store.filteredRecipes" :id="'recipe-' + recipe.id">
+          <div class="recipe-card" :class="{ pinned: recipe.pinned }" v-for="recipe in store.filteredRecipes" :id="'recipe-' + recipe.id">
             <div class="recipe-img-container">
               <img :src="recipe.imgUrl" :alt="recipe.title">
+              
+              <!-- Like and Pin overlay buttons -->
+              <div class="recipe-card-actions">
+                <button class="card-action-btn like-btn" :class="{ active: recipe.liked }" @click.stop="store.toggleLikeRecipe(recipe)" title="Like Recipe">
+                  <svg viewBox="0 0 24 24" class="action-icon">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                  </svg>
+                </button>
+                <button class="card-action-btn pin-btn" :class="{ active: recipe.pinned }" @click.stop="store.togglePinRecipe(recipe)" title="Pin Recipe">
+                  <svg viewBox="0 0 24 24" class="action-icon">
+                    <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/>
+                  </svg>
+                </button>
+              </div>
+
               <div class="recipe-time">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="time-icon">
                   <circle cx="12" cy="12" r="10"/>
@@ -550,6 +579,20 @@
                     <button class="btn btn-sm btn-secondary" :class="{ active: store.shoppingStatus === 'all' }" @click="store.shoppingStatus = 'all'">All</button>
                     <button class="btn btn-sm btn-secondary" :class="{ active: store.shoppingStatus === 'pending' }" @click="store.shoppingStatus = 'pending'">Pending</button>
                     <button class="btn btn-sm btn-secondary" :class="{ active: store.shoppingStatus === 'completed' }" @click="store.shoppingStatus = 'completed'">Checked</button>
+                  </div>
+                </div>
+
+                <div class="control-group favorites-filter-group">
+                  <label>Recipe Context:</label>
+                  <div class="favorites-toggle-buttons">
+                    <button class="btn btn-sm btn-secondary toggle-liked" :class="{ active: store.shoppingShowLikedOnly }" @click="store.shoppingShowLikedOnly = !store.shoppingShowLikedOnly" title="Show ingredients from liked recipes">
+                      <svg viewBox="0 0 24 24" class="favorites-icon" style="width: 12px; height: 12px; fill: currentColor; margin-right: 4px;"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                      <span>Liked</span>
+                    </button>
+                    <button class="btn btn-sm btn-secondary toggle-pinned" :class="{ active: store.shoppingShowPinnedOnly }" @click="store.shoppingShowPinnedOnly = !store.shoppingShowPinnedOnly" title="Show ingredients from pinned recipes">
+                      <svg viewBox="0 0 24 24" class="favorites-icon" style="width: 12px; height: 12px; fill: currentColor; margin-right: 4px;"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+                      <span>Pinned</span>
+                    </button>
                   </div>
                 </div>
               </div>
