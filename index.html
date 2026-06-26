@@ -107,6 +107,14 @@
           </svg>
           Weekly Planner
         </button>
+        <button class="nav-item" :class="{ active: store.activeTab === 'summary' }" @click="store.activeTab = 'summary'">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="nav-icon">
+            <line x1="18" y1="20" x2="18" y2="10"/>
+            <line x1="12" y1="20" x2="12" y2="4"/>
+            <line x1="6" y1="20" x2="6" y2="14"/>
+          </svg>
+          Plan Summary
+        </button>
       </nav>
 
       <div class="sidebar-footer">
@@ -578,6 +586,7 @@
               <h2>Smart Sourcing Guide</h2>
               <div class="btn-group">
                 <button class="btn btn-sm btn-secondary" @click="store.clearCheckedShoppingItems">Clear Checked</button>
+                <button class="btn btn-sm btn-danger" @click="store.confirmClearShoppingList">Clear All</button>
                 <button class="btn btn-sm btn-secondary" @click="store.resetDefaultShoppingList">Reset Defaults</button>
                 <button class="btn btn-sm btn-secondary" @click="store.copyShoppingListToClipboard">Copy List</button>
                 <button class="btn btn-sm btn-primary" @click="store.shareShoppingList">Share List</button>
@@ -999,6 +1008,109 @@
                     <option v-for="r in store.recipes" :value="r.id">{{ r.title }}</option>
                   </select>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tab Content: Plan Summary -->
+      <section id="summary" class="tab-content" :class="{ active: store.activeTab === 'summary' }">
+        <div class="grid-2-col">
+          <!-- Weekly Analytics Dashboard Card -->
+          <div class="content-card">
+            <h3>Weekly Plan Analytics</h3>
+            <p class="subtitle">Nutrition and budget metrics aggregated from your current planner scheduling.</p>
+
+            <div class="results-grid" style="margin-top: 16px;">
+              <div class="result-tile">
+                <span class="result-meal">Total Calories</span>
+                <span class="result-value">{{ store.plannerWeeklyStats.totalCalories }} kcal</span>
+                <span class="result-desc">Planned for the week</span>
+              </div>
+              <div class="result-tile">
+                <span class="result-meal">Avg Daily Calories</span>
+                <span class="result-value">{{ store.plannerWeeklyStats.avgDailyCalories }} kcal</span>
+                <span class="result-desc">Per day baseline</span>
+              </div>
+              <div class="result-tile">
+                <span class="result-meal">Estimated Weekly Cost</span>
+                <span class="result-value">${{ store.plannerWeeklyStats.totalCost.toFixed(2) }}</span>
+                <span class="result-desc">Total scale estimate</span>
+              </div>
+              <div class="result-tile">
+                <span class="result-meal">Average GI</span>
+                <span class="result-value" :class="'badge-' + store.getGIRating(store.plannerWeeklyStats.avgGI)">
+                  {{ store.plannerWeeklyStats.avgGI }} - {{ store.plannerWeeklyStats.avgGI ? store.getGIRating(store.plannerWeeklyStats.avgGI).toUpperCase() : 'N/A' }}
+                </span>
+                <span class="result-desc">Weighted Glycemic Index</span>
+              </div>
+            </div>
+
+            <!-- Day-by-Day Detailed Breakdown -->
+            <div style="margin-top: 24px;">
+              <h4>Day-by-Day Breakdown</h4>
+              <div class="table-container">
+                <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;">
+                  <thead>
+                    <tr style="border-bottom: 2px solid var(--border-color); color: var(--text-muted);">
+                      <th style="padding: 8px;">Day</th>
+                      <th style="padding: 8px;">Breakfast</th>
+                      <th style="padding: 8px;">Lunch</th>
+                      <th style="padding: 8px;">Dinner</th>
+                      <th style="padding: 8px;">Est. Calories</th>
+                      <th style="padding: 8px;">Est. Cost</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="day in ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']" :key="day" style="border-bottom: 1px solid var(--border-color);">
+                      <td style="padding: 8px; font-weight: bold; text-transform: capitalize;">{{ day }}</td>
+                      <td style="padding: 8px; color: var(--text-color);">{{ store.getRecipeById(store.planner[day]?.breakfast)?.title || '—' }}</td>
+                      <td style="padding: 8px; color: var(--text-color);">{{ store.getRecipeById(store.planner[day]?.lunch)?.title || '—' }}</td>
+                      <td style="padding: 8px; color: var(--text-color);">{{ store.getRecipeById(store.planner[day]?.dinner)?.title || '—' }}</td>
+                      <td style="padding: 8px; color: var(--text-color); font-weight: 500;">
+                        <!-- Calculate sum of day calories -->
+                        {{ 
+                          (store.getRecipeById(store.planner[day]?.breakfast) ? store.getRecipeCalories(store.getRecipeById(store.planner[day]?.breakfast)) : 0) +
+                          (store.getRecipeById(store.planner[day]?.lunch) ? store.getRecipeCalories(store.getRecipeById(store.planner[day]?.lunch)) : 0) +
+                          (store.getRecipeById(store.planner[day]?.dinner) ? store.getRecipeCalories(store.getRecipeById(store.planner[day]?.dinner)) : 0)
+                        }} kcal
+                      </td>
+                      <td style="padding: 8px; color: var(--text-color); font-weight: 500;">
+                        <!-- Calculate sum of day costs -->
+                        ${{ 
+                          ((store.getRecipeById(store.planner[day]?.breakfast) ? store.getRecipeCostPerServing(store.getRecipeById(store.planner[day]?.breakfast)) : 0) +
+                          (store.getRecipeById(store.planner[day]?.lunch) ? store.getRecipeCostPerServing(store.getRecipeById(store.planner[day]?.lunch)) : 0) +
+                          (store.getRecipeById(store.planner[day]?.dinner) ? store.getRecipeCostPerServing(store.getRecipeById(store.planner[day]?.dinner)) : 0)).toFixed(2)
+                        }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Weekly Health Insights Card -->
+          <div class="content-card">
+            <h3>Cardiometabolic & Nutrition Insights</h3>
+            <p class="subtitle">Evidence-based clinical guidelines matched to your planned food profiles.</p>
+            
+            <div class="evidence-box success" v-for="(insight, idx) in store.plannerWeeklyStats.insights" :key="idx" style="margin-top: 12px; display: flex; gap: 12px; align-items: start;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="box-icon" style="width: 20px; height: 20px; flex-shrink: 0; margin-top: 2px;">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+              </svg>
+              <div>
+                <strong>Weekly Insight</strong>: {{ insight }}
+              </div>
+            </div>
+            
+            <div class="evidence-box warning" style="margin-top: 20px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="box-icon" style="width: 20px; height: 20px;">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              </svg>
+              <div>
+                <strong>Sodium Guidelines</strong>: High sodium intake (>5g salt/day) is a high-confidence cause of elevated blood pressure. Avoid adding table salt to the Dinner Stew or Lunch Salad. Rely instead on measured low-sodium soy sauce.
               </div>
             </div>
           </div>

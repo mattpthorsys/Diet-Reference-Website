@@ -2472,4 +2472,21 @@ tbody tr:hover {
   border-radius: 4px;
 }
 
+.meal-content select option {
+  background: var(--bg-card);
+  color: var(--text-color);
+}
+
+.btn-danger {
+  background-color: #ef4444;
+  border-color: #ef4444;
+  color: #ffffff;
+}
+
+.btn-danger:hover {
+  background-color: #dc2626;
+  border-color: #dc2626;
+}
+
+
 

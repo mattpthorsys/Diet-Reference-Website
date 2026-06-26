@@ -2072,6 +2072,90 @@ const store = {
     alert("Aggregated all ingredients from your weekly planner into the shopping list!");
   },
 
+  getRecipeById(id: string): Recipe | undefined {
+    return this.recipes.find(r => r.id === id);
+  },
+
+  get plannerWeeklyStats() {
+    let totalCalories = 0;
+    let totalCost = 0;
+    let totalCarbs = 0;
+    let totalGI = 0;
+    let totalMealsCount = 0;
+    let healthyCount = 0;
+    let parfaitScheduledCount = 0;
+
+    const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+    days.forEach(day => {
+      const dayPlan = this.planner[day];
+      if (dayPlan) {
+        ['breakfast', 'lunch', 'dinner'].forEach(mealType => {
+          const recipeId = (dayPlan as any)[mealType];
+          if (recipeId) {
+            const recipe = this.getRecipeById(recipeId);
+            if (recipe) {
+              totalCalories += this.getRecipeCalories(recipe);
+              totalCost += this.getRecipeCostPerServing(recipe);
+              totalCarbs += this.getRecipeCarbs(recipe);
+              totalGI += this.getRecipeGI(recipe);
+              totalMealsCount++;
+              if (recipe.category === 'healthy' || recipe.category === 'longevity') {
+                healthyCount++;
+              }
+              if (recipeId === 'parfait') {
+                parfaitScheduledCount++;
+              }
+            }
+          }
+        });
+      }
+    });
+
+    const avgGI = totalMealsCount > 0 ? Math.round(totalGI / totalMealsCount) : 0;
+    const avgDailyCalories = totalMealsCount > 0 ? Math.round(totalCalories / 7) : 0;
+    const avgDailyCost = totalMealsCount > 0 ? Number((totalCost / 7).toFixed(2)) : 0;
+
+    // Generate insights
+    const insights: string[] = [];
+    if (totalMealsCount === 0) {
+      insights.push("Your planner is empty. Schedule meals in the Weekly Planner to see nutritional and cost analytics.");
+    } else {
+      if (avgDailyCalories > 0 && avgDailyCalories < 1500) {
+        insights.push("Target daily energy is quite low. Ensure protein-dense sources are added to prevent muscle catabolism.");
+      } else if (avgDailyCalories > 2400) {
+        insights.push("Energy target is higher than standard baseline. Excellent if active in high physical output phases.");
+      } else {
+        insights.push("Weekly calorie density is well balanced for moderate, sustainable weight management.");
+      }
+
+      if (healthyCount / totalMealsCount >= 0.7) {
+        insights.push("Superb fiber density! Over 70% of scheduled meals are classified as high-satiety, whole food items.");
+      }
+
+      if (parfaitScheduledCount >= 3) {
+        insights.push("Frequent oats breakfasts scheduled. Viscous beta-glucans support morning satiety and glycemic stability.");
+      }
+
+      insights.push(`Average Glycemic Index (GI) of scheduled meals is ${avgGI} (${this.getGIRating(avgGI).toUpperCase()}). Low GI supports postprandial glucose stability.`);
+    }
+
+    return {
+      totalCalories,
+      avgDailyCalories,
+      totalCost,
+      avgDailyCost,
+      totalCarbs,
+      avgGI,
+      insights
+    };
+  },
+
+  async confirmClearShoppingList() {
+    if (confirm("Are you sure you want to clear your entire shopping list? This cannot be undone.")) {
+      await this.clearShoppingList();
+    }
+  },
+
   /* ====================================
      Custom Recipe Creator
      ==================================== */
