@@ -548,28 +548,9 @@
                 <button class="btn btn-primary" style="flex: 1.2; min-width: 140px;" @click="store.addRecipeToShoppingList(recipe.id)">Add to Shopping List</button>
                 <div class="planner-dropdown-container" style="flex: 0.8; min-width: 120px; position: relative;">
                   <select class="btn btn-secondary btn-block" style="appearance: none; -webkit-appearance: none; padding-right: 24px; text-align: left; height: 100%;" @change="if($event.target.value) { store.addRecipeToPlanner($event.target.value.split(':')[0], $event.target.value.split(':')[1], recipe.id); $event.target.value = ''; }">
-                    <option value="">Add to Planner...</option>
-                    <option value="mon:breakfast">Mon - Breakfast</option>
-                    <option value="mon:lunch">Mon - Lunch</option>
-                    <option value="mon:dinner">Mon - Dinner</option>
-                    <option value="tue:breakfast">Tue - Breakfast</option>
-                    <option value="tue:lunch">Tue - Lunch</option>
-                    <option value="tue:dinner">Tue - Dinner</option>
-                    <option value="wed:breakfast">Wed - Breakfast</option>
-                    <option value="wed:lunch">Wed - Lunch</option>
-                    <option value="wed:dinner">Wed - Dinner</option>
-                    <option value="thu:breakfast">Thu - Breakfast</option>
-                    <option value="thu:lunch">Thu - Lunch</option>
-                    <option value="thu:dinner">Thu - Dinner</option>
-                    <option value="fri:breakfast">Fri - Breakfast</option>
-                    <option value="fri:lunch">Fri - Lunch</option>
-                    <option value="fri:dinner">Fri - Dinner</option>
-                    <option value="sat:breakfast">Sat - Breakfast</option>
-                    <option value="sat:lunch">Sat - Lunch</option>
-                    <option value="sat:dinner">Sat - Dinner</option>
-                    <option value="sun:breakfast">Sun - Breakfast</option>
-                    <option value="sun:lunch">Sun - Lunch</option>
-                    <option value="sun:dinner">Sun - Dinner</option>
+                    <optgroup v-for="day in store.plannerDays" :label="day.label" :key="day.id">
+                      <option v-for="slot in store.plannerMealSlots" :key="slot.id" :value="day.id + ':' + slot.id">{{ slot.label }}</option>
+                    </optgroup>
                   </select>
                   <span style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--text-muted); font-size: 10px;">▼</span>
                 </div>
@@ -975,39 +956,22 @@
             <h2>Weekly Meal Planner</h2>
             <div class="btn-group">
               <button class="btn btn-sm btn-secondary" @click="store.clearPlanner">Clear Week</button>
+              <button class="btn btn-sm btn-secondary" @click="store.copyPlannerToClipboard">Copy Plan</button>
+              <button class="btn btn-sm btn-secondary" @click="store.sharePlanner">Share Plan</button>
+              <button class="btn btn-sm btn-secondary" @click="store.printPlanner">Print Plan</button>
               <button class="btn btn-sm btn-primary" @click="store.aggregatePlannerToShoppingList">Aggregate to Shopping List</button>
             </div>
           </div>
-          <p class="subtitle">Plan your breakfast, lunch, and dinner to automatically compile shopping ingredients.</p>
+          <p class="subtitle">Plan meals and snacks across the week, then create a correctly totalled shopping list.</p>
           
           <div class="planner-grid">
-            <div class="planner-day-card" v-for="day in ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']" :key="day">
-              <h3 class="day-title">{{ day === 'mon' ? 'Monday' : day === 'tue' ? 'Tuesday' : day === 'wed' ? 'Wednesday' : day === 'thu' ? 'Thursday' : day === 'fri' ? 'Friday' : day === 'sat' ? 'Saturday' : 'Sunday' }}</h3>
-              
-              <div class="planner-meal-slot">
-                <span class="meal-label">Breakfast</span>
+            <div class="planner-day-card" v-for="day in store.plannerDays" :key="day.id">
+              <h3 class="day-title">{{ day.label }}</h3>
+               
+              <div class="planner-meal-slot" v-for="slot in store.plannerMealSlots" :key="slot.id">
+                <span class="meal-label">{{ slot.label }}</span>
                 <div class="meal-content">
-                  <select :value="store.planner[day]?.breakfast || ''" @change="store.addRecipeToPlanner(day, 'breakfast', $event.target.value)">
-                    <option value="">- Select Recipe -</option>
-                    <option v-for="r in store.recipes" :value="r.id">{{ r.title }}</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="planner-meal-slot">
-                <span class="meal-label">Lunch</span>
-                <div class="meal-content">
-                  <select :value="store.planner[day]?.lunch || ''" @change="store.addRecipeToPlanner(day, 'lunch', $event.target.value)">
-                    <option value="">- Select Recipe -</option>
-                    <option v-for="r in store.recipes" :value="r.id">{{ r.title }}</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="planner-meal-slot">
-                <span class="meal-label">Dinner</span>
-                <div class="meal-content">
-                  <select :value="store.planner[day]?.dinner || ''" @change="store.addRecipeToPlanner(day, 'dinner', $event.target.value)">
+                  <select :value="store.planner[day.id]?.[slot.id] || ''" @change="store.addRecipeToPlanner(day.id, slot.id, $event.target.value)">
                     <option value="">- Select Recipe -</option>
                     <option v-for="r in store.recipes" :value="r.id">{{ r.title }}</option>
                   </select>
@@ -1047,7 +1011,7 @@
                 <span class="result-value" :class="'badge-' + store.getGIRating(store.plannerWeeklyStats.avgGI)">
                   {{ store.plannerWeeklyStats.avgGI }} - {{ store.plannerWeeklyStats.avgGI ? store.getGIRating(store.plannerWeeklyStats.avgGI).toUpperCase() : 'N/A' }}
                 </span>
-                <span class="result-desc">Weighted Glycemic Index</span>
+                <span class="result-desc">Carbohydrate-weighted GI</span>
               </div>
             </div>
 
@@ -1062,6 +1026,9 @@
                       <th style="padding: 8px;">Breakfast</th>
                       <th style="padding: 8px;">Lunch</th>
                       <th style="padding: 8px;">Dinner</th>
+                      <th style="padding: 8px;">Mid-morning snack</th>
+                      <th style="padding: 8px;">Afternoon snack</th>
+                      <th style="padding: 8px;">Evening snack</th>
                       <th style="padding: 8px;">Est. Calories</th>
                       <th style="padding: 8px;">Est. Cost</th>
                     </tr>
@@ -1072,21 +1039,14 @@
                       <td style="padding: 8px; color: var(--text-color);">{{ store.getRecipeById(store.planner[day]?.breakfast)?.title || '—' }}</td>
                       <td style="padding: 8px; color: var(--text-color);">{{ store.getRecipeById(store.planner[day]?.lunch)?.title || '—' }}</td>
                       <td style="padding: 8px; color: var(--text-color);">{{ store.getRecipeById(store.planner[day]?.dinner)?.title || '—' }}</td>
+                      <td style="padding: 8px; color: var(--text-color);">{{ store.getRecipeById(store.planner[day]?.midMorningSnack)?.title || '-' }}</td>
+                      <td style="padding: 8px; color: var(--text-color);">{{ store.getRecipeById(store.planner[day]?.afternoonSnack)?.title || '-' }}</td>
+                      <td style="padding: 8px; color: var(--text-color);">{{ store.getRecipeById(store.planner[day]?.eveningSnack)?.title || '-' }}</td>
                       <td style="padding: 8px; color: var(--text-color); font-weight: 500;">
-                        <!-- Calculate sum of day calories -->
-                        {{ 
-                          (store.getRecipeById(store.planner[day]?.breakfast) ? store.getRecipeCalories(store.getRecipeById(store.planner[day]?.breakfast)) : 0) +
-                          (store.getRecipeById(store.planner[day]?.lunch) ? store.getRecipeCalories(store.getRecipeById(store.planner[day]?.lunch)) : 0) +
-                          (store.getRecipeById(store.planner[day]?.dinner) ? store.getRecipeCalories(store.getRecipeById(store.planner[day]?.dinner)) : 0)
-                        }} kcal
+                        {{ store.getDayPlanCalories(day) }} kcal
                       </td>
                       <td style="padding: 8px; color: var(--text-color); font-weight: 500;">
-                        <!-- Calculate sum of day costs -->
-                        ${{ 
-                          ((store.getRecipeById(store.planner[day]?.breakfast) ? store.getRecipeCostPerServing(store.getRecipeById(store.planner[day]?.breakfast)) : 0) +
-                          (store.getRecipeById(store.planner[day]?.lunch) ? store.getRecipeCostPerServing(store.getRecipeById(store.planner[day]?.lunch)) : 0) +
-                          (store.getRecipeById(store.planner[day]?.dinner) ? store.getRecipeCostPerServing(store.getRecipeById(store.planner[day]?.dinner)) : 0)).toFixed(2)
-                        }}
+                        ${{ store.getDayPlanCost(day).toFixed(2) }}
                       </td>
                     </tr>
                   </tbody>

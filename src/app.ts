@@ -89,6 +89,48 @@ interface Recipe {
   pinned?: boolean;
 }
 
+type PlannerMeal = 'breakfast' | 'midMorningSnack' | 'lunch' | 'afternoonSnack' | 'dinner' | 'eveningSnack';
+type PlannerDay = Record<PlannerMeal, string>;
+type WeeklyPlanner = Record<string, PlannerDay>;
+
+const plannerDays = [
+  { id: 'mon', label: 'Monday', shortLabel: 'Mon' },
+  { id: 'tue', label: 'Tuesday', shortLabel: 'Tue' },
+  { id: 'wed', label: 'Wednesday', shortLabel: 'Wed' },
+  { id: 'thu', label: 'Thursday', shortLabel: 'Thu' },
+  { id: 'fri', label: 'Friday', shortLabel: 'Fri' },
+  { id: 'sat', label: 'Saturday', shortLabel: 'Sat' },
+  { id: 'sun', label: 'Sunday', shortLabel: 'Sun' }
+] as const;
+
+const plannerMealSlots = [
+  { id: 'breakfast', label: 'Breakfast' },
+  { id: 'midMorningSnack', label: 'Mid-morning snack' },
+  { id: 'lunch', label: 'Lunch' },
+  { id: 'afternoonSnack', label: 'Afternoon snack' },
+  { id: 'dinner', label: 'Dinner' },
+  { id: 'eveningSnack', label: 'Evening snack' }
+] as const;
+
+function createEmptyPlanner(): WeeklyPlanner {
+  return Object.fromEntries(plannerDays.map(({ id }) => [
+    id,
+    { breakfast: '', midMorningSnack: '', lunch: '', afternoonSnack: '', dinner: '', eveningSnack: '' }
+  ])) as WeeklyPlanner;
+}
+
+function normalizePlanner(raw: any): WeeklyPlanner {
+  const normalized = createEmptyPlanner();
+  plannerDays.forEach(({ id: day }) => {
+    plannerMealSlots.forEach(({ id: meal }) => {
+      if (typeof raw?.[day]?.[meal] === 'string') {
+        normalized[day][meal] = raw[day][meal];
+      }
+    });
+  });
+  return normalized;
+}
+
 // Base recipes schema structure matching database document templates
 const defaultRecipes: Recipe[] = [
   {
@@ -960,15 +1002,9 @@ const store = {
   recipeActiveViews: {} as Record<string, 'ingredients' | 'instructions' | 'notes'>,
 
   // Weekly Planner state mapping
-  planner: {
-    mon: { breakfast: '', lunch: '', dinner: '' },
-    tue: { breakfast: '', lunch: '', dinner: '' },
-    wed: { breakfast: '', lunch: '', dinner: '' },
-    thu: { breakfast: '', lunch: '', dinner: '' },
-    fri: { breakfast: '', lunch: '', dinner: '' },
-    sat: { breakfast: '', lunch: '', dinner: '' },
-    sun: { breakfast: '', lunch: '', dinner: '' }
-  } as Record<string, { breakfast: string, lunch: string, dinner: string }>,
+  plannerDays,
+  plannerMealSlots,
+  planner: createEmptyPlanner(),
   
   // Timer state for Dinner Stew simmering
   timerInterval: null as any,
@@ -1068,6 +1104,10 @@ const store = {
      PWA & Service Worker
      ==================================== */
   startPwaServiceWorker() {
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      return;
+    }
+
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('./sw.js')
         .then(() => console.log("[PWA] Service Worker registered successfully."))
@@ -1258,7 +1298,7 @@ const store = {
       // 4. Sync Planner
       onSnapshot(doc(db, 'users', uid, 'planner', 'weekly'), (snapshot: any) => {
         if (snapshot.exists()) {
-          this.planner = snapshot.data();
+          this.planner = normalizePlanner(snapshot.data());
         }
       });
     } else {
@@ -1336,7 +1376,7 @@ const store = {
 
       const localPlanner = localStorage.getItem('successor_planner');
       if (localPlanner) {
-        this.planner = JSON.parse(localPlanner);
+        this.planner = normalizePlanner(JSON.parse(localPlanner));
       }
     }
   },
@@ -2019,26 +2059,23 @@ const store = {
   /* ====================================
      Weekly Planner Operations
      ==================================== */
-  async savePlanner(newPlanner: any) {
-    this.planner = newPlanner;
+  async savePlanner(newPlanner: WeeklyPlanner) {
+    this.planner = normalizePlanner(newPlanner);
     if (db && isFirebaseOnline && this.user) {
-      await setDoc(doc(db, 'users', this.user.uid, 'planner', 'weekly'), newPlanner);
+      await setDoc(doc(db, 'users', this.user.uid, 'planner', 'weekly'), this.planner);
     } else {
-      localStorage.setItem('successor_planner', JSON.stringify(newPlanner));
+      localStorage.setItem('successor_planner', JSON.stringify(this.planner));
     }
   },
 
-  async addRecipeToPlanner(day: string, meal: 'breakfast' | 'lunch' | 'dinner', recipeId: string) {
-    const updated = { ...this.planner };
-    if (!updated[day]) {
-      updated[day] = { breakfast: '', lunch: '', dinner: '' };
-    }
+  async addRecipeToPlanner(day: string, meal: PlannerMeal, recipeId: string) {
+    const updated = normalizePlanner(this.planner);
     updated[day][meal] = recipeId;
     await this.savePlanner(updated);
   },
 
-  async removeRecipeFromPlanner(day: string, meal: 'breakfast' | 'lunch' | 'dinner') {
-    const updated = { ...this.planner };
+  async removeRecipeFromPlanner(day: string, meal: PlannerMeal) {
+    const updated = normalizePlanner(this.planner);
     if (updated[day]) {
       updated[day][meal] = '';
     }
@@ -2046,33 +2083,116 @@ const store = {
   },
 
   async clearPlanner() {
-    const emptyPlanner = {
-      mon: { breakfast: '', lunch: '', dinner: '' },
-      tue: { breakfast: '', lunch: '', dinner: '' },
-      wed: { breakfast: '', lunch: '', dinner: '' },
-      thu: { breakfast: '', lunch: '', dinner: '' },
-      fri: { breakfast: '', lunch: '', dinner: '' },
-      sat: { breakfast: '', lunch: '', dinner: '' },
-      sun: { breakfast: '', lunch: '', dinner: '' }
-    };
-    await this.savePlanner(emptyPlanner);
+    await this.savePlanner(createEmptyPlanner());
   },
 
   async aggregatePlannerToShoppingList() {
-    // Collect all recipe ingredients from scheduled meals
-    const dayMeals = Object.values(this.planner);
-    for (const meals of dayMeals) {
-      for (const recipeId of Object.values(meals)) {
-        if (recipeId) {
-          await this.addRecipeToShoppingList(recipeId);
-        }
+    const totals = new Map<string, { ingredient: Ingredient; qty: number }>();
+
+    plannerDays.forEach(({ id: day }) => {
+      plannerMealSlots.forEach(({ id: meal }) => {
+        const recipe = this.getRecipeById(this.planner[day]?.[meal]);
+        if (!recipe) return;
+        const ingredients = recipe.id === 'parfait'
+          ? (recipe.ingredients[this.parfaitPathway] || recipe.ingredients)
+          : recipe.ingredients;
+        const perServingFactor = 1 / recipe.defaultServings;
+
+        ingredients.forEach((ingredient: Ingredient) => {
+          const name = this.budgetMode ? ingredient.alt : ingredient.name;
+          const key = `${ingredient.zone}:${name}:${ingredient.unit}`;
+          const current = totals.get(key);
+          if (current) {
+            current.qty += ingredient.qty * perServingFactor;
+          } else {
+            totals.set(key, { ingredient: { ...ingredient, name, alt: name }, qty: ingredient.qty * perServingFactor });
+          }
+        });
+      });
+    });
+
+    const plannerItems: Omit<ShoppingItem, 'id'>[] = Array.from(totals.values()).map(({ ingredient, qty }) => {
+      const formatted = this.formatIngredient({ ...ingredient, qty }, 1);
+      return { name: formatted.name, qty: formatted.displayQty, zone: ingredient.zone, checked: false, recipeId: 'planner' };
+    });
+
+    if (db && isFirebaseOnline && this.user) {
+      for (const item of this.shoppingList.filter(item => item.recipeId === 'planner')) {
+        if (item.id) await deleteDoc(doc(db, 'users', this.user.uid, 'shoppingList', item.id));
       }
+      for (const item of plannerItems) {
+        const docId = `planner_${toSafeDocId(item.zone)}_${toSafeDocId(item.name)}`;
+        await setDoc(doc(db, 'users', this.user.uid, 'shoppingList', docId), item);
+      }
+    } else {
+      this.shoppingList = [
+        ...this.shoppingList.filter(item => item.recipeId !== 'planner'),
+        ...plannerItems
+      ];
+      this.saveShoppingListOffline();
     }
-    alert("Aggregated all ingredients from your weekly planner into the shopping list!");
+
+    alert(plannerItems.length
+      ? "Weekly plan ingredients have been calculated and added to your shopping list."
+      : "Add meals to the planner before creating a shopping list.");
   },
 
   getRecipeById(id: string): Recipe | undefined {
     return this.recipes.find(r => r.id === id);
+  },
+
+  getDayPlanEntries(day: string): Array<{ slot: string; recipe: Recipe }> {
+    const entries = plannerMealSlots.map(({ id, label }) => {
+      const recipe = this.getRecipeById(this.planner[day]?.[id]);
+      return recipe ? { slot: label, recipe } : null;
+    });
+    return entries.filter((entry): entry is NonNullable<typeof entry> => entry !== null);
+  },
+
+  getDayPlanCalories(day: string): number {
+    return this.getDayPlanEntries(day).reduce((total, entry) => total + this.getRecipeCalories(entry.recipe), 0);
+  },
+
+  getDayPlanCost(day: string): number {
+    return this.getDayPlanEntries(day).reduce((total, entry) => total + this.getRecipeCostPerServing(entry.recipe), 0);
+  },
+
+  getPlannerExportText(): string {
+    const lines = ['SUCCESSOR WEEKLY MEAL PLAN', '=========================='];
+    plannerDays.forEach(({ id, label }) => {
+      lines.push(`\n${label.toUpperCase()}`);
+      const entries = this.getDayPlanEntries(id);
+      if (!entries.length) {
+        lines.push('No meals planned');
+        return;
+      }
+      entries.forEach(({ slot, recipe }) => lines.push(`${slot}: ${recipe.title}`));
+      lines.push(`Daily total: ${this.getDayPlanCalories(id)} kcal | $${this.getDayPlanCost(id).toFixed(2)}`);
+    });
+    lines.push(`\nWEEKLY TOTAL: ${this.plannerWeeklyStats.totalCalories} kcal | $${this.plannerWeeklyStats.totalCost.toFixed(2)}`);
+    return lines.join('\n');
+  },
+
+  async copyPlannerToClipboard() {
+    try {
+      await navigator.clipboard.writeText(this.getPlannerExportText());
+      alert('Weekly meal plan copied to clipboard.');
+    } catch (error) {
+      alert('Unable to copy the weekly meal plan in this browser.');
+    }
+  },
+
+  sharePlanner() {
+    const text = this.getPlannerExportText();
+    if (navigator.share) {
+      navigator.share({ title: 'Successor Weekly Meal Plan', text }).catch(() => undefined);
+      return;
+    }
+    this.copyPlannerToClipboard();
+  },
+
+  printPlanner() {
+    window.print();
   },
 
   get plannerWeeklyStats() {
@@ -2084,19 +2204,18 @@ const store = {
     let healthyCount = 0;
     let parfaitScheduledCount = 0;
 
-    const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
-    days.forEach(day => {
+    plannerDays.forEach(({ id: day }) => {
       const dayPlan = this.planner[day];
       if (dayPlan) {
-        ['breakfast', 'lunch', 'dinner'].forEach(mealType => {
-          const recipeId = (dayPlan as any)[mealType];
+        plannerMealSlots.forEach(({ id: mealType }) => {
+          const recipeId = dayPlan[mealType];
           if (recipeId) {
             const recipe = this.getRecipeById(recipeId);
             if (recipe) {
               totalCalories += this.getRecipeCalories(recipe);
               totalCost += this.getRecipeCostPerServing(recipe);
               totalCarbs += this.getRecipeCarbs(recipe);
-              totalGI += this.getRecipeGI(recipe);
+              totalGI += this.getRecipeGI(recipe) * this.getRecipeCarbs(recipe);
               totalMealsCount++;
               if (recipe.category === 'healthy' || recipe.category === 'longevity') {
                 healthyCount++;
@@ -2110,9 +2229,9 @@ const store = {
       }
     });
 
-    const avgGI = totalMealsCount > 0 ? Math.round(totalGI / totalMealsCount) : 0;
-    const avgDailyCalories = totalMealsCount > 0 ? Math.round(totalCalories / 7) : 0;
-    const avgDailyCost = totalMealsCount > 0 ? Number((totalCost / 7).toFixed(2)) : 0;
+    const avgGI = totalCarbs > 0 ? Math.round(totalGI / totalCarbs) : 0;
+    const avgDailyCalories = totalMealsCount > 0 ? Math.round(totalCalories / plannerDays.length) : 0;
+    const avgDailyCost = totalMealsCount > 0 ? Number((totalCost / plannerDays.length).toFixed(2)) : 0;
 
     // Generate insights
     const insights: string[] = [];

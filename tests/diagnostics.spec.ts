@@ -140,4 +140,31 @@ test.describe('Successor Recipe App E2E Tests', () => {
     const cardTitle = recipeCards.locator('h3').first();
     await expect(cardTitle).toHaveText('Adelaide Lentil Power Salad');
   });
+
+  test('should plan snack slots and aggregate repeated meals into the shopping list', async ({ page }) => {
+    const offlineBtn = page.getByRole('button', { name: 'Run in Offline Fallback Mode' });
+    await expect(offlineBtn).toBeVisible({ timeout: 10000 });
+    await offlineBtn.click();
+
+    await page.getByRole('button', { name: 'Weekly Planner' }).click();
+    const monday = page.locator('.planner-day-card').first();
+    await expect(monday.locator('.planner-meal-slot')).toHaveCount(6);
+    await expect(monday.getByText('Mid-morning snack', { exact: true })).toBeVisible();
+    await expect(monday.getByText('Afternoon snack', { exact: true })).toBeVisible();
+    await expect(monday.getByText('Evening snack', { exact: true })).toBeVisible();
+
+    const mondaySlots = monday.locator('.planner-meal-slot');
+    await mondaySlots.nth(0).locator('select').selectOption('parfait');
+    await mondaySlots.nth(1).locator('select').selectOption('parfait');
+
+    await page.getByRole('button', { name: 'Aggregate to Shopping List' }).click();
+    await page.getByRole('button', { name: 'Plan Summary' }).click();
+
+    await expect(page.locator('#summary')).toContainText('Mid-morning snack');
+    await expect(page.locator('#summary')).toContainText('1200 kcal');
+
+    await page.getByRole('button', { name: 'Shopping List', exact: true }).click();
+    const plannerOats = page.locator('.shop-checklist').filter({ hasText: 'rolled or steel-cut oats' });
+    await expect(plannerOats).toContainText('80 g');
+  });
 });

@@ -2464,6 +2464,38 @@ tbody tr:hover {
   border-color: var(--primary-color);
 }
 
+.planner-summary-entry {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  margin-bottom: 4px;
+}
+
+.planner-summary-entry span {
+  color: var(--text-muted);
+  flex: 0 0 126px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+@media print {
+  .sidebar,
+  .topbar,
+  .shopping-header-actions .btn-group,
+  .nav-menu {
+    display: none !important;
+  }
+
+  .tab-content:not(#summary) {
+    display: none !important;
+  }
+
+  #summary {
+    display: block !important;
+  }
+}
+
 .recipe-tabs button {
   font-size: 12px;
   font-weight: 600;
