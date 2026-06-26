@@ -915,6 +915,7 @@ const store = {
   
   // Navigation & Preferences
   activeTab: 'dashboard',
+  showCustomRecipeForm: false,
   theme: 'dark',
   servings: 4,
   budgetMode: false,
@@ -933,13 +934,7 @@ const store = {
   calcCalories: 2000,
   calcActivity: 1.375,
   
-  // Active science node details
-  activeScienceNode: 'high',
   activeRoadmapPhase: '2',
-  
-  // Search and filter inputs
-  auditQuery: '',
-  auditFilter: 'all',
   
   // Recipe Search and filter inputs
   recipeSearch: '',
@@ -961,7 +956,20 @@ const store = {
   recipes: [] as Recipe[],
   shoppingList: [] as ShoppingItem[],
   healthLogs: [] as LogEntry[],
-  auditRows: defaultAuditRows,
+  
+  // Recipe tab views local state mapping
+  recipeActiveViews: {} as Record<string, 'ingredients' | 'instructions' | 'notes'>,
+
+  // Weekly Planner state mapping
+  planner: {
+    mon: { breakfast: '', lunch: '', dinner: '' },
+    tue: { breakfast: '', lunch: '', dinner: '' },
+    wed: { breakfast: '', lunch: '', dinner: '' },
+    thu: { breakfast: '', lunch: '', dinner: '' },
+    fri: { breakfast: '', lunch: '', dinner: '' },
+    sat: { breakfast: '', lunch: '', dinner: '' },
+    sun: { breakfast: '', lunch: '', dinner: '' }
+  } as Record<string, { breakfast: string, lunch: string, dinner: string }>,
   
   // Timer state for Dinner Stew simmering
   timerInterval: null as any,
@@ -1247,6 +1255,13 @@ const store = {
         });
         this.healthLogs = logs;
       });
+
+      // 4. Sync Planner
+      onSnapshot(doc(db, 'users', uid, 'planner', 'weekly'), (snapshot: any) => {
+        if (snapshot.exists()) {
+          this.planner = snapshot.data();
+        }
+      });
     } else {
       // Fallback local storage
       const localRecipes = localStorage.getItem('successor_recipes');
@@ -1318,6 +1333,11 @@ const store = {
       const localLogs = localStorage.getItem('successor_health_logs');
       if (localLogs) {
         this.healthLogs = JSON.parse(localLogs);
+      }
+
+      const localPlanner = localStorage.getItem('successor_planner');
+      if (localPlanner) {
+        this.planner = JSON.parse(localPlanner);
       }
     }
   },
@@ -1987,15 +2007,163 @@ const store = {
   },
 
   /* ====================================
-     Scientific Audit Filters
+     Recipe Active View Tabs
      ==================================== */
-  get filteredAuditRows(): AuditRow[] {
-    const q = this.auditQuery.toLowerCase();
-    return this.auditRows.filter(row => {
-      const matchesSearch = row.topic.toLowerCase().includes(q) || row.rationale.toLowerCase().includes(q);
-      const matchesFilter = this.auditFilter === 'all' || row.evidence === this.auditFilter;
-      return matchesSearch && matchesFilter;
+  getRecipeActiveView(recipeId: string): 'ingredients' | 'instructions' | 'notes' {
+    return this.recipeActiveViews[recipeId] || 'ingredients';
+  },
+
+  setRecipeActiveView(recipeId: string, view: 'ingredients' | 'instructions' | 'notes') {
+    this.recipeActiveViews[recipeId] = view;
+  },
+
+  /* ====================================
+     Weekly Planner Operations
+     ==================================== */
+  async savePlanner(newPlanner: any) {
+    this.planner = newPlanner;
+    if (db && isFirebaseOnline && this.user) {
+      await setDoc(doc(db, 'users', this.user.uid, 'planner', 'weekly'), newPlanner);
+    } else {
+      localStorage.setItem('successor_planner', JSON.stringify(newPlanner));
+    }
+  },
+
+  async addRecipeToPlanner(day: string, meal: 'breakfast' | 'lunch' | 'dinner', recipeId: string) {
+    const updated = { ...this.planner };
+    if (!updated[day]) {
+      updated[day] = { breakfast: '', lunch: '', dinner: '' };
+    }
+    updated[day][meal] = recipeId;
+    await this.savePlanner(updated);
+  },
+
+  async removeRecipeFromPlanner(day: string, meal: 'breakfast' | 'lunch' | 'dinner') {
+    const updated = { ...this.planner };
+    if (updated[day]) {
+      updated[day][meal] = '';
+    }
+    await this.savePlanner(updated);
+  },
+
+  async clearPlanner() {
+    const emptyPlanner = {
+      mon: { breakfast: '', lunch: '', dinner: '' },
+      tue: { breakfast: '', lunch: '', dinner: '' },
+      wed: { breakfast: '', lunch: '', dinner: '' },
+      thu: { breakfast: '', lunch: '', dinner: '' },
+      fri: { breakfast: '', lunch: '', dinner: '' },
+      sat: { breakfast: '', lunch: '', dinner: '' },
+      sun: { breakfast: '', lunch: '', dinner: '' }
+    };
+    await this.savePlanner(emptyPlanner);
+  },
+
+  async aggregatePlannerToShoppingList() {
+    // Collect all recipe ingredients from scheduled meals
+    const dayMeals = Object.values(this.planner);
+    for (const meals of dayMeals) {
+      for (const recipeId of Object.values(meals)) {
+        if (recipeId) {
+          await this.addRecipeToShoppingList(recipeId);
+        }
+      }
+    }
+    alert("Aggregated all ingredients from your weekly planner into the shopping list!");
+  },
+
+  /* ====================================
+     Custom Recipe Creator
+     ==================================== */
+  async createCustomRecipe(title: string, intro: string, ingredientsStr: string, instructionsStr: string, calories: number, carbs: number, gi: number) {
+    const ingredients = ingredientsStr.split('\n').filter(line => line.trim()).map(line => {
+      const parts = line.match(/^([\d\.]+(?:\s*(?:g|ml|tbsp|tsp|cup|cups|spoons))?)\s+(.+)$/i);
+      if (parts) {
+        return { name: parts[2].trim(), qty: parts[1].trim(), zone: 'supermarket' };
+      }
+      return { name: line.trim(), qty: '1 unit', zone: 'supermarket' };
     });
+
+    const instructions = instructionsStr.split('\n').filter(line => line.trim());
+
+    const newRecipe: Recipe = {
+      id: 'custom-' + Date.now(),
+      title: title,
+      category: 'healthy',
+      defaultServings: 2,
+      servings: 2,
+      intro: intro,
+      cookingTime: '15 mins',
+      typeBadge: 'Custom Recipe',
+      ingredients: ingredients,
+      instructions: instructions,
+      scienceNotes: ['Custom user-created recipe.'],
+      imgUrl: 'images/bowl.png',
+      caloriesPerServing: calories,
+      carbsPerServing: carbs,
+      gi: gi,
+      liked: false,
+      pinned: false
+    };
+
+    if (db && isFirebaseOnline && this.user) {
+      await setDoc(doc(db, 'users', this.user.uid, 'recipes', newRecipe.id), newRecipe);
+    } else {
+      this.recipes.push(newRecipe);
+      this.saveRecipesOffline();
+    }
+    alert("Custom recipe created successfully!");
+  },
+
+  /* ====================================
+     SVG Health Chart Generators
+     ==================================== */
+  get sortedLogs(): LogEntry[] {
+    return [...this.healthLogs].sort((a, b) => a.date.localeCompare(b.date));
+  },
+
+  getChartPoints(field: 'weight' | 'waist' | 'bpSys' | 'bpDia'): { x: number, y: number, val: number, date: string }[] {
+    const logs = this.sortedLogs.filter(l => l[field] !== null && l[field] !== undefined);
+    if (logs.length === 0) return [];
+    if (logs.length === 1) {
+      return [{ x: 250, y: 60, val: Number(logs[0][field]), date: logs[0].date }];
+    }
+    const values = logs.map(l => Number(l[field]));
+    const minVal = Math.min(...values);
+    const maxVal = Math.max(...values);
+    const range = maxVal - minVal || 1;
+
+    return logs.map((log, index) => {
+      const x = (index / (logs.length - 1)) * 440 + 30; // 30px left padding, 30px right padding (total 500)
+      const y = 130 - ((Number(log[field]) - minVal) / range) * 110; // scale to fit 150px height
+      return { x, y, val: Number(log[field]), date: log.date };
+    });
+  },
+
+  get bpChartPoints(): { sys: any[], dia: any[] } {
+    const sysLogs = this.sortedLogs.filter(l => l.bpSys !== null && l.bpSys !== undefined);
+    const diaLogs = this.sortedLogs.filter(l => l.bpDia !== null && l.bpDia !== undefined);
+    if (sysLogs.length === 0) return { sys: [], dia: [] };
+    
+    const sysValues = sysLogs.map(l => Number(l.bpSys));
+    const diaValues = diaLogs.map(l => Number(l.bpDia));
+    const minVal = Math.min(...sysValues, ...diaValues);
+    const maxVal = Math.max(...sysValues, ...diaValues);
+    const range = maxVal - minVal || 1;
+
+    const sys = sysLogs.map((log, index) => {
+      const x = (index / (sysLogs.length - 1)) * 440 + 30;
+      const y = 130 - ((Number(log.bpSys) - minVal) / range) * 110;
+      return { x, y, val: Number(log.bpSys), date: log.date };
+    });
+
+    const dia = diaLogs.map((log, index) => {
+      const x = (index / (diaLogs.length - 1)) * 440 + 30;
+      const y = 130 - ((Number(log.bpDia) - minVal) / range) * 110;
+      return { x, y, val: Number(log.bpDia), date: log.date };
+    });
+
+    return { sys, dia };
   },
 
   /* ====================================

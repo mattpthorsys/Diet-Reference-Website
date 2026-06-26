@@ -91,7 +91,7 @@ test.describe('Successor Recipe App E2E Tests', () => {
     await page.locator('.favorites-group .toggle-liked').click();
 
     // Add Pinned recipe ingredients to shopping list
-    const addToShoppingBtn = barkCard.locator('button:has-text("Add Ingredients to Shopping List")');
+    const addToShoppingBtn = barkCard.locator('button:has-text("Add to Shopping List")');
     await addToShoppingBtn.click();
 
     // Navigate to Shopping List tab

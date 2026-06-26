@@ -98,15 +98,14 @@
           </svg>
           Implementation
         </button>
-        <button class="nav-item" :class="{ active: store.activeTab === 'audit' }" @click="store.activeTab = 'audit'">
+        <button class="nav-item" :class="{ active: store.activeTab === 'planner' }" @click="store.activeTab = 'planner'">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="nav-icon">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-            <polyline points="14 2 14 8 20 8"/>
-            <line x1="16" y1="13" x2="8" y2="13"/>
-            <line x1="16" y1="17" x2="8" y2="17"/>
-            <polyline points="10 9 9 9 8 9"/>
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
           </svg>
-          Scientific Audit
+          Weekly Planner
         </button>
       </nav>
 
@@ -311,54 +310,7 @@
           </div>
         </div>
 
-        <!-- Biochemical Mechanism Timeline -->
-        <div class="content-card mechanism-card">
-          <h3>Biochemical Mechanism Map</h3>
-          <p class="subtitle">Evidence levels classification of the dietary claims, contrasting medical guidelines with speculative claims.</p>
-          
-          <div class="timeline-horizontal">
-            <!-- High Confidence -->
-            <div class="timeline-node high-confidence" :class="{ active: store.activeScienceNode === 'high' }" @click="store.activeScienceNode = 'high'">
-              <div class="node-badge">High Confidence</div>
-              <h4>Satiety, Fiber & Salt</h4>
-              <p>WHO/NHS backed focus on dietary fiber, sodium reduction, and unsaturated fats.</p>
-              <span class="read-more-indicator">Click to expand details</span>
-            </div>
-            <!-- Moderate Confidence -->
-            <div class="timeline-node mod-confidence" :class="{ active: store.activeScienceNode === 'mod' }" @click="store.activeScienceNode = 'mod'">
-              <div class="node-badge">Moderate Confidence</div>
-              <h4>Ultra-Processed Foods</h4>
-              <p>2024 umbrella reviews linking UPF diets to adverse cardiometabolic effects.</p>
-              <span class="read-more-indicator">Click to expand details</span>
-            </div>
-            <!-- Limited Confidence -->
-            <div class="timeline-node low-confidence" :class="{ active: store.activeScienceNode === 'low' }" @click="store.activeScienceNode = 'low'">
-              <div class="node-badge">Limited Confidence</div>
-              <h4>Molecular Hype</h4>
-              <p>Speculative claims regarding "senolytics", "autophagy", and anti-AGE longevity.</p>
-              <span class="read-more-indicator">Click to expand details</span>
-            </div>
-          </div>
-          
-          <div class="node-detail-panel">
-            <div v-if="store.activeScienceNode === 'high'">
-              <h4>High Confidence Mechanisms (NHS, WHO, Heart Foundation Standards)</h4>
-              <p><strong>Fibre & Satiety</strong>: Viscous soluble fibres slow gastric emptying, extending physical fullness. Insoluble fibres from lentils and greens bulk stool, signalling mechanoreceptors in the gut to limit appetite.</p>
-              <p><strong>Sodium & Blood Pressure</strong>: Restricting sodium intake to under 2g/day decreases blood volume and peripheral vascular resistance, producing clinically proven reductions in blood pressure, particularly in hypertensive populations.</p>
-              <p><strong>Unsaturated Fats</strong>: Replacing saturated fats with mono- and polyunsaturated fats reliably improves serum lipid profiles (lowering LDL-C and ApoB).</p>
-            </div>
-            <div v-if="store.activeScienceNode === 'mod'">
-              <h4>Moderate Confidence Mechanisms (UPF Reduction)</h4>
-              <p><strong>Ultra-Processed Food Avoidance</strong>: Formulated foods (UPFs) bypass natural satiety mechanisms through hyper-palatability (engineered fat-salt-sugar combinations) and low physical structure. Systematic reviews show positive correlations between high UPF intake and cardiovascular events.</p>
-              <p><strong>A controlled 2025 feeding trial</strong> demonstrated rapid adverse metabolic effects of UPF diets even when calories and macronutrient ratios were held identical to unprocessed diets, suggesting that the physical matrix and processing additives themselves disrupt metabolic homeostasis.</p>
-            </div>
-            <div v-if="store.activeScienceNode === 'low'">
-              <h4>Limited Confidence or Overclaimed Mechanisms</h4>
-              <p><strong>Autophagy, Senolysis & NAD+</strong>: The original report asserted that onions or garlic could serve as "senolytics" (clearing aging cells) or that trehalose stimulates autophagy clinically. Current research shows these mechanisms occur in isolated cellular or mouse models at massive doses, with no robust clinical trials proving they slow human aging at culinary levels.</p>
-              <p><strong>AGE Reduction (Advanced Glycation End-products)</strong>: While low-temperature, moist cooking is culinary best practice to avoid carcinogens and over-browning, claims that lower-AGE meals slow human biological aging remain hypothesis-generating. A healthy diet works through caloric balance and nutrient quality, not "AGE avoidance theatre."</p>
-            </div>
-          </div>
-        </div>
+
       </section>
 
       <!-- Tab Content: Recipe Hub -->
@@ -388,6 +340,9 @@
               <input type="checkbox" v-model="store.budgetMode">
               <span class="switch-slider"></span>
             </label>
+          </div>
+          <div class="control-group">
+            <button class="btn btn-sm btn-primary" @click="store.showCustomRecipeForm = true" style="margin-top: 22px; height: 38px;">Create Recipe</button>
           </div>
         </div>
 
@@ -521,20 +476,47 @@
                 </div>
               </div>
 
-              <!-- Pathway selector only for Breakfast Parfait -->
-              <div class="recipe-pathways" v-if="recipe.id === 'parfait'">
+              <!-- Tab toggles for recipe sections -->
+              <div class="recipe-tabs" style="display: flex; gap: 8px; border-bottom: 1px solid var(--border-color); margin-bottom: 12px; padding-bottom: 4px;">
+                <button class="pathway-btn" :class="{ active: store.getRecipeActiveView(recipe.id) === 'ingredients' }" @click="store.setRecipeActiveView(recipe.id, 'ingredients')">Ingredients</button>
+                <button class="pathway-btn" :class="{ active: store.getRecipeActiveView(recipe.id) === 'instructions' }" @click="store.setRecipeActiveView(recipe.id, 'instructions')">Instructions</button>
+                <button class="pathway-btn" :class="{ active: store.getRecipeActiveView(recipe.id) === 'notes' }" @click="store.setRecipeActiveView(recipe.id, 'notes')">Science Notes</button>
+              </div>
+
+              <!-- Pathway selector only for Breakfast Parfait (only visible when viewing ingredients) -->
+              <div class="recipe-pathways" v-if="recipe.id === 'parfait' && store.getRecipeActiveView(recipe.id) === 'ingredients'" style="margin-bottom: 12px;">
                 <button class="pathway-btn" :class="{ active: store.parfaitPathway === 'oats' }" @click="store.parfaitPathway = 'oats'">Satiety Oats (Default)</button>
                 <button class="pathway-btn" :class="{ active: store.parfaitPathway === 'lowcarb' }" @click="store.parfaitPathway = 'lowcarb'">Lower-Carb / Nut-Dense</button>
               </div>
 
               <!-- Reactive scaled and unit converted ingredients -->
-              <div class="recipe-tab-content active">
+              <div class="recipe-tab-content" v-if="store.getRecipeActiveView(recipe.id) === 'ingredients'">
                 <ul class="ingredient-list">
                   <li v-for="ing in store.convertedIngredients(recipe)" :class="{ 'budget-swapped': ing.isSwapped }">
                     <span>{{ ing.name }}</span>
                     <strong>{{ ing.displayQty }}</strong>
                   </li>
                 </ul>
+              </div>
+
+              <!-- Recipe Instructions list -->
+              <div class="recipe-tab-content" v-if="store.getRecipeActiveView(recipe.id) === 'instructions'">
+                <ol class="instruction-list" style="padding-left: 20px; color: var(--text-color); font-size: 13px; line-height: 1.6;">
+                  <li v-for="(step, idx) in recipe.instructions" :key="idx" style="margin-bottom: 8px;">
+                    {{ step }}
+                  </li>
+                </ol>
+                <p v-if="!recipe.instructions || recipe.instructions.length === 0" class="text-center text-muted" style="font-size: 12px; padding: 12px 0;">No instruction steps specified.</p>
+              </div>
+
+              <!-- Science Notes list -->
+              <div class="recipe-tab-content" v-if="store.getRecipeActiveView(recipe.id) === 'notes'">
+                <ul class="science-notes-list" style="padding-left: 20px; color: var(--text-muted); font-size: 13px; line-height: 1.6; list-style-type: square;">
+                  <li v-for="(note, idx) in recipe.scienceNotes" :key="idx" style="margin-bottom: 8px;">
+                    {{ note }}
+                  </li>
+                </ul>
+                <p v-if="!recipe.scienceNotes || recipe.scienceNotes.length === 0" class="text-center text-muted" style="font-size: 12px; padding: 12px 0;">No scientific notes specified.</p>
               </div>
 
               <!-- Simmer Timer only for Dinner Stew -->
@@ -550,8 +532,35 @@
                 </div>
               </div>
               
-              <div class="recipe-card-footer">
-                <button class="btn btn-primary btn-block" @click="store.addRecipeToShoppingList(recipe.id)">Add Ingredients to Shopping List</button>
+              <div class="recipe-card-footer" style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px;">
+                <button class="btn btn-primary" style="flex: 1.2; min-width: 140px;" @click="store.addRecipeToShoppingList(recipe.id)">Add to Shopping List</button>
+                <div class="planner-dropdown-container" style="flex: 0.8; min-width: 120px; position: relative;">
+                  <select class="btn btn-secondary btn-block" style="appearance: none; -webkit-appearance: none; padding-right: 24px; text-align: left; height: 100%;" @change="if($event.target.value) { store.addRecipeToPlanner($event.target.value.split(':')[0], $event.target.value.split(':')[1], recipe.id); $event.target.value = ''; }">
+                    <option value="">Add to Planner...</option>
+                    <option value="mon:breakfast">Mon - Breakfast</option>
+                    <option value="mon:lunch">Mon - Lunch</option>
+                    <option value="mon:dinner">Mon - Dinner</option>
+                    <option value="tue:breakfast">Tue - Breakfast</option>
+                    <option value="tue:lunch">Tue - Lunch</option>
+                    <option value="tue:dinner">Tue - Dinner</option>
+                    <option value="wed:breakfast">Wed - Breakfast</option>
+                    <option value="wed:lunch">Wed - Lunch</option>
+                    <option value="wed:dinner">Wed - Dinner</option>
+                    <option value="thu:breakfast">Thu - Breakfast</option>
+                    <option value="thu:lunch">Thu - Lunch</option>
+                    <option value="thu:dinner">Thu - Dinner</option>
+                    <option value="fri:breakfast">Fri - Breakfast</option>
+                    <option value="fri:lunch">Fri - Lunch</option>
+                    <option value="fri:dinner">Fri - Dinner</option>
+                    <option value="sat:breakfast">Sat - Breakfast</option>
+                    <option value="sat:lunch">Sat - Lunch</option>
+                    <option value="sat:dinner">Sat - Dinner</option>
+                    <option value="sun:breakfast">Sun - Breakfast</option>
+                    <option value="sun:lunch">Sun - Lunch</option>
+                    <option value="sun:dinner">Sun - Dinner</option>
+                  </select>
+                  <span style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--text-muted); font-size: 10px;">▼</span>
+                </div>
               </div>
             </div>
           </div>
@@ -869,6 +878,52 @@
             </div>
             <p class="subtitle">Stored securely. (Synchronized across signed-in devices)</p>
             
+            <!-- Interactive SVG Trend Charts -->
+            <div class="trend-charts-container" v-if="store.healthLogs.length >= 2" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin: 16px 0; padding: 12px; background: var(--bg-body); border-radius: 8px; border: 1px solid var(--border-color);">
+              <!-- Weight Chart -->
+              <div class="trend-chart-box" style="text-align: center;">
+                <h4 style="margin: 0 0 8px 0; font-size: 13px; color: var(--text-muted); font-weight: 500;">Weight Loss Curve (kg)</h4>
+                <svg viewBox="0 0 500 150" style="width: 100%; height: 100px; overflow: visible;">
+                  <!-- Grid Lines -->
+                  <line x1="30" y1="20" x2="470" y2="20" stroke="var(--border-color)" stroke-dasharray="4" />
+                  <line x1="30" y1="75" x2="470" y2="75" stroke="var(--border-color)" stroke-dasharray="4" />
+                  <line x1="30" y1="130" x2="470" y2="130" stroke="var(--border-color)" stroke-dasharray="4" />
+                  <!-- Trend Line -->
+                  <path :d="'M ' + store.getChartPoints('weight').map(p => p.x + ',' + p.y).join(' L ')" fill="none" stroke="var(--primary-color)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                  <!-- Dots & Labels -->
+                  <g v-for="p in store.getChartPoints('weight')">
+                    <circle :cx="p.x" :cy="p.y" r="5" fill="var(--bg-card)" stroke="var(--primary-color)" stroke-width="2" />
+                    <text :x="p.x" :y="p.y - 10" font-size="10" fill="var(--text-color)" text-anchor="middle" font-weight="bold">{{ p.val }}</text>
+                  </g>
+                </svg>
+              </div>
+
+              <!-- Blood Pressure Chart -->
+              <div class="trend-chart-box" style="text-align: center;">
+                <h4 style="margin: 0 0 8px 0; font-size: 13px; color: var(--text-muted); font-weight: 500;">Blood Pressure (mmHg)</h4>
+                <svg viewBox="0 0 500 150" style="width: 100%; height: 100px; overflow: visible;">
+                  <!-- Grid Lines -->
+                  <line x1="30" y1="20" x2="470" y2="20" stroke="var(--border-color)" stroke-dasharray="4" />
+                  <line x1="30" y1="75" x2="470" y2="75" stroke="var(--border-color)" stroke-dasharray="4" />
+                  <line x1="30" y1="130" x2="470" y2="130" stroke="var(--border-color)" stroke-dasharray="4" />
+                  <!-- Systolic Trend Line -->
+                  <path :d="'M ' + store.bpChartPoints.sys.map(p => p.x + ',' + p.y).join(' L ')" fill="none" stroke="#ff4d4d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                  <!-- Diastolic Trend Line -->
+                  <path :d="'M ' + store.bpChartPoints.dia.map(p => p.x + ',' + p.y).join(' L ')" fill="none" stroke="#4da6ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                  <!-- Systolic Dots -->
+                  <g v-for="p in store.bpChartPoints.sys">
+                    <circle :cx="p.x" :cy="p.y" r="4" fill="var(--bg-card)" stroke="#ff4d4d" stroke-width="2" />
+                    <text :x="p.x" :y="p.y - 8" font-size="9" fill="var(--text-color)" text-anchor="middle">{{ p.val }}</text>
+                  </g>
+                  <!-- Diastolic Dots -->
+                  <g v-for="p in store.bpChartPoints.dia">
+                    <circle :cx="p.x" :cy="p.y" r="4" fill="var(--bg-card)" stroke="#4da6ff" stroke-width="2" />
+                    <text :x="p.x" :y="p.y + 14" font-size="9" fill="var(--text-color)" text-anchor="middle">{{ p.val }}</text>
+                  </g>
+                </svg>
+              </div>
+            </div>
+
             <div class="table-container">
               <table>
                 <thead>
@@ -900,58 +955,117 @@
         </div>
       </section>
 
-      <!-- Tab Content: Scientific Audit -->
-      <section id="audit" class="tab-content" :class="{ active: store.activeTab === 'audit' }">
+      <!-- Tab Content: Weekly Meal Planner -->
+      <section id="planner" class="tab-content" :class="{ active: store.activeTab === 'planner' }">
         <div class="content-card">
-          <div class="audit-header">
-            <div>
-              <h2>Scientific Audit: Successor Modifications</h2>
-              <p class="subtitle">Direct contrast of original overclaims vs. successor cardiometabolic corrections, with levels of clinical evidence.</p>
-            </div>
-            <div class="audit-filters">
-              <input type="text" v-model="store.auditQuery" placeholder="Search topics (e.g. soy, gluten)..." class="search-input">
-              <select v-model="store.auditFilter">
-                <option value="all">All Evidence Strengths</option>
-                <option value="strong">Strong Evidence</option>
-                <option value="moderate">Moderate Evidence</option>
-                <option value="limited">Limited/Low Evidence</option>
-              </select>
+          <div class="shopping-header-actions">
+            <h2>Weekly Meal Planner</h2>
+            <div class="btn-group">
+              <button class="btn btn-sm btn-secondary" @click="store.clearPlanner">Clear Week</button>
+              <button class="btn btn-sm btn-primary" @click="store.aggregatePlannerToShoppingList">Aggregate to Shopping List</button>
             </div>
           </div>
+          <p class="subtitle">Plan your breakfast, lunch, and dinner to automatically compile shopping ingredients.</p>
           
-          <div class="table-container">
-            <table class="audit-table">
-              <thead>
-                <tr>
-                  <th>Topic</th>
-                  <th>Original Position</th>
-                  <th>Successor Corrected Position</th>
-                  <th>Evidence Strength</th>
-                  <th>Biochemical Rationale</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="row in store.filteredAuditRows">
-                  <td><strong>{{ row.topic }}</strong></td>
-                  <td>{{ row.original }}</td>
-                  <td>{{ row.successor }}</td>
-                  <td>
-                    <span class="badge" :class="{
-                      'badge-strong': row.evidence === 'strong',
-                      'badge-moderate': row.evidence === 'moderate',
-                      'badge-limited': row.evidence === 'limited'
-                    }">{{ row.evidence.toUpperCase() }}</span>
-                  </td>
-                  <td>{{ row.rationale }}</td>
-                </tr>
-                <tr v-if="store.filteredAuditRows.length === 0">
-                  <td colspan="5" class="text-center">No matching audit records found.</td>
-                </tr>
-              </tbody>
-            </table>
+          <div class="planner-grid">
+            <div class="planner-day-card" v-for="day in ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']" :key="day">
+              <h3 class="day-title">{{ day === 'mon' ? 'Monday' : day === 'tue' ? 'Tuesday' : day === 'wed' ? 'Wednesday' : day === 'thu' ? 'Thursday' : day === 'fri' ? 'Friday' : day === 'sat' ? 'Saturday' : 'Sunday' }}</h3>
+              
+              <div class="planner-meal-slot">
+                <span class="meal-label">Breakfast</span>
+                <div class="meal-content">
+                  <select :value="store.planner[day]?.breakfast || ''" @change="store.addRecipeToPlanner(day, 'breakfast', $event.target.value)">
+                    <option value="">- Select Recipe -</option>
+                    <option v-for="r in store.recipes" :value="r.id">{{ r.title }}</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="planner-meal-slot">
+                <span class="meal-label">Lunch</span>
+                <div class="meal-content">
+                  <select :value="store.planner[day]?.lunch || ''" @change="store.addRecipeToPlanner(day, 'lunch', $event.target.value)">
+                    <option value="">- Select Recipe -</option>
+                    <option v-for="r in store.recipes" :value="r.id">{{ r.title }}</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="planner-meal-slot">
+                <span class="meal-label">Dinner</span>
+                <div class="meal-content">
+                  <select :value="store.planner[day]?.dinner || ''" @change="store.addRecipeToPlanner(day, 'dinner', $event.target.value)">
+                    <option value="">- Select Recipe -</option>
+                    <option v-for="r in store.recipes" :value="r.id">{{ r.title }}</option>
+                  </select>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
+      
+      <!-- Create Custom Recipe Modal Overlay -->
+      <div class="export-modal-overlay" v-if="store.showCustomRecipeForm" @click.self="store.showCustomRecipeForm = false">
+        <div class="export-modal-card" style="max-width: 600px; max-height: 90vh; overflow-y: auto;">
+          <div class="export-modal-header">
+            <h3>Create Custom Recipe</h3>
+            <button class="close-btn" @click="store.showCustomRecipeForm = false">&times;</button>
+          </div>
+          
+          <form @submit.prevent="store.createCustomRecipe(
+            document.getElementById('custom-title').value,
+            document.getElementById('custom-intro').value,
+            document.getElementById('custom-ingredients').value,
+            document.getElementById('custom-instructions').value,
+            Number(document.getElementById('custom-calories').value),
+            Number(document.getElementById('custom-carbs').value),
+            Number(document.getElementById('custom-gi').value)
+          ); store.showCustomRecipeForm = false;">
+            <div class="export-modal-body" style="display: flex; flex-direction: column; gap: 12px; text-align: left;">
+              <div class="input-group">
+                <label for="custom-title">Recipe Title</label>
+                <input type="text" id="custom-title" placeholder="e.g. Adelaide Lentil Salad" required style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-card); color: var(--text-color);">
+              </div>
+              
+              <div class="input-group">
+                <label for="custom-intro">Short Introduction</label>
+                <input type="text" id="custom-intro" placeholder="e.g. A high-fiber, zesty lunch bowl." required style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-card); color: var(--text-color);">
+              </div>
+
+              <div class="input-group">
+                <label for="custom-ingredients">Ingredients (One per line with quantity first)</label>
+                <textarea id="custom-ingredients" rows="4" placeholder="e.g.&#10;150g cooked lentils&#10;50g baby spinach&#10;1 tbsp olive oil" required style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-card); color: var(--text-color); font-family: monospace;"></textarea>
+              </div>
+
+              <div class="input-group">
+                <label for="custom-instructions">Instructions (One step per line)</label>
+                <textarea id="custom-instructions" rows="4" placeholder="e.g.&#10;Rinse and drain the cooked lentils.&#10;Toss with spinach and drizzle with olive oil." required style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-card); color: var(--text-color); font-family: monospace;"></textarea>
+              </div>
+
+              <div class="grid-3-col-compact" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                <div class="input-group">
+                  <label for="custom-calories">Calories (kcal)</label>
+                  <input type="number" id="custom-calories" value="350" required style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-card); color: var(--text-color);">
+                </div>
+                <div class="input-group">
+                  <label for="custom-carbs">Carbs (g)</label>
+                  <input type="number" id="custom-carbs" value="45" required style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-card); color: var(--text-color);">
+                </div>
+                <div class="input-group">
+                  <label for="custom-gi">GI Rating</label>
+                  <input type="number" id="custom-gi" value="35" required style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-card); color: var(--text-color);">
+                </div>
+              </div>
+            </div>
+            
+            <div class="export-modal-footer">
+              <button type="submit" class="btn btn-primary">Create Recipe</button>
+              <button type="button" class="btn btn-secondary" @click="store.showCustomRecipeForm = false">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
 
       </main>
     </div>
