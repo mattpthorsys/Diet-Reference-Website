@@ -963,12 +963,40 @@
             </div>
           </div>
           <p class="subtitle">Plan meals and snacks across the week, then create a correctly totalled shopping list.</p>
-          
+
+          <div class="planner-toolbar">
+            <div class="planner-energy-control" aria-label="Planner energy unit">
+              <span>Energy</span>
+              <div class="btn-group">
+                <button class="btn btn-sm btn-secondary" :class="{ active: store.recipeEnergyUnit === 'kcal' }" @click="store.recipeEnergyUnit = 'kcal'">kcal</button>
+                <button class="btn btn-sm btn-secondary" :class="{ active: store.recipeEnergyUnit === 'kJ' }" @click="store.recipeEnergyUnit = 'kJ'">kJ</button>
+              </div>
+            </div>
+            <div class="planner-weekly-overview">
+              <div>
+                <span>Weekly energy</span>
+                <strong>{{ store.formatPlannerEnergy(store.plannerWeeklyStats.totalCalories) }}</strong>
+              </div>
+              <div>
+                <span>Daily average</span>
+                <strong>{{ store.formatPlannerEnergy(store.plannerWeeklyStats.avgDailyCalories) }}</strong>
+              </div>
+              <div>
+                <span>Weekly cost</span>
+                <strong>${{ store.plannerWeeklyStats.totalCost.toFixed(2) }}</strong>
+              </div>
+              <div>
+                <span>Average GI</span>
+                <strong>{{ store.plannerWeeklyStats.avgGI || 'N/A' }}</strong>
+              </div>
+            </div>
+          </div>
+
           <div class="planner-grid">
             <div class="planner-day-card" v-for="day in store.plannerDays" :key="day.id">
               <h3 class="day-title">{{ day.label }}</h3>
                
-              <div class="planner-meal-slot" v-for="slot in store.plannerMealSlots" :key="slot.id">
+              <div class="planner-meal-slot" v-for="slot in store.plannerMainMealSlots" :key="slot.id">
                 <span class="meal-label">{{ slot.label }}</span>
                 <div class="meal-content">
                   <select :value="store.planner[day.id]?.[slot.id] || ''" @change="store.addRecipeToPlanner(day.id, slot.id, $event.target.value)">
@@ -976,6 +1004,30 @@
                     <option v-for="r in store.recipes" :value="r.id">{{ r.title }}</option>
                   </select>
                 </div>
+              </div>
+
+              <details class="planner-snack-slots" :open="store.isPlannerSnackSectionOpen(day.id)" @toggle="store.setPlannerSnackSectionOpen(day.id, $event.target.open)">
+                <summary>
+                  <span>Snacks</span>
+                  <span>{{ store.getDaySnackCount(day.id) }}/3 planned</span>
+                </summary>
+                <div class="planner-snack-list">
+                  <div class="planner-meal-slot" v-for="slot in store.plannerSnackSlots" :key="slot.id">
+                    <span class="meal-label">{{ slot.label }}</span>
+                    <div class="meal-content">
+                      <select :value="store.planner[day.id]?.[slot.id] || ''" @change="store.addRecipeToPlanner(day.id, slot.id, $event.target.value)">
+                        <option value="">- Select Recipe -</option>
+                        <option v-for="r in store.recipes" :value="r.id">{{ r.title }}</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </details>
+
+              <div class="planner-day-total">
+                <span>Day total</span>
+                <strong>{{ store.formatPlannerEnergy(store.getDayPlanCalories(day.id)) }}</strong>
+                <span>${{ store.getDayPlanCost(day.id).toFixed(2) }}</span>
               </div>
             </div>
           </div>
@@ -992,13 +1044,13 @@
 
             <div class="results-grid" style="margin-top: 16px;">
               <div class="result-tile">
-                <span class="result-meal">Total Calories</span>
-                <span class="result-value">{{ store.plannerWeeklyStats.totalCalories }} kcal</span>
+                <span class="result-meal">Total Energy</span>
+                <span class="result-value">{{ store.formatPlannerEnergy(store.plannerWeeklyStats.totalCalories) }}</span>
                 <span class="result-desc">Planned for the week</span>
               </div>
               <div class="result-tile">
-                <span class="result-meal">Avg Daily Calories</span>
-                <span class="result-value">{{ store.plannerWeeklyStats.avgDailyCalories }} kcal</span>
+                <span class="result-meal">Avg Daily Energy</span>
+                <span class="result-value">{{ store.formatPlannerEnergy(store.plannerWeeklyStats.avgDailyCalories) }}</span>
                 <span class="result-desc">Per day baseline</span>
               </div>
               <div class="result-tile">
@@ -1029,7 +1081,7 @@
                       <th style="padding: 8px;">Mid-morning snack</th>
                       <th style="padding: 8px;">Afternoon snack</th>
                       <th style="padding: 8px;">Evening snack</th>
-                      <th style="padding: 8px;">Est. Calories</th>
+                      <th style="padding: 8px;">Est. Energy</th>
                       <th style="padding: 8px;">Est. Cost</th>
                     </tr>
                   </thead>
@@ -1043,7 +1095,7 @@
                       <td style="padding: 8px; color: var(--text-color);">{{ store.getRecipeById(store.planner[day]?.afternoonSnack)?.title || '-' }}</td>
                       <td style="padding: 8px; color: var(--text-color);">{{ store.getRecipeById(store.planner[day]?.eveningSnack)?.title || '-' }}</td>
                       <td style="padding: 8px; color: var(--text-color); font-weight: 500;">
-                        {{ store.getDayPlanCalories(day) }} kcal
+                        {{ store.formatPlannerEnergy(store.getDayPlanCalories(day)) }}
                       </td>
                       <td style="padding: 8px; color: var(--text-color); font-weight: 500;">
                         ${{ store.getDayPlanCost(day).toFixed(2) }}

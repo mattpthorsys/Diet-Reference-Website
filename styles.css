@@ -2413,6 +2413,56 @@ tbody tr:hover {
   margin-top: 24px;
 }
 
+.planner-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.planner-energy-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.planner-weekly-overview {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(100px, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  background: var(--border-color);
+}
+
+.planner-weekly-overview > div {
+  min-width: 0;
+  padding: 10px 12px;
+  background: var(--bg-card);
+}
+
+.planner-weekly-overview span,
+.planner-day-total span:first-child {
+  display: block;
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.planner-weekly-overview strong {
+  display: block;
+  margin-top: 3px;
+  color: var(--text-color);
+  font-size: 14px;
+  white-space: nowrap;
+}
+
 .planner-day-card {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
@@ -2439,6 +2489,72 @@ tbody tr:hover {
   gap: 4px;
 }
 
+.planner-snack-slots {
+  border-top: 1px solid var(--border-color);
+  padding-top: 10px;
+}
+
+.planner-snack-slots summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  color: var(--text-color);
+  font-size: 12px;
+  font-weight: 600;
+  list-style: none;
+}
+
+.planner-snack-slots summary::-webkit-details-marker {
+  display: none;
+}
+
+.planner-snack-slots summary::before {
+  content: '+';
+  margin-right: 7px;
+  color: var(--primary-color);
+  font-size: 16px;
+  line-height: 1;
+}
+
+.planner-snack-slots[open] summary::before {
+  content: '-';
+}
+
+.planner-snack-slots summary span:last-child {
+  margin-left: auto;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.planner-snack-list {
+  display: grid;
+  gap: 10px;
+  padding-top: 12px;
+}
+
+.planner-day-total {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px 10px;
+  align-items: baseline;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 2px solid var(--border-color);
+}
+
+.planner-day-total strong {
+  color: var(--primary-color);
+  font-size: 17px;
+}
+
+.planner-day-total span:last-child {
+  grid-column: 2;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
 .meal-label {
   font-size: 11px;
   text-transform: uppercase;
@@ -2462,6 +2578,17 @@ tbody tr:hover {
 
 .meal-content select:focus {
   border-color: var(--primary-color);
+}
+
+@media (max-width: 800px) {
+  .planner-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .planner-weekly-overview {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .planner-summary-entry {

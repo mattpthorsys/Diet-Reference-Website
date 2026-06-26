@@ -112,6 +112,14 @@ const plannerMealSlots = [
   { id: 'eveningSnack', label: 'Evening snack' }
 ] as const;
 
+const plannerMainMealSlots = plannerMealSlots.filter(({ id }) =>
+  id === 'breakfast' || id === 'lunch' || id === 'dinner'
+);
+
+const plannerSnackSlots = plannerMealSlots.filter(({ id }) =>
+  id === 'midMorningSnack' || id === 'afternoonSnack' || id === 'eveningSnack'
+);
+
 function createEmptyPlanner(): WeeklyPlanner {
   return Object.fromEntries(plannerDays.map(({ id }) => [
     id,
@@ -1004,7 +1012,10 @@ const store = {
   // Weekly Planner state mapping
   plannerDays,
   plannerMealSlots,
+  plannerMainMealSlots,
+  plannerSnackSlots,
   planner: createEmptyPlanner(),
+  expandedPlannerSnackDays: {} as Record<string, boolean>,
   
   // Timer state for Dinner Stew simmering
   timerInterval: null as any,
@@ -2157,6 +2168,28 @@ const store = {
     return this.getDayPlanEntries(day).reduce((total, entry) => total + this.getRecipeCostPerServing(entry.recipe), 0);
   },
 
+  getDaySnackCount(day: string): number {
+    return plannerSnackSlots.filter(({ id }) => Boolean(this.planner[day]?.[id])).length;
+  },
+
+  isPlannerSnackSectionOpen(day: string): boolean {
+    if (Object.prototype.hasOwnProperty.call(this.expandedPlannerSnackDays, day)) {
+      return this.expandedPlannerSnackDays[day];
+    }
+    return this.getDaySnackCount(day) > 0;
+  },
+
+  setPlannerSnackSectionOpen(day: string, isOpen: boolean) {
+    this.expandedPlannerSnackDays[day] = isOpen;
+  },
+
+  formatPlannerEnergy(calories: number): string {
+    if (this.recipeEnergyUnit === 'kJ') {
+      return `${Math.round(calories * 4.184)} kJ`;
+    }
+    return `${Math.round(calories)} kcal`;
+  },
+
   getPlannerExportText(): string {
     const lines = ['SUCCESSOR WEEKLY MEAL PLAN', '=========================='];
     plannerDays.forEach(({ id, label }) => {
@@ -2167,9 +2200,9 @@ const store = {
         return;
       }
       entries.forEach(({ slot, recipe }) => lines.push(`${slot}: ${recipe.title}`));
-      lines.push(`Daily total: ${this.getDayPlanCalories(id)} kcal | $${this.getDayPlanCost(id).toFixed(2)}`);
+      lines.push(`Daily total: ${this.formatPlannerEnergy(this.getDayPlanCalories(id))} | $${this.getDayPlanCost(id).toFixed(2)}`);
     });
-    lines.push(`\nWEEKLY TOTAL: ${this.plannerWeeklyStats.totalCalories} kcal | $${this.plannerWeeklyStats.totalCost.toFixed(2)}`);
+    lines.push(`\nWEEKLY TOTAL: ${this.formatPlannerEnergy(this.plannerWeeklyStats.totalCalories)} | $${this.plannerWeeklyStats.totalCost.toFixed(2)}`);
     return lines.join('\n');
   },
 

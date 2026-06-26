@@ -149,13 +149,15 @@ test.describe('Successor Recipe App E2E Tests', () => {
     await page.getByRole('button', { name: 'Weekly Planner' }).click();
     const monday = page.locator('.planner-day-card').first();
     await expect(monday.locator('.planner-meal-slot')).toHaveCount(6);
+    await expect(monday.locator('.planner-day-total')).toContainText('0 kcal');
+    await monday.locator('.planner-snack-slots summary').click();
     await expect(monday.getByText('Mid-morning snack', { exact: true })).toBeVisible();
     await expect(monday.getByText('Afternoon snack', { exact: true })).toBeVisible();
     await expect(monday.getByText('Evening snack', { exact: true })).toBeVisible();
 
-    const mondaySlots = monday.locator('.planner-meal-slot');
-    await mondaySlots.nth(0).locator('select').selectOption('parfait');
-    await mondaySlots.nth(1).locator('select').selectOption('parfait');
+    await monday.locator('.planner-meal-slot').first().locator('select').selectOption('parfait');
+    await monday.locator('.planner-snack-slots .planner-meal-slot').first().locator('select').selectOption('parfait');
+    await expect(monday.locator('.planner-day-total')).toContainText('1200 kcal');
 
     await page.getByRole('button', { name: 'Aggregate to Shopping List' }).click();
     await page.getByRole('button', { name: 'Plan Summary' }).click();
