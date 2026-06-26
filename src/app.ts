@@ -852,6 +852,20 @@ function formatFraction(val: number): string {
   return fracStr || val.toFixed(1).replace(/\.0$/, '');
 }
 
+function formatQuantityWithUnit(qty: number, unit?: string): string {
+  const formattedQty = qty.toFixed(1).replace(/\.0$/, '');
+  return unit ? `${formattedQty} ${unit}` : formattedQty;
+}
+
+function toSafeDocId(value: string): string {
+  const safe = value
+    .trim()
+    .replace(/[^a-z0-9]+/gi, '_')
+    .replace(/^_+|_+$/g, '')
+    .slice(0, 120);
+  return safe || 'item';
+}
+
 /**
  * Double-beep alert using the Web Audio API
  */
@@ -1143,6 +1157,11 @@ const store = {
     this.theme = this.theme === 'dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', this.theme);
     localStorage.setItem('successor_theme', this.theme);
+  },
+
+  setUnitSystem(unit: 'metric' | 'cups' | 'spoons') {
+    this.unitSystem = unit;
+    localStorage.setItem('successor_units', unit);
   },
 
   loadDatabaseSyncs() {
@@ -1507,30 +1526,33 @@ const store = {
      Interactive Plate Sliders
      ==================================== */
   adjustPlateProportions(changedSlider: 'veg' | 'prot' | 'starch', newValue: number) {
-    const currentVeg = this.plate.veg;
-    const currentProt = this.plate.prot;
-    const currentStarch = this.plate.starch;
+    const targetValue = Number(newValue);
+    if (!Number.isFinite(targetValue)) return;
+
+    const currentVeg = Number(this.plate.veg);
+    const currentProt = Number(this.plate.prot);
+    const currentStarch = Number(this.plate.starch);
     
     if (changedSlider === 'veg') {
-      const diff = newValue - currentVeg;
+      const diff = targetValue - currentVeg;
       const sumOther = currentProt + currentStarch;
-      this.plate.veg = newValue;
+      this.plate.veg = targetValue;
       if (sumOther > 0) {
         this.plate.prot = Math.max(10, currentProt - (diff * currentProt / sumOther));
         this.plate.starch = Math.max(10, 100 - this.plate.veg - this.plate.prot);
       }
     } else if (changedSlider === 'prot') {
-      const diff = newValue - currentProt;
+      const diff = targetValue - currentProt;
       const sumOther = currentVeg + currentStarch;
-      this.plate.prot = newValue;
+      this.plate.prot = targetValue;
       if (sumOther > 0) {
         this.plate.veg = Math.max(10, currentVeg - (diff * currentVeg / sumOther));
         this.plate.starch = Math.max(10, 100 - this.plate.veg - this.plate.prot);
       }
     } else if (changedSlider === 'starch') {
-      const diff = newValue - currentStarch;
+      const diff = targetValue - currentStarch;
       const sumOther = currentVeg + currentProt;
-      this.plate.starch = newValue;
+      this.plate.starch = targetValue;
       if (sumOther > 0) {
         this.plate.veg = Math.max(10, currentVeg - (diff * currentVeg / sumOther));
         this.plate.prot = Math.max(10, 100 - this.plate.veg - this.plate.starch);
@@ -1578,22 +1600,28 @@ const store = {
   /* ====================================
      Satiety & Portion Calculator
      ==================================== */
+  get calcPortionEnergy(): number {
+    const baselineCalories = Number(this.calcCalories) || 0;
+    const activityFactor = Number(this.calcActivity) || 1.375;
+    return baselineCalories * (activityFactor / 1.375);
+  },
+
   get calcBreakfastOats(): string {
-    const energyNeed = this.calcCalories;
+    const energyNeed = this.calcPortionEnergy;
     const oatsPortion = Math.round((energyNeed / 2000) * 70);
-    return `${oatsPortion}g oats`;
+    return `${oatsPortion} g oats`;
   },
   
   get calcLunchGreens(): string {
-    const energyNeed = this.calcCalories;
+    const energyNeed = this.calcPortionEnergy;
     const greensPortion = Math.round((energyNeed / 2000) * 150);
-    return `${greensPortion}g greens`;
+    return `${greensPortion} g greens`;
   },
   
   get calcDinnerLentils(): string {
-    const energyNeed = this.calcCalories;
+    const energyNeed = this.calcPortionEnergy;
     const lentilPortion = Math.round((energyNeed / 2000) * 45);
-    return `${lentilPortion}g lentils / serv`;
+    return `${lentilPortion} g lentils / serv`;
   },
 
   /* ====================================
@@ -1764,8 +1792,7 @@ const store = {
       };
       
       if (db && isFirebaseOnline && this.user) {
-        const cleanName = ing.name.replace(/[^a-zA-Z0-9]/g, '_').replace(/_+/g, '_');
-        const docId = `${recipeId}_${cleanName}`;
+        const docId = `${toSafeDocId(recipeId)}_${toSafeDocId(ing.name)}`;
         await setDoc(doc(db as any, 'users', this.user.uid, 'shoppingList', docId), newItem);
       } else {
         const existing = this.shoppingList.find(i => i.name === newItem.name);
@@ -1890,7 +1917,6 @@ const store = {
   isShareSupported(): boolean {
     return typeof navigator !== 'undefined' && !!navigator.share;
   },
-
   /* ====================================
      Health Logs Operations
      ==================================== */
@@ -1991,6 +2017,9 @@ const store = {
     const servingsCount = recipe.servings !== undefined ? recipe.servings : recipe.defaultServings;
     const totalKcal = kcal * servingsCount;
     const totalKJ = Math.round(totalKcal * 4.184);
+    if (this.recipeEnergyUnit === 'kJ') {
+      return `${kJ} kJ (${kcal} kcal) / serving | Total: ${totalKJ} kJ (${totalKcal} kcal)`;
+    }
     return `${kcal} kcal (${kJ} kJ) / serving | Total: ${totalKcal} kcal (${totalKJ} kJ)`;
   },
 
