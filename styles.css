@@ -2488,5 +2488,20 @@ tbody tr:hover {
   border-color: #dc2626;
 }
 
+/* Color-scheme rules for form inputs and dropdown popups matching dark/light themes */
+html[data-theme="dark"] {
+  color-scheme: dark;
+}
+html[data-theme="light"] {
+  color-scheme: light;
+}
+
+/* Style select options globally for fallback support */
+select option {
+  background-color: var(--bg-card) !important;
+  color: var(--text-color) !important;
+}
+
+
 
 
