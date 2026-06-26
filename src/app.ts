@@ -15,6 +15,7 @@ let collection: any = null;
 let onSnapshot: any = null;
 let setDoc: any = null;
 let updateDoc: any = null;
+let getDocs: any = null;
 let deleteDoc: any = null;
 let connectFirestoreEmulator: any = null;
 
@@ -919,8 +920,7 @@ const store = {
   budgetMode: false,
   parfaitPathway: 'oats' as 'oats' | 'lowcarb',
   unitSystem: 'metric' as 'metric' | 'cups' | 'spoons',
-  showExportModal: false,
-  exportFormat: 'keep' as 'keep' | 'markdown',
+  exportFormat: 'markdown' as 'markdown' | 'keep',
   
   // Dashboard Plate ratios (Veg, Protein, Starch)
   plate: {
@@ -1022,6 +1022,7 @@ const store = {
       onSnapshot = dbMod.onSnapshot;
       setDoc = dbMod.setDoc;
       updateDoc = dbMod.updateDoc;
+      getDocs = dbMod.getDocs;
       deleteDoc = dbMod.deleteDoc;
       connectFirestoreEmulator = dbMod.connectFirestoreEmulator;
 
@@ -1170,8 +1171,14 @@ const store = {
     
     // Add version dynamically to defaultRecipes
     defaultRecipes.forEach(r => {
-      (r as any).version = 7;
+      (r as any).version = 9;
     });
+
+    // V8 Upgrade: Clear broken shopping lists automatically
+    if (!localStorage.getItem('successor_v8_upgrade')) {
+      this.clearShoppingList();
+      localStorage.setItem('successor_v8_upgrade', 'true');
+    }
 
     // Sync Recipes & Shopping List & Health Logs
     if (db && isFirebaseOnline) {
@@ -1608,7 +1615,7 @@ const store = {
 
   get calcBreakfastOats(): string {
     const energyNeed = this.calcPortionEnergy;
-    const oatsPortion = Math.round((energyNeed / 2000) * 70);
+    const oatsPortion = Math.round((energyNeed / 2000) * 40);
     return `${oatsPortion} g oats`;
   },
   
@@ -1675,6 +1682,22 @@ const store = {
     } else {
       this.saveShoppingListOffline();
     }
+  },
+
+  async clearShoppingList() {
+    if (db && isFirebaseOnline && this.user) {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'users', this.user.uid, 'shoppingList'));
+        const promises: any[] = [];
+        querySnapshot.forEach((d: any) => {
+          promises.push(deleteDoc(d.ref));
+        });
+        await Promise.all(promises);
+      } catch (err) {
+        console.error("Failed to clear remote shopping list", err);
+      }
+    }
+    this.shoppingList = [];
   },
 
   async deleteShoppingItem(item: ShoppingItem) {
@@ -1846,10 +1869,6 @@ const store = {
     }
   },
 
-  exportShoppingListToClipboard() {
-    this.showExportModal = true;
-  },
-
   getExportText(): string {
     const zones = {
       supermarket: "SUPERMARKET (Staples & Cold)",
@@ -1886,31 +1905,32 @@ const store = {
     return lines.join('\n');
   },
 
-  copyExportTextToClipboard() {
+  copyShoppingListToClipboard() {
+    this.exportFormat = 'markdown';
     const text = this.getExportText();
     navigator.clipboard.writeText(text).then(() => {
-      alert(this.exportFormat === 'keep' 
-        ? "Clean shopping list copied! Paste into Google Keep, then select 'Show checkboxes' in Keep's menu."
-        : "Markdown shopping list copied to clipboard!");
-      this.showExportModal = false;
+      alert("Markdown shopping list copied to clipboard!");
     }).catch(err => {
       alert("Failed to copy list: " + err);
     });
   },
 
-  shareExportText() {
+  shareShoppingList() {
+    this.exportFormat = 'keep';
     const text = this.getExportText();
     if (navigator.share) {
       navigator.share({
         title: 'Successor Shopping List',
         text: text
-      }).then(() => {
-        this.showExportModal = false;
       }).catch(err => {
         console.warn("Share sheet closed or failed:", err);
       });
     } else {
-      alert("Native sharing is not supported by your current browser/device. Please use the Copy to Clipboard button instead.");
+      navigator.clipboard.writeText(text).then(() => {
+        alert("Clean shopping list copied! Paste into Google Keep, then select 'Show checkboxes' in Keep's menu.");
+      }).catch(err => {
+        alert("Native sharing is not supported by your current browser/device. Please use the Copy to Clipboard button instead.");
+      });
     }
   },
 

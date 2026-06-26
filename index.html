@@ -570,7 +570,7 @@
               <div class="btn-group">
                 <button class="btn btn-sm btn-secondary" @click="store.clearCheckedShoppingItems">Clear Checked</button>
                 <button class="btn btn-sm btn-secondary" @click="store.resetDefaultShoppingList">Reset Defaults</button>
-                <button class="btn btn-sm btn-secondary" @click="store.exportShoppingListToClipboard">Copy List</button>
+                <button class="btn btn-sm btn-secondary" @click="store.copyShoppingListToClipboard">Copy List</button>
                 <button class="btn btn-sm btn-primary" @click="store.shareShoppingList">Share List</button>
               </div>
             </div>
@@ -953,57 +953,8 @@
         </div>
       </section>
 
-    </main>
-
-    <!-- Export & Share Modal Overlay -->
-    <div class="export-modal-overlay" v-if="store.showExportModal" @click.self="store.showExportModal = false">
-      <div class="export-modal-card">
-        <div class="export-modal-header">
-          <h3>Export & Share Shopping List</h3>
-          <button class="close-btn" @click="store.showExportModal = false">&times;</button>
-        </div>
-        
-        <div class="export-modal-body">
-          <p class="export-help-text">Select formatting standard and export destination.</p>
-          
-          <div class="format-toggles">
-            <button class="btn btn-toggle" :class="{ active: store.exportFormat === 'keep' }" @click="store.exportFormat = 'keep'">
-              Google Keep Checklist
-            </button>
-            <button class="btn btn-toggle" :class="{ active: store.exportFormat === 'markdown' }" @click="store.exportFormat = 'markdown'">
-              Markdown Format
-            </button>
-          </div>
-          
-          <div class="export-preview-container">
-            <label for="export-preview">List Preview:</label>
-            <textarea id="export-preview" class="export-preview-textarea" readonly :value="store.getExportText()"></textarea>
-            
-            <div class="format-instructions" v-if="store.exportFormat === 'keep'">
-              <span class="info-icon">ℹ</span>
-              <span><strong>Google Keep Tip:</strong> Pastes as a clean list. In Google Keep, click the <strong>three dots</strong> (or <strong>+</strong> menu) and select <strong>"Show checkboxes"</strong> to convert these lines into checkable list items.</span>
-            </div>
-            <div class="format-instructions" v-else>
-              <span class="info-icon">ℹ</span>
-              <span><strong>Markdown Tip:</strong> Includes standard <code>- [ ]</code> checkboxes and category headers. Perfect for Notion, Obsidian, and general markdown editors.</span>
-            </div>
-          </div>
-        </div>
-        
-        <div class="export-modal-footer">
-          <button class="btn btn-primary" @click="store.copyExportTextToClipboard">
-            Copy to Clipboard
-          </button>
-          <button class="btn btn-secondary" @click="store.shareExportText" v-if="store.isShareSupported()">
-            Share to Mobile Sheet
-          </button>
-          <button class="btn btn-secondary disabled" disabled v-else title="Share sheet is only available on supported mobile/secure browsers.">
-            Share Sheet (Mobile Only)
-          </button>
-        </div>
-      </div>
+      </main>
     </div>
-  </div>
 
   <!-- Script compilation link -->
   <script type="module" src="dist/app.js"></script>
