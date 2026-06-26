@@ -915,7 +915,6 @@ const store = {
   
   // Navigation & Preferences
   activeTab: 'dashboard',
-  showCustomRecipeForm: false,
   theme: 'dark',
   servings: 4,
   budgetMode: false,

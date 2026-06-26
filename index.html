@@ -81,6 +81,13 @@
           </svg>
           Recipe Hub
         </button>
+        <button class="nav-item" :class="{ active: store.activeTab === 'add-recipe' }" @click="store.activeTab = 'add-recipe'">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="nav-icon">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Add Recipe
+        </button>
         <button class="nav-item" :class="{ active: store.activeTab === 'shopping' }" @click="store.activeTab = 'shopping'">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="nav-icon">
             <circle cx="9" cy="21" r="1"/>
@@ -348,9 +355,6 @@
               <input type="checkbox" v-model="store.budgetMode">
               <span class="switch-slider"></span>
             </label>
-          </div>
-          <div class="control-group">
-            <button class="btn btn-sm btn-primary" @click="store.showCustomRecipeForm = true" style="margin-top: 22px; height: 38px;">Create Recipe</button>
           </div>
         </div>
 
@@ -1117,67 +1121,67 @@
         </div>
       </section>
       
-      <!-- Create Custom Recipe Modal Overlay -->
-      <div class="export-modal-overlay" v-if="store.showCustomRecipeForm" @click.self="store.showCustomRecipeForm = false">
-        <div class="export-modal-card" style="max-width: 600px; max-height: 90vh; overflow-y: auto;">
-          <div class="export-modal-header">
-            <h3>Create Custom Recipe</h3>
-            <button class="close-btn" @click="store.showCustomRecipeForm = false">&times;</button>
-          </div>
+      <!-- Tab Content: Add Custom Recipe -->
+      <section id="add-recipe" class="tab-content" :class="{ active: store.activeTab === 'add-recipe' }">
+        <div class="content-card" style="max-width: 800px; margin: 0 auto;">
+          <h3>Create Custom Recipe</h3>
+          <p class="subtitle" style="margin-bottom: 24px;">Enter recipe details, ingredients, steps, and estimated nutrition to save to your local library and cloud database.</p>
           
           <form @submit.prevent="store.createCustomRecipe(
-            document.getElementById('custom-title').value,
-            document.getElementById('custom-intro').value,
-            document.getElementById('custom-ingredients').value,
-            document.getElementById('custom-instructions').value,
-            Number(document.getElementById('custom-calories').value),
-            Number(document.getElementById('custom-carbs').value),
-            Number(document.getElementById('custom-gi').value)
-          ); store.showCustomRecipeForm = false;">
-            <div class="export-modal-body" style="display: flex; flex-direction: column; gap: 12px; text-align: left;">
+            document.getElementById('panel-title').value,
+            document.getElementById('panel-intro').value,
+            document.getElementById('panel-ingredients').value,
+            document.getElementById('panel-instructions').value,
+            Number(document.getElementById('panel-calories').value),
+            Number(document.getElementById('panel-carbs').value),
+            Number(document.getElementById('panel-gi').value)
+          ); store.activeTab = 'recipes'; $event.target.reset();">
+            <div style="display: flex; flex-direction: column; gap: 16px; text-align: left;">
               <div class="input-group">
-                <label for="custom-title">Recipe Title</label>
-                <input type="text" id="custom-title" placeholder="e.g. Adelaide Lentil Salad" required style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-card); color: var(--text-color);">
+                <label for="panel-title" style="font-weight: 600; margin-bottom: 6px; display: block; font-size: 13px; color: var(--text-muted);">Recipe Title</label>
+                <input type="text" id="panel-title" placeholder="e.g. Adelaide Lentil Salad" required style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-body); color: var(--text-color); font-size: 13px;">
               </div>
               
               <div class="input-group">
-                <label for="custom-intro">Short Introduction</label>
-                <input type="text" id="custom-intro" placeholder="e.g. A high-fiber, zesty lunch bowl." required style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-card); color: var(--text-color);">
+                <label for="panel-intro" style="font-weight: 600; margin-bottom: 6px; display: block; font-size: 13px; color: var(--text-muted);">Short Introduction</label>
+                <input type="text" id="panel-intro" placeholder="e.g. A high-fiber, zesty lunch bowl." required style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-body); color: var(--text-color); font-size: 13px;">
               </div>
 
-              <div class="input-group">
-                <label for="custom-ingredients">Ingredients (One per line with quantity first)</label>
-                <textarea id="custom-ingredients" rows="4" placeholder="e.g.&#10;150g cooked lentils&#10;50g baby spinach&#10;1 tbsp olive oil" required style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-card); color: var(--text-color); font-family: monospace;"></textarea>
-              </div>
-
-              <div class="input-group">
-                <label for="custom-instructions">Instructions (One step per line)</label>
-                <textarea id="custom-instructions" rows="4" placeholder="e.g.&#10;Rinse and drain the cooked lentils.&#10;Toss with spinach and drizzle with olive oil." required style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-card); color: var(--text-color); font-family: monospace;"></textarea>
-              </div>
-
-              <div class="grid-3-col-compact" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+              <div class="grid-2-col" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
                 <div class="input-group">
-                  <label for="custom-calories">Calories (kcal)</label>
-                  <input type="number" id="custom-calories" value="350" required style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-card); color: var(--text-color);">
+                  <label for="panel-ingredients" style="font-weight: 600; margin-bottom: 6px; display: block; font-size: 13px; color: var(--text-muted);">Ingredients (One per line with quantity first, e.g. 150g lentils)</label>
+                  <textarea id="panel-ingredients" rows="6" placeholder="e.g.&#10;150g cooked lentils&#10;50g baby spinach&#10;1 tbsp olive oil" required style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-body); color: var(--text-color); font-family: monospace; line-height: 1.5; font-size: 13px;"></textarea>
+                </div>
+
+                <div class="input-group">
+                  <label for="panel-instructions" style="font-weight: 600; margin-bottom: 6px; display: block; font-size: 13px; color: var(--text-muted);">Instructions (One step per line)</label>
+                  <textarea id="panel-instructions" rows="6" placeholder="e.g.&#10;Rinse and drain the cooked lentils.&#10;Toss with spinach and drizzle with olive oil." required style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-body); color: var(--text-color); font-family: monospace; line-height: 1.5; font-size: 13px;"></textarea>
+                </div>
+              </div>
+
+              <div class="grid-3-col-compact" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+                <div class="input-group">
+                  <label for="panel-calories" style="font-weight: 600; margin-bottom: 6px; display: block; font-size: 13px; color: var(--text-muted);">Calories (kcal)</label>
+                  <input type="number" id="panel-calories" value="350" required style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-body); color: var(--text-color); font-size: 13px;">
                 </div>
                 <div class="input-group">
-                  <label for="custom-carbs">Carbs (g)</label>
-                  <input type="number" id="custom-carbs" value="45" required style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-card); color: var(--text-color);">
+                  <label for="panel-carbs" style="font-weight: 600; margin-bottom: 6px; display: block; font-size: 13px; color: var(--text-muted);">Carbs (g)</label>
+                  <input type="number" id="panel-carbs" value="45" required style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-body); color: var(--text-color); font-size: 13px;">
                 </div>
                 <div class="input-group">
-                  <label for="custom-gi">GI Rating</label>
-                  <input type="number" id="custom-gi" value="35" required style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-card); color: var(--text-color);">
+                  <label for="panel-gi" style="font-weight: 600; margin-bottom: 6px; display: block; font-size: 13px; color: var(--text-muted);">GI Rating</label>
+                  <input type="number" id="panel-gi" value="35" required style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-body); color: var(--text-color); font-size: 13px;">
                 </div>
               </div>
             </div>
             
-            <div class="export-modal-footer">
-              <button type="submit" class="btn btn-primary">Create Recipe</button>
-              <button type="button" class="btn btn-secondary" @click="store.showCustomRecipeForm = false">Cancel</button>
+            <div style="display: flex; gap: 12px; margin-top: 24px; justify-content: flex-end;">
+              <button type="submit" class="btn btn-primary">Save Recipe</button>
+              <button type="button" class="btn btn-secondary" @click="store.activeTab = 'recipes'">Cancel</button>
             </div>
           </form>
         </div>
-      </div>
+      </section>
 
       </main>
     </div>

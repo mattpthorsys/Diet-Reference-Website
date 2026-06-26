@@ -102,4 +102,42 @@ test.describe('Successor Recipe App E2E Tests', () => {
     const firstBulkItem = page.locator('.shop-section:has-text("Bulk Shop") ul.shop-checklist li span').first();
     await expect(firstBulkItem).toContainText('pumpkin seeds');
   });
+
+  test('should verify adding a custom recipe via the Add Recipe panel', async ({ page }) => {
+    const offlineBtn = page.getByRole('button', { name: 'Run in Offline Fallback Mode' });
+    await expect(offlineBtn).toBeVisible({ timeout: 10000 });
+    await offlineBtn.click();
+
+    // Navigate to Add Recipe tab
+    await page.getByRole('button', { name: 'Add Recipe' }).click();
+
+    // Add Recipe section should be active
+    const addRecipeSection = page.locator('#add-recipe');
+    await expect(addRecipeSection).toHaveClass(/active/);
+
+    // Fill out the custom recipe form
+    await page.locator('#panel-title').fill('Adelaide Lentil Power Salad');
+    await page.locator('#panel-intro').fill('A high-fiber and protein packed salad');
+    await page.locator('#panel-ingredients').fill('150g cooked lentils\n50g baby spinach\n1 tbsp olive oil');
+    await page.locator('#panel-instructions').fill('Rinse the lentils\nToss with spinach\nDrizzle with olive oil');
+    await page.locator('#panel-calories').fill('380');
+    await page.locator('#panel-carbs').fill('40');
+    await page.locator('#panel-gi').fill('30');
+
+    // Submit the form
+    await page.getByRole('button', { name: 'Save Recipe' }).click();
+
+    // Verification: Active tab should redirect to Recipe Hub
+    const recipeTab = page.locator('#recipes');
+    await expect(recipeTab).toHaveClass(/active/);
+
+    // Filter or search for our custom recipe
+    await page.locator('#recipe-search').fill('Adelaide Lentil Power Salad');
+
+    // The newly created recipe card should be visible
+    const recipeCards = page.locator('.recipe-card');
+    await expect(recipeCards).toHaveCount(1);
+    const cardTitle = recipeCards.locator('h3').first();
+    await expect(cardTitle).toHaveText('Adelaide Lentil Power Salad');
+  });
 });
