@@ -886,6 +886,74 @@ function formatQuantityWithUnit(qty: number, unit?: string): string {
   return unit ? `${formattedQty} ${unit}` : formattedQty;
 }
 
+const roughWholeQuantityRules = [
+  { match: /\btinned|canned|tin|diced tomatoes|chopped tomatoes/i, unitLabel: 'tin', gramsPerWhole: 400 },
+  { match: /\bsweet potato|potato\b/i, unitLabel: 'potato', gramsPerWhole: 180 },
+  { match: /\bonion\b/i, unitLabel: 'onion', gramsPerWhole: 150 },
+  { match: /\btomato\b/i, unitLabel: 'tomato', gramsPerWhole: 120 },
+  { match: /\bcarrot\b/i, unitLabel: 'carrot', gramsPerWhole: 70 },
+  { match: /\bcucumber\b/i, unitLabel: 'cucumber', gramsPerWhole: 300 },
+  { match: /\blemon\b/i, unitLabel: 'lemon', gramsPerWhole: 100 },
+  { match: /\blime\b/i, unitLabel: 'lime', gramsPerWhole: 70 },
+  { match: /\bkiwifruit|kiwi\b/i, unitLabel: 'kiwifruit', gramsPerWhole: 90 },
+  { match: /\bbanana\b/i, unitLabel: 'banana', gramsPerWhole: 120 },
+  { match: /\bcapsicum|bell pepper\b/i, unitLabel: 'capsicum', gramsPerWhole: 160 },
+  { match: /\bcauliflower\b/i, unitLabel: 'cauliflower head', gramsPerWhole: 600 },
+  { match: /\bbroccoli|broccolini\b/i, unitLabel: 'broccoli head', gramsPerWhole: 350 },
+  { match: /\bgarlic\b/i, unitLabel: 'garlic clove', gramsPerWhole: 5 },
+  { match: /\begg\b/i, unitLabel: 'egg', gramsPerWhole: 50 }
+];
+
+function pluralizeWholeLabel(label: string, qty: number): string {
+  if (Math.abs(qty - 1) < 0.01 || label.endsWith('s')) return label;
+  const parts = label.split(' ');
+  const last = parts[parts.length - 1];
+  const irregulars: Record<string, string> = {
+    potato: 'potatoes',
+    tomato: 'tomatoes'
+  };
+  const pluralLast = irregulars[last] || (last.endsWith('y') ? `${last.slice(0, -1)}ies` : `${last}s`);
+  return [...parts.slice(0, -1), pluralLast].join(' ');
+}
+
+function formatHalfStepQuantity(value: number): string {
+  const rounded = Math.max(0.5, Math.round(value * 2) / 2);
+  const integer = Math.floor(rounded);
+  const hasHalf = Math.abs(rounded - integer - 0.5) < 0.01;
+  if (hasHalf) return integer > 0 ? `${integer} 1/2` : '1/2';
+  return rounded.toString();
+}
+
+function parseQuantityText(qtyText: string): { qty: number; unit: string } | null {
+  const normalised = qtyText.trim().toLowerCase();
+  const match = normalised.match(/^(\d+(?:\.\d+)?)(?:\s+)?([a-z]+)/);
+  if (!match) return null;
+  return { qty: Number(match[1]), unit: match[2] };
+}
+
+function getRoughWholeQuantity(name: string, qtyText: string): string {
+  const parsed = parseQuantityText(qtyText);
+  if (!parsed || !Number.isFinite(parsed.qty) || parsed.qty <= 0) return '';
+
+  const rule = roughWholeQuantityRules.find(({ match }) => match.test(name));
+  if (!rule) return '';
+
+  const unit = parsed.unit;
+  if (unit.startsWith('tin') || unit.startsWith('can')) {
+    const count = Math.max(1, Math.round(parsed.qty));
+    return `roughly ${count} ${pluralizeWholeLabel('tin', count)}`;
+  }
+  if (unit === 'whole' || unit === 'large' || unit === 'head' || unit === 'egg' || unit === 'eggs' || unit === 'clove' || unit === 'cloves') {
+    const count = Math.max(0.5, parsed.qty);
+    return `roughly ${formatHalfStepQuantity(count)} ${pluralizeWholeLabel(rule.unitLabel, count)}`;
+  }
+  if (unit === 'g' || unit === 'gram' || unit === 'grams') {
+    const count = Math.max(0.5, parsed.qty / rule.gramsPerWhole);
+    return `roughly ${formatHalfStepQuantity(count)} ${pluralizeWholeLabel(rule.unitLabel, count)}`;
+  }
+  return '';
+}
+
 function toSafeDocId(value: string): string {
   const safe = value
     .trim()
@@ -980,6 +1048,7 @@ const store = {
   shoppingZone: 'all',   // 'all' | 'supermarket' | 'greengrocer' | 'bulk' | 'asian'
   shoppingShowLikedOnly: false,
   shoppingShowPinnedOnly: false,
+  shoppingShowRoughQuantities: false,
   
   // Main Data lists
   recipes: [] as Recipe[],
@@ -1190,6 +1259,8 @@ const store = {
     
     const savedUnit = localStorage.getItem('successor_units') || 'metric';
     this.unitSystem = savedUnit as any;
+
+    this.shoppingShowRoughQuantities = localStorage.getItem('successor_shopping_rough_quantities') === 'true';
   },
 
   toggleTheme() {
@@ -1201,6 +1272,11 @@ const store = {
   setUnitSystem(unit: 'metric' | 'cups' | 'spoons') {
     this.unitSystem = unit;
     localStorage.setItem('successor_units', unit);
+  },
+
+  toggleShoppingRoughQuantities() {
+    this.shoppingShowRoughQuantities = !this.shoppingShowRoughQuantities;
+    localStorage.setItem('successor_shopping_rough_quantities', String(this.shoppingShowRoughQuantities));
   },
 
   loadDatabaseSyncs() {
@@ -1781,6 +1857,11 @@ const store = {
     }
     
     nameInput.value = '';
+  },
+
+  getShoppingRoughQuantity(item: ShoppingItem): string {
+    if (!this.shoppingShowRoughQuantities) return '';
+    return getRoughWholeQuantity(item.name, item.qty);
   },
 
   async toggleLikeRecipe(recipe: Recipe) {
