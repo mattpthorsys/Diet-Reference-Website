@@ -1163,11 +1163,20 @@ input:checked + .switch-slider:before {
   border-bottom: 1px dashed var(--border-color);
   display: flex;
   justify-content: space-between;
+  gap: 12px;
   color: var(--text-secondary);
 }
 
 .ingredient-list li strong {
+  display: grid;
+  gap: 2px;
+  justify-items: end;
+  text-align: right;
   color: var(--text-primary);
+}
+
+.ingredient-rough-quantity {
+  font-weight: 500;
 }
 
 /* Highlight items swapped in budget mode */

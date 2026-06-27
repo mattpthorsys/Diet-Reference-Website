@@ -348,6 +348,11 @@
               <option value="spoons">AU Tablespoons (20 ml)</option>
             </select>
           </div>
+
+          <div class="control-group">
+            <label>Quantity View:</label>
+            <button class="btn btn-sm btn-secondary" :class="{ active: store.shoppingShowRoughQuantities }" @click="store.toggleShoppingRoughQuantities()" title="Show rough whole-item estimates">Rough Amounts</button>
+          </div>
           
           <div class="btn-group-toggle">
             <span class="toggle-label">Budget Adelaide Substitutions:</span>
@@ -506,7 +511,10 @@
                 <ul class="ingredient-list">
                   <li v-for="ing in store.convertedIngredients(recipe)" :class="{ 'budget-swapped': ing.isSwapped }">
                     <span>{{ ing.name }}</span>
-                    <strong>{{ ing.displayQty }}</strong>
+                    <strong>
+                      <span>{{ ing.displayQty }}</span>
+                      <span class="rough-quantity ingredient-rough-quantity" v-if="store.shoppingShowRoughQuantities && ing.roughQty">{{ ing.roughQty }}</span>
+                    </strong>
                   </li>
                 </ul>
               </div>

@@ -905,7 +905,7 @@ const roughWholeQuantityRules = [
 ];
 
 function pluralizeWholeLabel(label: string, qty: number): string {
-  if (Math.abs(qty - 1) < 0.01 || label.endsWith('s')) return label;
+  if (qty <= 1 || label.endsWith('s')) return label;
   const parts = label.split(' ');
   const last = parts[parts.length - 1];
   const irregulars: Record<string, string> = {
@@ -1474,7 +1474,7 @@ const store = {
    * Main recipe conversion mapping. Computes quantity dynamically based on
    * scale factor, and formats weight/volume density values (grams, cups, spoons).
    */
-  formatIngredient(ing: Ingredient, factor: number): { displayQty: string; name: string; isSwapped: boolean } {
+  formatIngredient(ing: Ingredient, factor: number): { displayQty: string; name: string; isSwapped: boolean; roughQty: string } {
     const qty = ing.qty * factor;
     const nameStr = this.budgetMode ? ing.alt : ing.name;
     const isSwapped = this.budgetMode && ing.alt !== ing.name;
@@ -1651,7 +1651,8 @@ const store = {
     return {
       displayQty,
       name: nameStr,
-      isSwapped
+      isSwapped,
+      roughQty: getRoughWholeQuantity(nameStr, displayQty)
     };
   },
 
