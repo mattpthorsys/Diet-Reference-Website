@@ -4,7 +4,7 @@ An interactive, premium, science-backed cardiometabolic health reference site. I
 
 ## 🚀 Getting Started
 
-The project is built entirely on native web standards (HTML5, CSS3, Vanilla JS) and has no compile or build steps.
+The front end is built on native web standards (HTML5, CSS3, vanilla TypeScript) and compiled with the TypeScript compiler (`tsc`) into `dist/app.js`. [petite-vue](https://github.com/vuejs/petite-vue) provides the lightweight reactivity layer, and [Firebase](https://firebase.google.com) handles authentication and per-user data sync.
 
 ### Run Locally
 
@@ -38,7 +38,7 @@ Then open **[http://localhost:8000](http://localhost:8000)** in your browser.
    - Expanded detail cards showing evidence confidence mapping (High, Moderate, and Limited/Low).
 
 2. **Recipe Hub**:
-   - Three adapted recipes: **Adapted Dinner Stew**, **Adapted Lunch Bowl**, and **Adapted Breakfast Parfait**.
+   - A growing library of adapted recipes (e.g. **Adapted Dinner Stew**, **Adapted Lunch Bowl**, **Adapted Breakfast Parfait**, plus soups, curries, protein bars and treats).
    - Global serving size scaler slider (re-computes ingredient counts dynamically).
    - Breakfast pathway switcher (toggles Parfait between Satiety Oats default and Lower-Carb seeds/nuts configuration).
    - Cooking checklists with active-step indicators and interactive Simmer Timer (plays a double-beep audio alert at `00:00`).
@@ -54,26 +54,31 @@ Then open **[http://localhost:8000](http://localhost:8000)** in your browser.
    - Clickable 12-week roadmap phases detailing setup, early adoption, consolidation, and optimization.
    - Health metrics log form (weight, waist, BP, adherence, and satiety) which saves to `localStorage` and populates a history log table.
 
-5. **Scientific Audit**:
-   - Filterable comparison matrix detailing the original report's anti-aging claims vs. successor clinical corrections.
-   - Live search bar and evidence-level dropdown filter.
-
 ---
 
 ## 📁 Project Structure
 
 ```
-Diet Reference Website/
-├── index.html       # Main semantic HTML structure
-├── styles.css       # CSS Design System (light/dark modes, layouts, animations)
-├── app.js           # Interactive state manager and calculations
-├── .gitignore       # Git ignore rules for system & IDE logs
-├── README.md        # Project documentation
-└── images/          # Generated recipe and hero images
-    ├── hero.png
-    ├── stew.png
-    ├── bowl.png
-    └── parfait.png
+.
+├── index.html        # Main semantic HTML structure (petite-vue templates)
+├── styles.css        # CSS design system (light/dark modes, layouts, animations)
+├── sw.js             # Service worker for offline caching / PWA install
+├── manifest.json     # PWA manifest
+├── src/
+│   ├── app.ts        # App source: state, Firebase sync, calculations (compiled to dist/app.js)
+│   └── global.d.ts   # TypeScript module declarations
+├── lib/
+│   └── petite-vue.js # Vendored petite-vue build
+├── dist/             # TypeScript compiler output (gitignored, built by npm run build)
+│   └── app.js
+├── images/           # Generated recipe and hero images
+├── tests/
+│   └── diagnostics.spec.ts   # Playwright E2E tests
+├── firebase.json     # Firebase config (Hosting, Firestore, Auth, Emulators)
+├── firestore.rules   # Firestore security rules (email-restricted access)
+├── package.json      # npm scripts and dependencies
+├── tsconfig.json     # TypeScript compiler config
+└── README.md         # Project documentation
 ```
 
 ---
@@ -82,4 +87,6 @@ Diet Reference Website/
 * **Theme Styling**: Uses CSS Custom Properties (`--bg-primary`, etc.) toggled via `data-theme="dark|light"` attribute on the `<html>` node.
 * **Audio Alerts**: Uses the browser's native **Web Audio API** to synthesize beep alerts, avoiding external sound file downloads.
 * **State Persistence**: Checklist checks, custom items, theme selections, and logged metrics are retained in browser `localStorage`.
+* **Cloud Sync**: When signed in, recipes, the shopping list, health logs, and the weekly planner synchronise to Cloud Firestore under `users/{uid}/...`; access is restricted by `firestore.rules` to authorised accounts. On localhost the app auto-connects to the Firebase Emulators when they are running, otherwise it falls back to offline `localStorage` mode.
 * **Mobile-First Layout**: Automatically wraps the navigation sidebar into a bottom navigation bar for touchscreens, utilizing custom media queries.
+* **Build & Tests**: `npm run build` compiles TypeScript with `tsc` to `dist/app.js`; `npm test` runs the Playwright E2E suite in `tests/`. Pull requests and merges to `master` build and deploy to Firebase Hosting via the GitHub Actions workflows in `.github/workflows/`.

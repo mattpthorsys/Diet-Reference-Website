@@ -55,14 +55,6 @@ interface ShoppingItem {
   recipeId?: string;
 }
 
-interface AuditRow {
-  topic: string;
-  original: string;
-  successor: string;
-  evidence: 'strong' | 'moderate' | 'limited';
-  rationale: string;
-}
-
 /* ==========================================================================
    Fallback Mock Data & Constants
    ========================================================================== */
@@ -859,20 +851,6 @@ const defaultShoppingList: ShoppingItem[] = [
   { name: 'Fresh mushrooms', qty: '400g', zone: 'greengrocer', checked: false },
   { name: 'Firm tofu', qty: '300g', zone: 'asian', checked: false },
   { name: 'Lower-sodium tamari or soy sauce', qty: '1 bottle', zone: 'asian', checked: false }
-];
-
-const defaultAuditRows: AuditRow[] = [
-  { topic: 'Overall Frame', original: 'Longevity through Blueprint & SENS ingredient rules', successor: 'General weight-management & cardiometabolic pattern', evidence: 'strong', rationale: 'Fibre, sodium reduction, and unsaturated fats are heavily supported by WHO/NHS guidelines; single-molecule longevity claims lack direct human proof.' },
-  { topic: 'Potatoes', original: 'Implicitly problematic for glycation', successor: 'Acceptable in portion-controlled meals; prefer fibre-rich patterns', evidence: 'moderate', rationale: 'Potatoes are a whole carbohydrate. They are not toxic; rather, portions should be managed within the 25% starch plate guideline.' },
-  { topic: 'Whole grains', original: 'Grain-free breakfast (contradicted by oats in recipe)', successor: 'Oats and whole grains remain acceptable for most adults', evidence: 'strong', rationale: 'Whole oats contain beta-glucans which improve glucose regulation and lipid profiles. Grain-free mandates are unsupported for general health.' },
-  { topic: 'Soy / Tofu', original: 'Accepted in one recipe but anti-soy framing elsewhere', successor: 'Soy and tofu are acceptable as healthy protein options', evidence: 'strong', rationale: 'Legumes and soy are clinical priorities for plant protein. High intakes correlate with lower blood pressure and cardiovascular benefits.' },
-  { topic: 'Gluten-free', original: 'Presented as healthier by default', successor: 'Only indicated for coeliac disease or confirmed sensitivity', evidence: 'strong', rationale: 'NHS guidelines indicate gluten avoidance is a medical necessity for coeliac disease, not a general public health longevity rule.' },
-  { topic: 'Dairy / Yoghurt', original: 'Treated suspiciously at points', successor: 'Plain yoghurt or unsweetened soy yoghurt is healthy and acceptable', evidence: 'strong', rationale: 'Standard low-fat/unsweetened yoghurts provide calcium and protein, helping satiety without introducing harmful free sugars.' },
-  { topic: 'Oils', original: 'Strong preference for premium oils, "raw only"', successor: 'Measured use of unsaturated oils; avoid deep-frying', evidence: 'strong', rationale: 'Replacing saturated fats with olive/canola oil is supported. However, they are energy-dense and must be measured to prevent calorie creep.' },
-  { topic: 'Sweeteners', original: 'Included trehalose; "natural" sweetener framing', successor: 'Minimise sweeteners; WHO advises against non-sugar sweeteners for weight loss', evidence: 'strong', rationale: 'WHO guidelines advise minimizing both free sugars and non-sugar sweeteners to control weight and avoid non-communicable diseases.' },
-  { topic: 'Salt / Soy Sauce', original: 'Lower-sodium choices mentioned but not centered', successor: 'Sodium reduction upgraded as a primary recommendation', evidence: 'strong', rationale: 'Reducing sodium to under 5g salt/day is one of the highest-confidence, clinically-proven blood pressure control targets.' },
-  { topic: 'AGE Reduction', original: 'Central anti-ageing strategy', successor: 'Secondary culinary consideration; not a clinical aging lever', evidence: 'limited', rationale: 'While lower-temperature, moist cooking is good practice, direct clinical proof that reducing dietary AGEs slows human biological aging remains unproven.' },
-  { topic: 'Ultra-processed foods', original: 'Implicitly criticised', successor: 'Explicitly minimize reliance on them', evidence: 'moderate', rationale: '2024 umbrella reviews and a 2025 controlled trial show that high UPF intake causes rapid adverse cardiometabolic effects even in calorie-matched conditions.' }
 ];
 
 /* ==========================================================================
