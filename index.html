@@ -573,6 +573,7 @@
                 <button class="btn btn-sm btn-secondary" @click="store.clearCheckedShoppingItems">Clear Checked</button>
                 <button class="btn btn-sm btn-danger" @click="store.confirmClearShoppingList">Clear All</button>
                 <button class="btn btn-sm btn-secondary" @click="store.resetDefaultShoppingList">Reset Defaults</button>
+                <button class="btn btn-sm btn-secondary" :class="{ active: store.shoppingShowRoughQuantities }" @click="store.toggleShoppingRoughQuantities()" title="Show rough whole-item estimates">Rough Amounts</button>
                 <button class="btn btn-sm btn-secondary" @click="store.copyShoppingListToClipboard">Copy List</button>
                 <button class="btn btn-sm btn-primary" @click="store.shareShoppingList">Share List</button>
               </div>
@@ -619,13 +620,6 @@
                       <span>Pinned</span>
                     </button>
                   </div>
-                </div>
-
-                <div class="control-group rough-quantity-group">
-                  <label>Shopping View:</label>
-                  <button class="btn btn-sm btn-secondary" :class="{ active: store.shoppingShowRoughQuantities }" @click="store.toggleShoppingRoughQuantities()" title="Show rough whole-item estimates">
-                    Rough amounts
-                  </button>
                 </div>
               </div>
             </div>
