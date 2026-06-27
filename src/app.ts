@@ -2042,7 +2042,10 @@ const store = {
   },
 
   setRecipeActiveView(recipeId: string, view: 'ingredients' | 'instructions' | 'notes') {
-    this.recipeActiveViews[recipeId] = view;
+    this.recipeActiveViews = {
+      ...this.recipeActiveViews,
+      [recipeId]: view
+    };
   },
 
   /* ====================================

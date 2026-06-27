@@ -30,6 +30,42 @@ test.describe('Successor Recipe App E2E Tests', () => {
     await expect(headerTitle).toHaveText('Successor Recipe App');
   });
 
+  test('should verify recipe tab switching', async ({ page }) => {
+    const offlineBtn = page.getByRole('button', { name: 'Run in Offline Fallback Mode' });
+    await expect(offlineBtn).toBeVisible({ timeout: 10000 });
+    await offlineBtn.click();
+
+    // Navigate to Recipe Hub tab
+    await page.getByRole('button', { name: 'Recipe Hub' }).click();
+
+    // Find the first recipe card (e.g. Dinner Stew)
+    const stewCard = page.locator('#recipe-stew');
+    
+    // Switch to Instructions tab
+    const instructionsTabBtn = stewCard.locator('button:has-text("Instructions")');
+    await instructionsTabBtn.click();
+    
+    // Verify Instructions content is visible, and Ingredients content is not
+    await expect(stewCard.locator('.instruction-list')).toBeVisible();
+    await expect(stewCard.locator('.ingredient-list')).not.toBeVisible();
+    
+    // Switch to Science Notes tab
+    const notesTabBtn = stewCard.locator('button:has-text("Science Notes")');
+    await notesTabBtn.click();
+    
+    // Verify Science Notes content is visible, and Instructions content is not
+    await expect(stewCard.locator('.science-notes-list')).toBeVisible();
+    await expect(stewCard.locator('.instruction-list')).not.toBeVisible();
+    
+    // Switch back to Ingredients tab
+    const ingredientsTabBtn = stewCard.locator('button:has-text("Ingredients")');
+    await ingredientsTabBtn.click();
+    
+    // Verify Ingredients content is visible, and Science Notes is not
+    await expect(stewCard.locator('.ingredient-list')).toBeVisible();
+    await expect(stewCard.locator('.science-notes-list')).not.toBeVisible();
+  });
+
   test('should verify recipe category filtering', async ({ page }) => {
     const offlineBtn = page.getByRole('button', { name: 'Run in Offline Fallback Mode' });
     await expect(offlineBtn).toBeVisible({ timeout: 10000 });

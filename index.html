@@ -502,7 +502,7 @@
               </div>
 
               <!-- Reactive scaled and unit converted ingredients -->
-              <div class="recipe-tab-content" v-if="store.getRecipeActiveView(recipe.id) === 'ingredients'">
+              <div class="recipe-tab-content" :class="{ active: store.getRecipeActiveView(recipe.id) === 'ingredients' }" v-if="store.getRecipeActiveView(recipe.id) === 'ingredients'">
                 <ul class="ingredient-list">
                   <li v-for="ing in store.convertedIngredients(recipe)" :class="{ 'budget-swapped': ing.isSwapped }">
                     <span>{{ ing.name }}</span>
@@ -512,7 +512,7 @@
               </div>
 
               <!-- Recipe Instructions list -->
-              <div class="recipe-tab-content" v-if="store.getRecipeActiveView(recipe.id) === 'instructions'">
+              <div class="recipe-tab-content" :class="{ active: store.getRecipeActiveView(recipe.id) === 'instructions' }" v-if="store.getRecipeActiveView(recipe.id) === 'instructions'">
                 <ol class="instruction-list" style="padding-left: 20px; color: var(--text-color); font-size: 13px; line-height: 1.6;">
                   <li v-for="(step, idx) in recipe.instructions" :key="idx" style="margin-bottom: 8px;">
                     {{ step }}
@@ -522,7 +522,7 @@
               </div>
 
               <!-- Science Notes list -->
-              <div class="recipe-tab-content" v-if="store.getRecipeActiveView(recipe.id) === 'notes'">
+              <div class="recipe-tab-content" :class="{ active: store.getRecipeActiveView(recipe.id) === 'notes' }" v-if="store.getRecipeActiveView(recipe.id) === 'notes'">
                 <ul class="science-notes-list" style="padding-left: 20px; color: var(--text-muted); font-size: 13px; line-height: 1.6; list-style-type: square;">
                   <li v-for="(note, idx) in recipe.scienceNotes" :key="idx" style="margin-bottom: 8px;">
                     {{ note }}
