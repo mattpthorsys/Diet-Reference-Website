@@ -971,6 +971,8 @@ const store = {
   recipeEnergyUnit: 'kcal',
   recipeShowLikedOnly: false,
   recipeShowPinnedOnly: false,
+  plannerRecipeSearch: '',
+  plannerRecipeCategory: 'all',
   
   // Shopping list Search and filter inputs
   shoppingSearch: '',
@@ -2078,6 +2080,33 @@ const store = {
     await this.savePlanner(createEmptyPlanner());
   },
 
+  async clearPlannerDay(day: string) {
+    const updated = normalizePlanner(this.planner);
+    if (!updated[day]) return;
+    plannerMealSlots.forEach(({ id }) => {
+      updated[day][id] = '';
+    });
+    await this.savePlanner(updated);
+  },
+
+  async copyPlannerDay(sourceDay: string, targetDay: string) {
+    const updated = normalizePlanner(this.planner);
+    if (!updated[sourceDay] || !updated[targetDay]) return;
+    updated[targetDay] = { ...updated[sourceDay] };
+    await this.savePlanner(updated);
+  },
+
+  async copyPlannerDayToRestOfWeek(sourceDay: string) {
+    const updated = normalizePlanner(this.planner);
+    if (!updated[sourceDay]) return;
+    plannerDays.forEach(({ id }) => {
+      if (id !== sourceDay) {
+        updated[id] = { ...updated[sourceDay] };
+      }
+    });
+    await this.savePlanner(updated);
+  },
+
   async aggregatePlannerToShoppingList() {
     const totals = new Map<string, { ingredient: Ingredient; qty: number }>();
 
@@ -2153,6 +2182,12 @@ const store = {
     return plannerSnackSlots.filter(({ id }) => Boolean(this.planner[day]?.[id])).length;
   },
 
+  getPreviousPlannerDay(day: string): string {
+    const currentIndex = plannerDays.findIndex(({ id }) => id === day);
+    if (currentIndex <= 0) return '';
+    return plannerDays[currentIndex - 1].id;
+  },
+
   isPlannerSnackSectionOpen(day: string): boolean {
     if (Object.prototype.hasOwnProperty.call(this.expandedPlannerSnackDays, day)) {
       return this.expandedPlannerSnackDays[day];
@@ -2171,6 +2206,18 @@ const store = {
     return `${Math.round(calories)} kcal`;
   },
 
+  getPlannerRecipeMeta(recipe: Recipe): string {
+    const parts = [
+      this.formatPlannerEnergy(this.getRecipeCalories(recipe)),
+      `$${this.getRecipeCostPerServing(recipe).toFixed(2)}`
+    ];
+    const gi = this.getRecipeGI(recipe);
+    if (gi > 0) {
+      parts.push(`GI ${gi}`);
+    }
+    return parts.join(' | ');
+  },
+
   getPlannerExportText(): string {
     const lines = ['SUCCESSOR WEEKLY MEAL PLAN', '=========================='];
     plannerDays.forEach(({ id, label }) => {
@@ -2180,10 +2227,14 @@ const store = {
         lines.push('No meals planned');
         return;
       }
-      entries.forEach(({ slot, recipe }) => lines.push(`${slot}: ${recipe.title}`));
+      entries.forEach(({ slot, recipe }) => {
+        lines.push(`${slot}: ${recipe.title} (${this.getPlannerRecipeMeta(recipe)})`);
+      });
       lines.push(`Daily total: ${this.formatPlannerEnergy(this.getDayPlanCalories(id))} | $${this.getDayPlanCost(id).toFixed(2)}`);
     });
     lines.push(`\nWEEKLY TOTAL: ${this.formatPlannerEnergy(this.plannerWeeklyStats.totalCalories)} | $${this.plannerWeeklyStats.totalCost.toFixed(2)}`);
+    lines.push(`DAILY AVERAGE: ${this.formatPlannerEnergy(this.plannerWeeklyStats.avgDailyCalories)} | $${this.plannerWeeklyStats.avgDailyCost.toFixed(2)}`);
+    lines.push(`AVERAGE GI: ${this.plannerWeeklyStats.avgGI || 'N/A'}`);
     return lines.join('\n');
   },
 
@@ -2506,6 +2557,49 @@ const store = {
       const bPinned = b.pinned ? 1 : 0;
       return bPinned - aPinned;
     });
+  },
+
+  get filteredPlannerRecipes(): Recipe[] {
+    const q = this.plannerRecipeSearch.toLowerCase().trim();
+    const cat = this.plannerRecipeCategory;
+
+    return this.recipes
+      .filter(recipe => {
+        if (cat !== 'all' && recipe.category !== cat) return false;
+        if (!q) return true;
+
+        const haystack = [
+          recipe.title,
+          recipe.intro,
+          recipe.typeBadge,
+          recipe.category,
+          ...(recipe.scienceNotes || [])
+        ].join(' ').toLowerCase();
+
+        if (haystack.includes(q)) return true;
+
+        const ingredients = recipe.id === 'parfait'
+          ? (recipe.ingredients[this.parfaitPathway] || []) as Ingredient[]
+          : (recipe.ingredients || []) as Ingredient[];
+        return ingredients.some(ingredient =>
+          ingredient.name.toLowerCase().includes(q) ||
+          ingredient.alt.toLowerCase().includes(q)
+        );
+      })
+      .sort((a, b) => {
+        if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
+        if (a.liked !== b.liked) return a.liked ? -1 : 1;
+        return a.title.localeCompare(b.title);
+      });
+  },
+
+  getPlannerRecipeOptions(selectedRecipeId: string): Recipe[] {
+    if (!selectedRecipeId) return this.filteredPlannerRecipes;
+    const selectedRecipe = this.getRecipeById(selectedRecipeId);
+    if (!selectedRecipe || this.filteredPlannerRecipes.some(recipe => recipe.id === selectedRecipeId)) {
+      return this.filteredPlannerRecipes;
+    }
+    return [selectedRecipe, ...this.filteredPlannerRecipes];
   },
 
   get filteredShoppingItems(): ShoppingItem[] {

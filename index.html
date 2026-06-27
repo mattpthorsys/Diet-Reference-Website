@@ -972,6 +972,17 @@
                 <button class="btn btn-sm btn-secondary" :class="{ active: store.recipeEnergyUnit === 'kJ' }" @click="store.recipeEnergyUnit = 'kJ'">kJ</button>
               </div>
             </div>
+            <div class="planner-recipe-filter">
+              <input type="text" placeholder="Find recipe for planner..." v-model="store.plannerRecipeSearch" aria-label="Find recipe for planner">
+              <select v-model="store.plannerRecipeCategory" aria-label="Planner recipe category">
+                <option value="all">All categories</option>
+                <option value="healthy">Healthy</option>
+                <option value="longevity">Longevity</option>
+                <option value="protein-dense">Protein-dense</option>
+                <option value="regular">Regular</option>
+                <option value="treat">Treat</option>
+              </select>
+            </div>
             <div class="planner-weekly-overview">
               <div>
                 <span>Weekly energy</span>
@@ -994,14 +1005,21 @@
 
           <div class="planner-grid">
             <div class="planner-day-card" v-for="day in store.plannerDays" :key="day.id">
-              <h3 class="day-title">{{ day.label }}</h3>
+              <div class="planner-day-heading">
+                <h3 class="day-title">{{ day.label }}</h3>
+                <div class="planner-day-actions">
+                  <button class="btn btn-xs btn-secondary" v-if="store.getPreviousPlannerDay(day.id)" @click="store.copyPlannerDay(store.getPreviousPlannerDay(day.id), day.id)">Use previous</button>
+                  <button class="btn btn-xs btn-secondary" @click="store.copyPlannerDayToRestOfWeek(day.id)">Copy week</button>
+                  <button class="btn btn-xs btn-secondary" @click="store.clearPlannerDay(day.id)">Clear</button>
+                </div>
+              </div>
                
               <div class="planner-meal-slot" v-for="slot in store.plannerMainMealSlots" :key="slot.id">
                 <span class="meal-label">{{ slot.label }}</span>
                 <div class="meal-content">
                   <select :value="store.planner[day.id]?.[slot.id] || ''" @change="store.addRecipeToPlanner(day.id, slot.id, $event.target.value)">
                     <option value="">- Select Recipe -</option>
-                    <option v-for="r in store.recipes" :value="r.id">{{ r.title }}</option>
+                    <option v-for="r in store.getPlannerRecipeOptions(store.planner[day.id]?.[slot.id] || '')" :value="r.id">{{ r.title }} - {{ store.getPlannerRecipeMeta(r) }}</option>
                   </select>
                 </div>
               </div>
@@ -1017,7 +1035,7 @@
                     <div class="meal-content">
                       <select :value="store.planner[day.id]?.[slot.id] || ''" @change="store.addRecipeToPlanner(day.id, slot.id, $event.target.value)">
                         <option value="">- Select Recipe -</option>
-                        <option v-for="r in store.recipes" :value="r.id">{{ r.title }}</option>
+                        <option v-for="r in store.getPlannerRecipeOptions(store.planner[day.id]?.[slot.id] || '')" :value="r.id">{{ r.title }} - {{ store.getPlannerRecipeMeta(r) }}</option>
                       </select>
                     </div>
                   </div>
