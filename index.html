@@ -1015,12 +1015,19 @@
               </div>
                
               <div class="planner-meal-slot" v-for="slot in store.plannerMainMealSlots" :key="slot.id">
-                <span class="meal-label">{{ slot.label }}</span>
-                <div class="meal-content">
-                  <select :value="store.planner[day.id]?.[slot.id] || ''" @change="store.addRecipeToPlanner(day.id, slot.id, $event.target.value)">
-                    <option value="">- Select Recipe -</option>
-                    <option v-for="r in store.getPlannerRecipeOptions(store.planner[day.id]?.[slot.id] || '')" :value="r.id">{{ r.title }} - {{ store.getPlannerRecipeMeta(r) }}</option>
-                  </select>
+                <div class="meal-slot-frame" :class="'meal-slot-' + slot.id">
+                  <div class="meal-slot-copy">
+                    <span class="meal-label">{{ slot.label }}</span>
+                    <strong>{{ store.getRecipeById(store.planner[day.id]?.[slot.id])?.title || 'Add ' + slot.label.toLowerCase() }}</strong>
+                    <span>{{ store.getRecipeById(store.planner[day.id]?.[slot.id]) ? store.getPlannerRecipeMeta(store.getRecipeById(store.planner[day.id]?.[slot.id])) : 'No recipe planned' }}</span>
+                  </div>
+                  <div class="meal-select-control">
+                    <span>{{ store.planner[day.id]?.[slot.id] ? 'Change' : 'Choose' }}</span>
+                    <select :value="store.planner[day.id]?.[slot.id] || ''" :aria-label="'Choose ' + slot.label + ' for ' + day.label" @change="store.addRecipeToPlanner(day.id, slot.id, $event.target.value)">
+                      <option value="">- Select Recipe -</option>
+                      <option v-for="r in store.getPlannerRecipeOptions(store.planner[day.id]?.[slot.id] || '')" :value="r.id">{{ r.title }} - {{ store.getPlannerRecipeMeta(r) }}</option>
+                    </select>
+                  </div>
                 </div>
               </div>
 
@@ -1031,12 +1038,19 @@
                 </summary>
                 <div class="planner-snack-list">
                   <div class="planner-meal-slot" v-for="slot in store.plannerSnackSlots" :key="slot.id">
-                    <span class="meal-label">{{ slot.label }}</span>
-                    <div class="meal-content">
-                      <select :value="store.planner[day.id]?.[slot.id] || ''" @change="store.addRecipeToPlanner(day.id, slot.id, $event.target.value)">
-                        <option value="">- Select Recipe -</option>
-                        <option v-for="r in store.getPlannerRecipeOptions(store.planner[day.id]?.[slot.id] || '')" :value="r.id">{{ r.title }} - {{ store.getPlannerRecipeMeta(r) }}</option>
-                      </select>
+                    <div class="meal-slot-frame" :class="'meal-slot-' + slot.id">
+                      <div class="meal-slot-copy">
+                        <span class="meal-label">{{ slot.label }}</span>
+                        <strong>{{ store.getRecipeById(store.planner[day.id]?.[slot.id])?.title || 'Add ' + slot.label.toLowerCase() }}</strong>
+                        <span>{{ store.getRecipeById(store.planner[day.id]?.[slot.id]) ? store.getPlannerRecipeMeta(store.getRecipeById(store.planner[day.id]?.[slot.id])) : 'No recipe planned' }}</span>
+                      </div>
+                      <div class="meal-select-control">
+                        <span>{{ store.planner[day.id]?.[slot.id] ? 'Change' : 'Choose' }}</span>
+                        <select :value="store.planner[day.id]?.[slot.id] || ''" :aria-label="'Choose ' + slot.label + ' for ' + day.label" @change="store.addRecipeToPlanner(day.id, slot.id, $event.target.value)">
+                          <option value="">- Select Recipe -</option>
+                          <option v-for="r in store.getPlannerRecipeOptions(store.planner[day.id]?.[slot.id] || '')" :value="r.id">{{ r.title }} - {{ store.getPlannerRecipeMeta(r) }}</option>
+                        </select>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1046,6 +1060,7 @@
                 <span>Day total</span>
                 <strong>{{ store.formatPlannerEnergy(store.getDayPlanCalories(day.id)) }}</strong>
                 <span>${{ store.getDayPlanCost(day.id).toFixed(2) }}</span>
+                <span>{{ store.getDayPlanEntries(day.id).length }}/6 planned</span>
               </div>
             </div>
           </div>
